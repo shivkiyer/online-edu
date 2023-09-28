@@ -12,15 +12,6 @@ class UserSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
-    # def validate_username(self, value):
-    #     '''Check that username is a valid email'''
-    #     try:
-    #         validate_email(value)
-    #     except:
-    #         raise serializers.ValidationError('Username must be a valid email')
-    #     else:
-    #         return value
-
     def create(self, validated_data):
         '''Create new user in db'''
         new_user = User(
@@ -36,8 +27,3 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'password', 'is_active']
         read_only_fields = ['is_active', ]
-        # extra_args = {
-        #     'password': {
-        #         'write_only': True
-        #     }
-        # }
