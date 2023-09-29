@@ -1,4 +1,6 @@
 import pytest
+from rest_framework.test import APIClient
+
 from .models import User
 
 pytestmark = pytest.mark.django_db
@@ -19,6 +21,81 @@ def test_username_only_email():
         user2 = User(username='someuser')
         user2.set_password('someotherpassword')
         user2.save()
+
+    users_in_db = User.objects.all().count()
+    assert users_in_db == 1
+
+
+def test_register_new_user():
+    '''Test API to register new user'''
+    client = APIClient()
+
+    # Should result in a user created in db
+    api_response = client.post(
+        '/user/register-user',
+        {
+            'username': 'someuser@domain.com',
+            'password': 'somepass'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 201
+    assert api_response.data['username'] == 'someuser@domain.com'
+    assert hasattr(api_response.data, 'password') == False
+    assert api_response.data['is_active'] == False
+
+    users_in_db = User.objects.all().count()
+    assert users_in_db == 1
+
+    # Should fail model validation
+    api_response = client.post(
+        '/user/register-user',
+        {
+            'username': 'someuser',
+            'password': 'somepass'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+
+    # Should fail because of missing password field
+    api_response = client.post(
+        '/user/register-user',
+        {
+            'username': 'someuser1@domain.com',
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+
+    # Should fail because of missing username field
+    api_response = client.post(
+        '/user/register-user',
+        {
+            'password': 'somepass',
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+
+    # Should fail become of missing username and password
+    api_response = client.post(
+        '/user/register-user',
+        format='json'
+    )
+    assert api_response.status_code == 400
+
+    # Should fail because user has been created above
+    api_response = client.post(
+        '/user/register-user',
+        {
+            'username': 'someuser@domain.com',
+            'password': 'somepass'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+    print(api_response.data)
 
     users_in_db = User.objects.all().count()
     assert users_in_db == 1

@@ -11,7 +11,7 @@ class RegisterUserView(CreateAPIView):
 
     def post(self, *args, **kwargs):
         '''Create new user from API request'''
-        user = UserSerializer(data=self.request.POST)
+        user = UserSerializer(data=self.request.data)
         if user.is_valid():
             try:
                 user.save()
@@ -21,7 +21,12 @@ class RegisterUserView(CreateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
-            error_list = [user.errors[e][0].title() for e in user.errors]
+            error_list = [
+                '{error_field}-{error_text}'.format(
+                    error_field=e,
+                    error_text=user.errors[e][0].title()
+                ) for e in user.errors
+            ]
             return Response(
                 data=error_list[0],
                 status=status.HTTP_400_BAD_REQUEST
