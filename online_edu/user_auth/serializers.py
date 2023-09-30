@@ -9,7 +9,11 @@ class UserSerializer(serializers.ModelSerializer):
     '''Serializer for User model'''
     password = serializers.CharField(
         style={'input_type': 'password'},
-        write_only=True
+        write_only=True,
+        error_messages={
+            'blank': 'The password field is required',
+            'required': 'The password field is required'
+        }
     )
 
     def create(self, validated_data):
@@ -27,3 +31,34 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'password', 'is_active']
         read_only_fields = ['is_active', ]
+        extra_kwargs = {
+            'username': {
+                'error_messages':
+                {
+                    'blank': 'The username field is required',
+                    'required': 'The username field is required'
+                }
+            }
+        }
+
+
+class RegisterUserSerializer(UserSerializer):
+    '''Serializer for registering a new user'''
+    confirm_password = serializers.CharField(
+        style={'input_type': 'password'},
+        write_only=True,
+        error_messages={
+            'blank': 'The confirm password field is required',
+            'required': 'The confirm password field is required'
+        }
+    )
+
+    def validate(self, data):
+        '''Validate that password and confirm_password are the same'''
+        if not data['password'] == data['confirm_password']:
+            raise serializers.ValidationError('Passwords are not matching.')
+        return data
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = ['username', 'password', 'confirm_password', 'is_active']

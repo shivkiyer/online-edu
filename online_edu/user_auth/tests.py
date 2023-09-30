@@ -35,7 +35,8 @@ def test_register_new_user():
         '/user/register-user',
         {
             'username': 'someuser@domain.com',
-            'password': 'somepass'
+            'password': 'somepass',
+            'confirm_password': 'somepass'
         },
         format='json'
     )
@@ -62,7 +63,7 @@ def test_register_new_user():
     api_response = client.post(
         '/user/register-user',
         {
-            'username': 'someuser1@domain.com',
+            'username': 'someuser@domain.com',
         },
         format='json'
     )
@@ -85,17 +86,28 @@ def test_register_new_user():
     )
     assert api_response.status_code == 400
 
-    # Should fail because user has been created above
+    # Should fail because of missing confirm_password field
     api_response = client.post(
         '/user/register-user',
         {
             'username': 'someuser@domain.com',
-            'password': 'somepass'
+            'password': 'somepass',
         },
         format='json'
     )
     assert api_response.status_code == 400
-    print(api_response.data)
+
+    # Should fail because the passwords do not match
+    api_response = client.post(
+        '/user/register-user',
+        {
+            'username': 'someuser1@domain.com',
+            'password': 'somepass',
+            'confirm_password': 'somepass1'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
 
     users_in_db = User.objects.all().count()
     assert users_in_db == 1
