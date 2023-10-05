@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .serializers import RegisterUserSerializer
+from .utils import send_verification_link_email
 
 
 class RegisterUserView(CreateAPIView):
@@ -26,4 +27,5 @@ class RegisterUserView(CreateAPIView):
                 data=error_list[0],
                 status=status.HTTP_400_BAD_REQUEST
             )
+        send_verification_link_email(username=user.data['username'])
         return Response(user.data, status=status.HTTP_201_CREATED)
