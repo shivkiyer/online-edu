@@ -2,6 +2,7 @@ import pytest
 from rest_framework.test import APIClient
 
 from .models import User
+from . import utils
 
 pytestmark = pytest.mark.django_db
 
@@ -26,9 +27,16 @@ def test_username_only_email():
     assert users_in_db == 1
 
 
-def test_register_new_user():
+def test_register_new_user(monkeypatch):
     '''Test API to register new user'''
     client = APIClient()
+
+    monkeypatch.setattr(
+        utils,
+        'send_verification_link_email',
+        lambda username: print(
+            'Sending email to {username}'.format(username=username))
+    )
 
     # Should result in a user created in db
     api_response = client.post(
