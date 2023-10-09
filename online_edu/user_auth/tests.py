@@ -34,8 +34,8 @@ def test_register_new_user(monkeypatch):
     monkeypatch.setattr(
         utils,
         'send_verification_link_email',
-        lambda username: print(
-            'Sending email to {username}'.format(username=username))
+        lambda user: print(
+            'Sending email to {username}'.format(user=user.username))
     )
 
     # Should result in a user created in db

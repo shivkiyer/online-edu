@@ -26,6 +26,8 @@ SECRET_KEY = KEYS.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Base URL
+BASE_URL = KEYS.BASE_URL
 ALLOWED_HOSTS = []
 
 
@@ -40,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Django Rest Framework
     'rest_framework',
+    # DRF Simple JWT
+    'rest_framework_simplejwt',
     # custom apps'
     'user_auth',
 ]
@@ -106,7 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -127,6 +130,10 @@ EMAIL_HOST_PASSWORD = KEYS.EMAIL_PASSWORD
 EMAIL_PORT = KEYS.EMAIL_PORT
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = KEYS.EMAIL_FROM_USERNAME
+
+# Account verification settings
+# time limit in minutes
+EMAIL_VERIFICATION_TIMELIMIT = KEYS.EMAIL_VERIFICATION_TIMELIMIT
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
