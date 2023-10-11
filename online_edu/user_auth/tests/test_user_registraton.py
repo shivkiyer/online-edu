@@ -2,21 +2,14 @@ import pytest
 from rest_framework.test import APIClient
 
 from user_auth.models import User
-from user_auth import utils
+from .fixtures import mock_send_email
 
 pytestmark = pytest.mark.django_db
 
 
-def test_register_new_user(monkeypatch):
+def test_register_new_user(mock_send_email):
     '''Test API to register new user'''
     client = APIClient()
-
-    monkeypatch.setattr(
-        utils,
-        'send_verification_link_email',
-        lambda user: print(
-            'Sending email to {username}'.format(username=user.username))
-    )
 
     # Should result in a user created in db
     api_response = client.post(

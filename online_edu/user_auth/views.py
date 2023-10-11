@@ -6,7 +6,7 @@ from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from .serializers import RegisterUserSerializer
+from .serializers import UserSerializer, RegisterUserSerializer
 from .utils import send_verification_link_email
 
 
@@ -69,3 +69,23 @@ class VerifyUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         return Response(status=status.HTTP_200_OK)
+
+
+class ResendVerificationEmailView(APIView):
+    '''Resending verification email to user'''
+
+    def get(self, *args, **kwargs):
+        user_id = self.kwargs['user_id']
+        try:
+            user_obj = User.objects.get(id=user_id)
+        except Exception as e:
+            return Response(
+                data=str(e),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        send_verification_link_email(user_obj)
+        user_data = UserSerializer(user_obj)
+        return Response(
+            data=user_data.data,
+            status=status.HTTP_200_OK
+        )

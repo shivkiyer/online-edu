@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from user_auth.models import User
+from .fixtures import mock_send_email
 
 pytestmark = pytest.mark.django_db
 
@@ -83,6 +84,25 @@ def test_user_verification_endpoint(verification_token, test_user):
         '/user/verify-user/{token}'.format(
             token=test_token4
         ),
+        format='json'
+    )
+    assert api_response.status_code == 400
+
+
+def test_resend_verification_endpoint(mock_send_email, test_user):
+    '''Testing endpoint for resending verification email'''
+    client = APIClient()
+
+    api_response = client.get(
+        '/user/resend-verification/{user_id}'.format(user_id=test_user.id),
+        format='json'
+    )
+    assert api_response.status_code == 200
+
+    old_user_id = test_user.id
+    test_user.delete()
+    api_response = client.get(
+        '/user/resend-verification/{user_id}'.format(user_id=old_user_id),
         format='json'
     )
     assert api_response.status_code == 400

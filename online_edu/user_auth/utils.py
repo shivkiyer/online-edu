@@ -8,7 +8,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 def send_verification_link_email(user):
     '''Send an email to newly registered used with verification link'''
-
     if not user:
         raise ValidationError('No user to send email to')
 
@@ -24,7 +23,7 @@ def send_verification_link_email(user):
         "You are not yet ready to use your account. Before you can login to the website, please verify your email by clicking on this link:\n"
         "{base_url}{token_url} \n"
         "\n"
-        "Please click on this link within 15 minutes of receiving this email.\n"
+        "Please click on this link within {time_limit} minutes of receiving this email.\n"
         "\n"
         "Thank you,\n"
         "Online Edu"
@@ -33,7 +32,8 @@ def send_verification_link_email(user):
         token_url=reverse(
             'user_auth:verify-user',
             args=[verification_token]
-        )
+        ),
+        time_limit=settings.EMAIL_VERIFICATION_TIMELIMIT
     )
 
     send_mail(
