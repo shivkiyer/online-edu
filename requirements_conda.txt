@@ -8,6 +8,7 @@ ca-certificates=2023.7.22=h56e8100_0
 colorama=0.4.6=pyhd8ed1ab_0
 django=4.2.5=pyhd8ed1ab_0
 djangorestframework=3.14.0=pyhd8ed1ab_0
+djangorestframework-simplejwt=5.3.0=pypi_0
 exceptiongroup=1.1.3=pyhd8ed1ab_0
 iniconfig=2.0.0=pyhd8ed1ab_0
 libexpat=2.5.0=h63175ca_1
@@ -15,9 +16,10 @@ libffi=3.4.2=h8ffe710_5
 libsqlite=3.43.0=hcfcfb64_0
 libzlib=1.2.13=hcfcfb64_5
 openssl=3.1.3=hcfcfb64_0
-packaging=23.1=pyhd8ed1ab_0
+packaging=23.2=pyhd8ed1ab_0
 pip=23.2.1=pyhd8ed1ab_0
 pluggy=1.3.0=pyhd8ed1ab_0
+pyjwt=2.8.0=pyhd8ed1ab_0
 pytest=7.4.2=pyhd8ed1ab_0
 pytest-django=4.5.2=pyhd8ed1ab_0
 python=3.11.5=h2628c8c_0_cpython
