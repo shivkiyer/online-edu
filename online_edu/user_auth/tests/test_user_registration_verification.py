@@ -43,7 +43,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     test_token1 = verification_token(60)
 
     api_response = client.get(
-        '/user/verify-user/{token}'.format(
+        '/api/user/verify-user/{token}'.format(
             token=test_token1
         ),
         format='json'
@@ -57,7 +57,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     time.sleep(2)
 
     api_response = client.get(
-        '/user/verify-user/{token}'.format(
+        '/api/user/verify-user/{token}'.format(
             token=test_token2
         ),
         format='json'
@@ -69,7 +69,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     test_token3 = test_token3[:-1]
 
     api_response = client.get(
-        '/user/verify-user/{token}'.format(
+        '/api/user/verify-user/{token}'.format(
             token=test_token3
         ),
         format='json'
@@ -81,7 +81,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     test_user.delete()
 
     api_response = client.get(
-        '/user/verify-user/{token}'.format(
+        '/api/user/verify-user/{token}'.format(
             token=test_token4
         ),
         format='json'
@@ -94,7 +94,7 @@ def test_resend_verification_endpoint(mock_send_email, test_user):
     client = APIClient()
 
     api_response = client.get(
-        '/user/resend-verification/{user_id}'.format(user_id=test_user.id),
+        '/api/user/resend-verification/{user_id}'.format(user_id=test_user.id),
         format='json'
     )
     assert api_response.status_code == 200
@@ -102,7 +102,7 @@ def test_resend_verification_endpoint(mock_send_email, test_user):
     old_user_id = test_user.id
     test_user.delete()
     api_response = client.get(
-        '/user/resend-verification/{user_id}'.format(user_id=old_user_id),
+        '/api/user/resend-verification/{user_id}'.format(user_id=old_user_id),
         format='json'
     )
     assert api_response.status_code == 400
