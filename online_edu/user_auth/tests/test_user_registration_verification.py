@@ -4,19 +4,9 @@ import time
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from user_auth.models import User
-from .fixtures import mock_send_email
+from .fixtures import mock_send_email, test_user
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def test_user():
-    '''Create sample user for test'''
-    sample_user = User.objects.create(username='someuser@somedomain.com')
-    sample_user.set_password('somepassword')
-    sample_user.save()
-    return sample_user
 
 
 @pytest.fixture

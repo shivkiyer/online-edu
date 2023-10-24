@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -89,3 +90,25 @@ class ResendVerificationEmailView(APIView):
             data=user_data.data,
             status=status.HTTP_200_OK
         )
+
+
+class LoginUserView(APIView):
+    '''Login user and return token'''
+    serializer_class = UserSerializer
+
+    def post(self, *args, **kwargs):
+        user_obj = authenticate(
+            username=self.request.data.get('username', None),
+            password=self.request.data.get('password', None)
+        )
+        if user_obj is not None:
+            user_token = RefreshToken.for_user(user_obj)
+            return Response(
+                data=str(user_token),
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                data='Invalid username/password',
+                status=status.HTTP_401_UNAUTHORIZED
+            )

@@ -1,6 +1,9 @@
 from django.urls import path
 
-from .views import RegisterUserView, VerifyUserView, ResendVerificationEmailView
+from .views import RegisterUserView, \
+                    VerifyUserView, \
+                    ResendVerificationEmailView, \
+                    LoginUserView
 
 app_name = 'user_auth'
 urlpatterns = [
@@ -11,4 +14,5 @@ urlpatterns = [
         ResendVerificationEmailView.as_view(),
         name='resend-verificaion-email'
     ),
+    path('login', LoginUserView.as_view(), name='login-user'),
 ]

@@ -1,5 +1,7 @@
 import pytest
 
+from user_auth.models import User
+
 
 @pytest.fixture
 def mock_send_email(monkeypatch):
@@ -10,3 +12,12 @@ def mock_send_email(monkeypatch):
         ),
         raising=True
     )
+
+
+@pytest.fixture
+def test_user():
+    '''Create sample user for test'''
+    sample_user = User.objects.create(username='someuser@somedomain.com')
+    sample_user.set_password('somepassword')
+    sample_user.save()
+    return sample_user
