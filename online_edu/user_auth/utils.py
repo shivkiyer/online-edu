@@ -43,3 +43,40 @@ def send_verification_link_email(user):
         recipient_list=[user.username]
     )
     return
+
+
+def send_password_reset_email(user):
+    '''Send a password reset email to an active user'''
+    if not user or not user.is_active:
+        raise ValidationError('No user to send email to')
+
+    verification_token = RefreshToken.for_user(user)
+    verification_token.set_exp(
+        from_time=verification_token.current_time,
+        lifetime=timedelta(minutes=settings.EMAIL_VERIFICATION_TIMELIMIT)
+    )
+    message_body = (
+        "Hello,\n"
+        "Here is your password reset link:\n"
+        "{base_url}{token_url} \n"
+        "\n"
+        "Please click on this link within {time_limit} minutes of receiving this email.\n"
+        "\n"
+        "Thank you,\n"
+        "Online Edu"
+    ).format(
+        base_url=settings.BASE_URL,
+        token_url=reverse(
+            'user_auth:change-password',
+            args=[verification_token]
+        ),
+        time_limit=settings.EMAIL_VERIFICATION_TIMELIMIT
+    )
+
+    send_mail(
+        subject='Password reset link',
+        message=message_body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.username]
+    )
+    return

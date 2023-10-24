@@ -62,3 +62,11 @@ class RegisterUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         fields = ['username', 'password', 'confirm_password', 'is_active']
+
+
+class ChangePasswordSerializer(RegisterUserSerializer):
+    '''Serializer for resetting the password of a user'''
+
+    class Meta(RegisterUserSerializer.Meta):
+        model = User
+        fields = ['password', 'confirm_password']
