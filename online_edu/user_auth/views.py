@@ -151,6 +151,7 @@ class ChangePasswordView(APIView):
             data={'refresh': verification_token}
         )
         try:
+            # Check for expired token
             if not token_data.is_valid():
                 error_list = [token_data.errors[e][0].title()
                               for e in token_data.errors]
@@ -159,23 +160,22 @@ class ChangePasswordView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                user_form = ChangePasswordSerializer(data=self.request.data)
-                # Check for password match
-                if not user_form.is_valid():
-                    return Response(
-                        data='Passwords do not match',
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
                 user_data = RefreshToken(verification_token)
                 user_obj = User.objects.get(id=int(user_data['user_id']))
-                # Check if the user is active
-                if not user_obj.is_active:
+                user_form = ChangePasswordSerializer(
+                    user_obj,
+                    data=self.request.data
+                )
+                # Check for password match
+                if not user_form.is_valid():
+                    error_list = [user_form.errors[e][0].title()
+                                  for e in user_form.errors]
                     return Response(
-                        data='User not found',
+                        data=error_list[0],
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                user_obj.set_password(self.request.data['password'])
-                user_obj.save()
+                else:
+                    user_form.save()
         except Exception as e:
             return Response(
                 data=str(e),

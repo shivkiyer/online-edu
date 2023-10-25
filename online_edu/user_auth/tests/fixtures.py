@@ -1,14 +1,18 @@
 import pytest
+from datetime import timedelta
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from user_auth.models import User
 
 
 @pytest.fixture
-def mock_send_email(monkeypatch):
+def mock_send_verification_email(monkeypatch):
     monkeypatch.setattr(
         'user_auth.views.send_verification_link_email',
         lambda user: print(
-            'Sending email to {username}'.format(username=user.username)
+            'Sending verification email to {username}'.format(
+                username=user.username
+            )
         ),
         raising=True
     )
@@ -21,3 +25,19 @@ def test_user():
     sample_user.set_password('somepassword')
     sample_user.save()
     return sample_user
+
+
+@pytest.fixture
+def verification_token(test_user):
+    '''Creating tokens with JWT'''
+
+    def _create_token(exp_time):
+        '''Token with variable expiry time'''
+        verification_token = RefreshToken.for_user(test_user)
+        verification_token.set_exp(
+            from_time=verification_token.current_time,
+            lifetime=timedelta(seconds=exp_time)
+        )
+        return verification_token
+
+    return _create_token

@@ -1,28 +1,10 @@
 import pytest
-from datetime import timedelta
 import time
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
 
-from .fixtures import mock_send_email, test_user
+from .fixtures import verification_token, mock_send_verification_email, test_user
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def verification_token(test_user):
-    '''Creating tokens with JWT'''
-
-    def _create_token(exp_time):
-        '''Token with variable expiry time'''
-        verification_token = RefreshToken.for_user(test_user)
-        verification_token.set_exp(
-            from_time=verification_token.current_time,
-            lifetime=timedelta(seconds=exp_time)
-        )
-        return verification_token
-
-    return _create_token
 
 
 def test_user_verification_endpoint(verification_token, test_user):
@@ -79,7 +61,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     assert api_response.status_code == 400
 
 
-def test_resend_verification_endpoint(mock_send_email, test_user):
+def test_resend_verification_endpoint(mock_send_verification_email, test_user):
     '''Testing endpoint for resending verification email'''
     client = APIClient()
 

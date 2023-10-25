@@ -2,12 +2,12 @@ import pytest
 from rest_framework.test import APIClient
 
 from user_auth.models import User
-from .fixtures import mock_send_email
+from .fixtures import mock_send_verification_email
 
 pytestmark = pytest.mark.django_db
 
 
-def test_register_new_user(mock_send_email):
+def test_register_new_user(mock_send_verification_email):
     '''Test API to register new user'''
     client = APIClient()
 

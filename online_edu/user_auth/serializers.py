@@ -67,6 +67,16 @@ class RegisterUserSerializer(UserSerializer):
 class ChangePasswordSerializer(RegisterUserSerializer):
     '''Serializer for resetting the password of a user'''
 
+    def update(self, instance, validated_data):
+        '''Update user password'''
+        if validated_data.get('password') is None:
+            raise serializers.ValidationError('New password missing')
+        if not instance.is_active:
+            raise serializers.ValidationError('User not found')
+        instance.set_password(validated_data.get('password'))
+        instance.save()
+        return instance
+
     class Meta(RegisterUserSerializer.Meta):
         model = User
         fields = ['password', 'confirm_password']
