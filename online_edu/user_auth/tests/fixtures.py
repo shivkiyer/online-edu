@@ -6,11 +6,33 @@ from user_auth.models import User
 
 
 @pytest.fixture
+def mock_send_mail(monkeypatch):
+    monkeypatch.setattr(
+        'user_auth.utils.send_mail',
+        lambda *args, **kwargs: print('Sending email'),
+        raising=True
+    )
+
+
+@pytest.fixture
 def mock_send_verification_email(monkeypatch):
     monkeypatch.setattr(
         'user_auth.views.send_verification_link_email',
         lambda user: print(
             'Sending verification email to {username}'.format(
+                username=user.username
+            )
+        ),
+        raising=True
+    )
+
+
+@pytest.fixture
+def mock_send_password_reset_email(monkeypatch):
+    monkeypatch.setattr(
+        'user_auth.views.send_password_reset_email',
+        lambda user: print(
+            'Sending password reset email to {username}'.format(
                 username=user.username
             )
         ),

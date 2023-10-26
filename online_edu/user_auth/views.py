@@ -114,12 +114,12 @@ class ResetPasswordView(APIView):
         user_id = self.kwargs['user_id']
         try:
             user_obj = User.objects.get(id=user_id)
+            send_password_reset_email(user_obj)
         except Exception as e:
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
-        send_password_reset_email(user_obj)
         return Response(
             status=status.HTTP_200_OK
         )
