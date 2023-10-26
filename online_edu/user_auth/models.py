@@ -3,9 +3,13 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
+from .managers import UserManager
+
 
 class User(AbstractUser):
     '''User model for authentication and authorization'''
+
+    objects = UserManager()
 
     def save(self, *args, **kwargs):
         '''Username validation during save to db'''

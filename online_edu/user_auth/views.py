@@ -11,7 +11,9 @@ from .serializers import UserSerializer, \
     RegisterUserSerializer, \
     ChangePasswordSerializer
 from .utils import send_verification_link_email, \
-    send_password_reset_email
+    send_password_reset_email, \
+    serializer_error_response, \
+    token_error_response
 
 
 class RegisterUserView(CreateAPIView):
@@ -31,11 +33,7 @@ class RegisterUserView(CreateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
-            error_list = [user.errors[e][0].title() for e in user.errors]
-            return Response(
-                data=error_list[0],
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return serializer_error_response(user)
         send_verification_link_email(new_user)
         return Response(user.data, status=status.HTTP_201_CREATED)
 
@@ -55,18 +53,10 @@ class VerifyUserView(APIView):
         )
         try:
             if not token_data.is_valid():
-                error_list = [token_data.errors[e][0].title()
-                              for e in token_data.errors]
-                return Response(
-                    data=error_list[0],
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return token_error_response(token_data)
             else:
                 # Set the user to active
-                user_data = RefreshToken(verification_token)
-                user_obj = User.objects.get(id=int(user_data['user_id']))
-                user_obj.is_active = True
-                user_obj.save()
+                User.objects.activate_user_by_token(verification_token)
         except Exception as e:
             return Response(
                 data=str(e),
@@ -153,27 +143,16 @@ class ChangePasswordView(APIView):
         try:
             # Check for expired token
             if not token_data.is_valid():
-                error_list = [token_data.errors[e][0].title()
-                              for e in token_data.errors]
-                return Response(
-                    data=error_list[0],
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return token_error_response(token_data)
             else:
-                user_data = RefreshToken(verification_token)
-                user_obj = User.objects.get(id=int(user_data['user_id']))
+                user_obj = User.objects.get_user_by_token(verification_token)
                 user_form = ChangePasswordSerializer(
                     user_obj,
                     data=self.request.data
                 )
                 # Check for password match
                 if not user_form.is_valid():
-                    error_list = [user_form.errors[e][0].title()
-                                  for e in user_form.errors]
-                    return Response(
-                        data=error_list[0],
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                    return serializer_error_response(user_form)
                 else:
                     user_form.save()
         except Exception as e:
