@@ -164,7 +164,6 @@ class ChangePasswordView(APIView):
                     return serializer_error_response(user_form)
                 else:
                     user_form.save()
-
         except Exception as e:
             return Response(
                 data=str(e),

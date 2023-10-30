@@ -70,9 +70,9 @@ class ChangePasswordSerializer(RegisterUserSerializer):
     def update(self, instance, validated_data):
         '''Update user password'''
         if validated_data.get('password') is None:
-            raise serializers.ValidationError('New password missing')
+            raise Exception('New password missing')
         if not instance.is_active:
-            raise serializers.ValidationError('User not found')
+            raise Exception('User not found')
         instance.set_password(validated_data.get('password'))
         instance.save()
         return instance
