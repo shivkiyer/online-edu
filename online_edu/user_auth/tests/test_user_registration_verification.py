@@ -2,7 +2,10 @@ import pytest
 import time
 from rest_framework.test import APIClient
 
-from .fixtures import verification_token, mock_send_verification_email, test_user
+from .fixtures import verification_token, \
+    mock_send_verification_email, \
+    mock_send_mail, \
+    test_user
 
 pytestmark = pytest.mark.django_db
 
@@ -61,15 +64,27 @@ def test_user_verification_endpoint(verification_token, test_user):
     assert api_response.status_code == 400
 
 
-def test_resend_verification_endpoint(mock_send_verification_email, test_user):
+def test_resend_verification_endpoint(mock_send_mail, test_user):
     '''Testing endpoint for resending verification email'''
     client = APIClient()
 
+    # Valid request
+    test_user.is_active = False
+    test_user.save()
     api_response = client.get(
         '/api/user/resend-verification/{user_id}'.format(user_id=test_user.id),
         format='json'
     )
     assert api_response.status_code == 200
+
+    # User already active
+    test_user.is_active = True
+    test_user.save()
+    api_response = client.get(
+        '/api/user/resend-verification/{user_id}'.format(user_id=test_user.id),
+        format='json'
+    )
+    assert api_response.status_code == 400
 
     old_user_id = test_user.id
     test_user.delete()

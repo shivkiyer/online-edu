@@ -34,7 +34,8 @@ def test_register_new_user(mock_send_verification_email):
         '/api/user/register-user',
         {
             'username': 'someuser',
-            'password': 'somepass'
+            'password': 'somepass',
+            'confirm_password': 'somepass'
         },
         format='json'
     )
@@ -44,7 +45,7 @@ def test_register_new_user(mock_send_verification_email):
     api_response = client.post(
         '/api/user/register-user',
         {
-            'username': 'someuser@domain.com',
+            'username': 'someuser1@domain.com',
         },
         format='json'
     )
@@ -67,11 +68,23 @@ def test_register_new_user(mock_send_verification_email):
     )
     assert api_response.status_code == 400
 
-    # Should fail because of missing confirm_password field
+    # Should fail because of username existing
     api_response = client.post(
         '/api/user/register-user',
         {
             'username': 'someuser@domain.com',
+            'password': 'somepass',
+            'confirm_password': 'somepass'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+
+    # Should fail because of missing confirm_password field
+    api_response = client.post(
+        '/api/user/register-user',
+        {
+            'username': 'someuser1@domain.com',
             'password': 'somepass',
         },
         format='json'

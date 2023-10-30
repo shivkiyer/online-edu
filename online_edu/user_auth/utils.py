@@ -12,6 +12,8 @@ def send_verification_link_email(user):
     '''Send an email to newly registered used with verification link'''
     if not user:
         raise ValidationError('No user to send email to')
+    if user.is_active:
+        raise ValidationError('User already activated')
 
     verification_token = RefreshToken.for_user(user)
     verification_token.set_exp(

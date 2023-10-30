@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -27,6 +28,7 @@ class RegisterUserView(CreateAPIView):
         if user.is_valid():
             try:
                 new_user = user.save()
+                send_verification_link_email(new_user)
             except Exception as e:
                 return Response(
                     data=e,
@@ -34,7 +36,6 @@ class RegisterUserView(CreateAPIView):
                 )
         else:
             return serializer_error_response(user)
-        send_verification_link_email(new_user)
         return Response(user.data, status=status.HTTP_201_CREATED)
 
 
@@ -72,15 +73,18 @@ class ResendVerificationEmailView(APIView):
         user_id = self.kwargs['user_id']
         try:
             user_obj = User.objects.get(id=user_id)
+            send_verification_link_email(user_obj)
+        except ObjectDoesNotExist:
+            return Response(
+                data='User not found',
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
-        send_verification_link_email(user_obj)
-        user_data = UserSerializer(user_obj)
         return Response(
-            data=user_data.data,
             status=status.HTTP_200_OK
         )
 
@@ -115,6 +119,11 @@ class ResetPasswordView(APIView):
         try:
             user_obj = User.objects.get(id=user_id)
             send_password_reset_email(user_obj)
+        except ObjectDoesNotExist:
+            return Response(
+                data='User not found',
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             return Response(
                 data=str(e),
@@ -155,6 +164,7 @@ class ChangePasswordView(APIView):
                     return serializer_error_response(user_form)
                 else:
                     user_form.save()
+
         except Exception as e:
             return Response(
                 data=str(e),
