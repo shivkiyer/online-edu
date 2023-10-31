@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
@@ -16,6 +17,8 @@ from .utils import send_verification_link_email, \
     serializer_error_response, \
     token_error_response
 
+logger = logging.getLogger(__name__)
+
 
 class RegisterUserView(CreateAPIView):
     '''Register a new user'''
@@ -30,12 +33,19 @@ class RegisterUserView(CreateAPIView):
                 new_user = user.save()
                 send_verification_link_email(new_user)
             except Exception as e:
+                logger.error(
+                    'Error in registering new user {username} - {error}'.format(
+                        username=user.data['username'],
+                        error=str(e)
+                    )
+                )
                 return Response(
                     data=e,
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
             return serializer_error_response(user)
+        logger.info('New user {} created'.format(new_user.username))
         return Response(user.data, status=status.HTTP_201_CREATED)
 
 
@@ -45,6 +55,9 @@ class VerifyUserView(APIView):
     def get(self, *args, **kwargs):
         verification_token = self.kwargs['token']
         if not verification_token:
+            logger.critical(
+                'No token passed for verification registered user'
+            )
             return Response(
                 data='Missing token',
                 status=status.HTTP_400_BAD_REQUEST
@@ -57,12 +70,17 @@ class VerifyUserView(APIView):
                 return token_error_response(token_data)
             else:
                 # Set the user to active
-                User.objects.activate_user_by_token(verification_token)
+                new_user = User.objects.activate_user_by_token(
+                    verification_token)
         except Exception as e:
+            logger.error(
+                'Error in verifying user - {}'.format(str(e))
+            )
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        logger.info('User {} verified'.format(new_user.username))
         return Response(status=status.HTTP_200_OK)
 
 
@@ -75,15 +93,28 @@ class ResendVerificationEmailView(APIView):
             user_obj = User.objects.get(id=user_id)
             send_verification_link_email(user_obj)
         except ObjectDoesNotExist:
+            logger.critical(
+                'User with non-existant Id {} tried to get verification email'.format(
+                    user_id
+                )
+            )
             return Response(
                 data='User not found',
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
+            logger.error(
+                'Resending verification failed for user Id {user_id} - {error}'.format(
+                    user_id=user_id,
+                    error=str(e)
+                )
+            )
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        logger.info('Verification email resent to user {}'.format(
+            user_obj.username))
         return Response(
             status=status.HTTP_200_OK
         )
@@ -100,11 +131,20 @@ class LoginUserView(APIView):
         )
         if user_obj is not None:
             user_token = RefreshToken.for_user(user_obj)
+            logger.info('User {} logged in successfully'.format(
+                user_obj.username
+            )
+            )
             return Response(
                 data=str(user_token),
                 status=status.HTTP_200_OK
             )
         else:
+            logger.error(
+                'User {} not validated'.format(
+                    self.request.data.get('username', None)
+                )
+            )
             return Response(
                 data='Invalid username/password',
                 status=status.HTTP_401_UNAUTHORIZED
@@ -120,15 +160,28 @@ class ResetPasswordView(APIView):
             user_obj = User.objects.get(id=user_id)
             send_password_reset_email(user_obj)
         except ObjectDoesNotExist:
+            logger.critical(
+                'User with non-existant Id {} tried to reset password'.format(
+                    user_id
+                )
+            )
             return Response(
                 data='User not found',
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
+            logger.error(
+                'Password failed for user Id {user_id} - {error}'.format(
+                    user_id=user_id,
+                    error=str(e)
+                )
+            )
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        logger.info('Password reset email sent to user {}'.format(
+            user_obj.username))
         return Response(
             status=status.HTTP_200_OK
         )
@@ -142,6 +195,9 @@ class ChangePasswordView(APIView):
     def post(self, *args, **kwargs):
         verification_token = self.kwargs['token']
         if not verification_token:
+            logger.critical(
+                'No token passed for changing password'
+            )
             return Response(
                 data='Missing token',
                 status=status.HTTP_400_BAD_REQUEST
@@ -165,8 +221,15 @@ class ChangePasswordView(APIView):
                 else:
                     user_form.save()
         except Exception as e:
+            logger.error(
+                'Password change failed for user - {error}'.format(
+                    error=str(e)
+                )
+            )
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        logger.info('Password changed for user {}'.format(
+            user_obj.username))
         return Response(status=status.HTTP_200_OK)

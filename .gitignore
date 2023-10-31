@@ -7,3 +7,6 @@ __pychache__
 
 # DB file
 *.sqlite3
+
+# Log files
+**logs/

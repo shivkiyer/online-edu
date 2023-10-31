@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import UserManager as AbstractUserManager
 from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-class UserManager(BaseUserManager):
+class UserManager(AbstractUserManager):
     '''Manager for the User model'''
 
     def get_user_by_token(self, token, *args, **kwargs):
