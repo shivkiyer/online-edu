@@ -113,6 +113,32 @@ USE_TZ = True
 # time limit in minutes
 EMAIL_VERIFICATION_TIMELIMIT = KEYS.EMAIL_VERIFICATION_TIMELIMIT
 
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/test.log',
+            'level': 'INFO',
+            'formatter': 'regular'
+        }
+    },
+    'loggers': {
+        '': {
+            'level': 'INFO',
+            'handlers': ['file']
+        }
+    },
+    'formatters': {
+        'regular': {
+            'format': '{levelname} {asctime} {name} {message}',
+            'style': '{'
+        }
+    }
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
