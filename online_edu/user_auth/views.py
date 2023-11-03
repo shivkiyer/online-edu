@@ -6,7 +6,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import User
 from .serializers import UserSerializer, \
@@ -130,7 +130,7 @@ class LoginUserView(APIView):
             password=self.request.data.get('password', None)
         )
         if user_obj is not None:
-            user_token = RefreshToken.for_user(user_obj)
+            user_token = AccessToken.for_user(user_obj)
             logger.info('User {} logged in successfully'.format(
                 user_obj.username
             )

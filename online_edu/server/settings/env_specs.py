@@ -13,5 +13,9 @@ EMAIL_FROM_USERNAME = 'from-username'   # can be same as username
 EMAIL_PASSWORD = 'password'   # set app-password in Security of Google account
 EMAIL_PORT = 123              # 587 for SMTP if using google
 
+# Authentication settings
+REFRESH_TOKEN_TIME_LIMIT = 15       # in minutes
+ACCESS_TOKEN_TIME_LIMIT = 30        # in minutes
+
 # Account verification settings
 EMAIL_VERIFICATION_TIMELIMIT = 30        # time limit in minutes

@@ -19,10 +19,6 @@ def send_verification_link_email(user):
         raise ValidationError('User already activated')
 
     verification_token = RefreshToken.for_user(user)
-    verification_token.set_exp(
-        from_time=verification_token.current_time,
-        lifetime=timedelta(minutes=settings.EMAIL_VERIFICATION_TIMELIMIT)
-    )
     message_body = (
         "Hello,\n"
         "Thank you for registering with Online Edu!\n"
@@ -59,10 +55,6 @@ def send_password_reset_email(user):
         raise ValidationError('No user to send email to')
 
     verification_token = RefreshToken.for_user(user)
-    verification_token.set_exp(
-        from_time=verification_token.current_time,
-        lifetime=timedelta(minutes=settings.EMAIL_VERIFICATION_TIMELIMIT)
-    )
     message_body = (
         "Hello,\n"
         "Here is your password reset link:\n"
