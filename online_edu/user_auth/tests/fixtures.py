@@ -1,6 +1,6 @@
 import pytest
 from datetime import timedelta
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 from user_auth.models import User
 
@@ -51,7 +51,7 @@ def test_user():
 
 @pytest.fixture
 def verification_token(test_user):
-    '''Creating tokens with JWT'''
+    '''Creating a verification token with JWT'''
 
     def _create_token(exp_time):
         '''Token with variable expiry time'''
@@ -61,5 +61,21 @@ def verification_token(test_user):
             lifetime=timedelta(seconds=exp_time)
         )
         return verification_token
+
+    return _create_token
+
+
+@pytest.fixture
+def access_token():
+    '''Create an access token with JWT'''
+
+    def _create_token(user, exp_time):
+        '''Token with variable expiry time for any user'''
+        access_token = AccessToken.for_user(user)
+        access_token.set_exp(
+            from_time=access_token.current_time,
+            lifetime=timedelta(seconds=exp_time)
+        )
+        return access_token
 
     return _create_token
