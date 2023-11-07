@@ -13,9 +13,8 @@ from .serializers import UserSerializer, \
     RegisterUserSerializer, \
     ChangePasswordSerializer
 from .utils import send_verification_link_email, \
-    send_password_reset_email, \
-    serializer_error_response
-from common.errors import DEFAULT_ERROR_RESPONSE
+    send_password_reset_email
+from common.errors import DEFAULT_ERROR_RESPONSE, serializer_error_response
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +51,7 @@ class RegisterUserView(CreateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
-            return serializer_error_response(user)
+            return serializer_error_response(user, 'Could not register user')
 
 
 class VerifyUserView(APIView):
@@ -237,7 +236,10 @@ class ChangePasswordView(APIView):
             )
             # Check for password match
             if not user_form.is_valid():
-                return serializer_error_response(user_form)
+                return serializer_error_response(
+                    user_form,
+                    'Could not change user password'
+                )
             else:
                 user_form.save()
                 logger.info('Password changed for user {}'.format(

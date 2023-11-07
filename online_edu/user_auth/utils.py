@@ -5,8 +5,6 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
-from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -81,25 +79,3 @@ def send_password_reset_email(user):
     )
     logger.info('Sent password reset email to {}'.format(user.username))
     return
-
-
-def token_error_response(token):
-    '''Return 400 HTTP error if JWT has errors'''
-    error_list = [token.errors[e][0].title()
-                  for e in token.errors]
-    logger.error('Error with token - {}'.format(error_list[0]))
-    return Response(
-        data='Authentication failed',
-        status=status.HTTP_403_FORBIDDEN
-    )
-
-
-def serializer_error_response(serializer):
-    '''Return 400 HTTP error if serializer has errors'''
-    error_list = [serializer.errors[e][0].title()
-                  for e in serializer.errors]
-    logger.error('Error in saving data - {}'.format(error_list[0]))
-    return Response(
-        data=error_list[0],
-        status=status.HTTP_400_BAD_REQUEST
-    )
