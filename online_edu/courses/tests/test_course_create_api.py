@@ -126,7 +126,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.status_code == 400
+    assert api_response.status_code == 403
     assert Course.objects.count() == 1
 
     # Success - another course with correct token

@@ -89,8 +89,8 @@ def token_error_response(token):
                   for e in token.errors]
     logger.error('Error with token - {}'.format(error_list[0]))
     return Response(
-        data=error_list[0],
-        status=status.HTTP_400_BAD_REQUEST
+        data='Authentication failed',
+        status=status.HTTP_403_FORBIDDEN
     )
 
 

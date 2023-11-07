@@ -14,8 +14,8 @@ from .serializers import UserSerializer, \
     ChangePasswordSerializer
 from .utils import send_verification_link_email, \
     send_password_reset_email, \
-    serializer_error_response, \
-    token_error_response
+    serializer_error_response
+from common.errors import DEFAULT_ERROR_RESPONSE
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,13 @@ class RegisterUserView(CreateAPIView):
 
     def post(self, *args, **kwargs):
         '''Create new user from API request'''
-        user = RegisterUserSerializer(data=self.request.data)
+        try:
+            user = RegisterUserSerializer(data=self.request.data)
+        except:
+            return Response(
+                data=DEFAULT_ERROR_RESPONSE,
+                status=status.HTTP_400_BAD_REQUEST
+            )
         new_user = None
         if user.is_valid():
             try:
@@ -53,27 +59,31 @@ class VerifyUserView(APIView):
     '''Checks token received on clicking verification link'''
 
     def get(self, *args, **kwargs):
-        verification_token = self.kwargs['token']
+        verification_token = self.kwargs.get('token', None)
         if not verification_token:
             logger.critical(
                 'No token passed for verification registered user'
             )
             return Response(
-                data='Missing token',
+                data='Broken link',
                 status=status.HTTP_400_BAD_REQUEST
             )
-        token_data = TokenRefreshSerializer(
-            data={'refresh': verification_token}
-        )
         try:
-            if not token_data.is_valid():
-                return token_error_response(token_data)
-            else:
-                # Set the user to active
-                new_user = User.objects.activate_user_by_token(
-                    verification_token)
-                logger.info('User {} verified'.format(new_user.username))
-                return Response(status=status.HTTP_200_OK)
+            try:
+                token_data = TokenRefreshSerializer(
+                    data={'refresh': verification_token}
+                )
+                token_data.is_valid()
+            except:
+                return Response(
+                    data='Link expired or faulty',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            # Set the user to active
+            new_user = User.objects.activate_user_by_token(
+                verification_token)
+            logger.info('User {} verified'.format(new_user.username))
+            return Response(status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(
                 'Error in verifying user - {}'.format(str(e))
@@ -88,7 +98,7 @@ class ResendVerificationEmailView(APIView):
     '''Resending verification email to user'''
 
     def get(self, *args, **kwargs):
-        user_id = self.kwargs['user_id']
+        user_id = self.kwargs.get('user_id', None)
         try:
             user_obj = User.objects.get(id=user_id)
             send_verification_link_email(user_obj)
@@ -125,10 +135,16 @@ class LoginUserView(APIView):
     serializer_class = UserSerializer
 
     def post(self, *args, **kwargs):
-        user_obj = authenticate(
-            username=self.request.data.get('username', None),
-            password=self.request.data.get('password', None)
-        )
+        try:
+            user_obj = authenticate(
+                username=self.request.data.get('username', None),
+                password=self.request.data.get('password', None)
+            )
+        except:
+            return Response(
+                data=DEFAULT_ERROR_RESPONSE,
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if user_obj is not None:
             user_token = AccessToken.for_user(user_obj)
             logger.info('User {} logged in successfully'.format(
@@ -155,7 +171,7 @@ class ResetPasswordView(APIView):
     '''Send password reset link to user email'''
 
     def get(self, *args, **kwargs):
-        user_id = self.kwargs['user_id']
+        user_id = self.kwargs.get('user_id', None)
         try:
             user_obj = User.objects.get(id=user_id)
             send_password_reset_email(user_obj)
@@ -193,36 +209,40 @@ class ChangePasswordView(APIView):
     serializer_class = ChangePasswordSerializer
 
     def post(self, *args, **kwargs):
-        verification_token = self.kwargs['token']
+        verification_token = self.kwargs.get('token', None)
         if not verification_token:
             logger.critical(
                 'No token passed for changing password'
             )
             return Response(
-                data='Missing token',
+                data='Broken link',
                 status=status.HTTP_400_BAD_REQUEST
             )
-        token_data = TokenRefreshSerializer(
-            data={'refresh': verification_token}
-        )
         try:
             # Check for expired token
-            if not token_data.is_valid():
-                return token_error_response(token_data)
-            else:
-                user_obj = User.objects.get_user_by_token(verification_token)
-                user_form = ChangePasswordSerializer(
-                    user_obj,
-                    data=self.request.data
+            try:
+                token_data = TokenRefreshSerializer(
+                    data={'refresh': verification_token}
                 )
-                # Check for password match
-                if not user_form.is_valid():
-                    return serializer_error_response(user_form)
-                else:
-                    user_form.save()
-                    logger.info('Password changed for user {}'.format(
-                        user_obj.username))
-                    return Response(status=status.HTTP_200_OK)
+                token_data.is_valid()
+            except Exception as e:
+                return Response(
+                    data='Link expired or faulty',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            user_obj = User.objects.get_user_by_token(verification_token)
+            user_form = ChangePasswordSerializer(
+                user_obj,
+                data=self.request.data
+            )
+            # Check for password match
+            if not user_form.is_valid():
+                return serializer_error_response(user_form)
+            else:
+                user_form.save()
+                logger.info('Password changed for user {}'.format(
+                    user_obj.username))
+                return Response(status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(
                 'Password change failed for user - {error}'.format(

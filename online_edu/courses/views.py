@@ -8,6 +8,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 from user_auth.models import User
 from .models import Course
 from .serializers import CourseSerializer
+from common.errors import rest_framework_validation_error
 
 
 class CourseCreateView(CreateAPIView, JWTAuthentication):
@@ -32,22 +33,11 @@ class CourseCreateView(CreateAPIView, JWTAuthentication):
                     status=status.HTTP_403_FORBIDDEN
                 )
         except ValidationError as e:
-            try:
-                err_message = [e.detail[err][0] for err in e.detail][0]
-            except:
-                err_message = 'Course could not be created'
-            return Response(
-                data=err_message,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return rest_framework_validation_error(e, 'Course could not be created')
         except InvalidToken as e:
-            try:
-                error_message = e.detail['messages'][0]['message']
-            except:
-                error_message = 'Course could not be created'
             return Response(
-                data=error_message,
-                status=status.HTTP_400_BAD_REQUEST
+                data='Must be logged in as administrator to create a course',
+                status=status.HTTP_403_FORBIDDEN
             )
         except Exception as e:
             return Response(
