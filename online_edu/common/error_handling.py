@@ -2,12 +2,12 @@ import logging
 from rest_framework.response import Response
 from rest_framework import status
 
+from .error_definitions import DEFAULT_ERROR_RESPONSE
+
 logger = logging.getLogger(__name__)
 
-DEFAULT_ERROR_RESPONSE = 'An unexpected error occurred. Please try again later or contact the administrator.'
 
-
-def rest_framework_validation_error(e, default_msg):
+def rest_framework_validation_error(e, default_msg=DEFAULT_ERROR_RESPONSE):
     '''Response 400 when DRF generates validation error'''
     try:
         err_message = [e.detail[err][0] for err in e.detail][0]
@@ -20,7 +20,7 @@ def rest_framework_validation_error(e, default_msg):
     )
 
 
-def serializer_error_response(serializer, default_msg):
+def serializer_error_response(serializer, default_msg=DEFAULT_ERROR_RESPONSE):
     '''Return 400 HTTP error if serializer has errors'''
     try:
         err_message = [serializer.errors[e][0].title()

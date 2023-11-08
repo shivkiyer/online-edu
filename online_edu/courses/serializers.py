@@ -8,6 +8,10 @@ class CourseSerializer(serializers.ModelSerializer):
     '''Serializer for course'''
 
     title = serializers.CharField(
+        error_messages={
+            'blank': 'Course title is required',
+            'required': 'Course title is required'
+        },
         validators=[
             UniqueValidator(
                 queryset=Course.objects.all(),

@@ -1,11 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import UserManager as AbstractUserManager
-from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .error_definitions import UserGenericException
 
 
 class UserManager(AbstractUserManager):
     '''Manager for the User model'''
+
+    def get(self, *args, **kwargs):
+        try:
+            return super().get(*args, **kwargs)
+        except:
+            raise UserGenericException('User not found')
 
     def get_user_by_token(self, token, *args, **kwargs):
         '''Return a user object from JWT'''
@@ -15,7 +22,7 @@ class UserManager(AbstractUserManager):
                 id=int(user_data['user_id'])
             )[0]
         except:
-            raise ValidationError('User not found')
+            raise UserGenericException('User not found')
         return user_obj
 
     def activate_user_by_token(self, token, *args, **kwargs):
@@ -26,4 +33,4 @@ class UserManager(AbstractUserManager):
             user_obj.save()
             return user_obj
         except:
-            raise ValidationError('User could not be activated')
+            raise UserGenericException('User could not be activated')

@@ -1,6 +1,5 @@
 import logging
 from django.contrib.auth import authenticate
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -14,7 +13,9 @@ from .serializers import UserSerializer, \
     ChangePasswordSerializer
 from .utils import send_verification_link_email, \
     send_password_reset_email
-from common.errors import DEFAULT_ERROR_RESPONSE, serializer_error_response
+from common.error_definitions import DEFAULT_ERROR_RESPONSE
+from common.error_handling import serializer_error_response
+from .error_definitions import UserGenericException
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,17 @@ class RegisterUserView(CreateAPIView):
                 send_verification_link_email(new_user)
                 logger.info('New user {} created'.format(new_user.username))
                 return Response(user.data, status=status.HTTP_201_CREATED)
+            except UserGenericException as e:
+                logger.error(
+                    'Error in registering new user {username} - {error}'.format(
+                        username=user.data['username'],
+                        error=str(e)
+                    )
+                )
+                return Response(
+                    data=str(e),
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             except Exception as e:
                 logger.error(
                     'Error in registering new user {username} - {error}'.format(
@@ -47,7 +59,7 @@ class RegisterUserView(CreateAPIView):
                     )
                 )
                 return Response(
-                    data=e,
+                    data=DEFAULT_ERROR_RESPONSE,
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
@@ -83,6 +95,14 @@ class VerifyUserView(APIView):
                 verification_token)
             logger.info('User {} verified'.format(new_user.username))
             return Response(status=status.HTTP_200_OK)
+        except UserGenericException as e:
+            logger.error(
+                'Error in verifying user - {}'.format(str(e))
+            )
+            return Response(
+                data=str(e),
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             logger.error(
                 'Error in verifying user - {}'.format(str(e))
@@ -106,14 +126,12 @@ class ResendVerificationEmailView(APIView):
             return Response(
                 status=status.HTTP_200_OK
             )
-        except ObjectDoesNotExist:
-            logger.critical(
-                'User with non-existant Id {} tried to get verification email'.format(
-                    user_id
-                )
+        except UserGenericException as e:
+            logger.error(
+                'Error in resending verification email - {}'.format(str(e))
             )
             return Response(
-                data='User not found',
+                data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
@@ -124,7 +142,7 @@ class ResendVerificationEmailView(APIView):
                 )
             )
             return Response(
-                data=str(e),
+                data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -138,6 +156,14 @@ class LoginUserView(APIView):
             user_obj = authenticate(
                 username=self.request.data.get('username', None),
                 password=self.request.data.get('password', None)
+            )
+        except UserGenericException as e:
+            logger.error(
+                'Error logging in user - {}'.format(str(e))
+            )
+            return Response(
+                data=str(e),
+                status=status.HTTP_401_UNAUTHORIZED
             )
         except:
             return Response(
@@ -179,14 +205,16 @@ class ResetPasswordView(APIView):
             return Response(
                 status=status.HTTP_200_OK
             )
-        except ObjectDoesNotExist:
-            logger.critical(
-                'User with non-existant Id {} tried to reset password'.format(
-                    user_id
+        except UserGenericException as e:
+            print('UserGenericException')
+            logger.error(
+                'Password failed for user Id {user_id} - {error}'.format(
+                    user_id=user_id,
+                    error=str(e)
                 )
             )
             return Response(
-                data='User not found',
+                data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
@@ -197,7 +225,7 @@ class ResetPasswordView(APIView):
                 )
             )
             return Response(
-                data=str(e),
+                data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -245,6 +273,14 @@ class ChangePasswordView(APIView):
                 logger.info('Password changed for user {}'.format(
                     user_obj.username))
                 return Response(status=status.HTTP_200_OK)
+        except UserGenericException as e:
+            logger.error(
+                'Change password failed - {error}'.format(error=str(e))
+            )
+            return Response(
+                data=str(e),
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             logger.error(
                 'Password change failed for user - {error}'.format(
@@ -252,6 +288,6 @@ class ChangePasswordView(APIView):
                 )
             )
             return Response(
-                data=str(e),
+                data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
             )

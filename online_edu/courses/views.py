@@ -8,7 +8,8 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 from user_auth.models import User
 from .models import Course
 from .serializers import CourseSerializer
-from common.errors import rest_framework_validation_error
+from common.error_definitions import DEFAULT_ERROR_RESPONSE
+from common.error_handling import rest_framework_validation_error
 
 
 class CourseCreateView(CreateAPIView, JWTAuthentication):
@@ -41,6 +42,6 @@ class CourseCreateView(CreateAPIView, JWTAuthentication):
             )
         except Exception as e:
             return Response(
-                data=str(e),
+                data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
             )
