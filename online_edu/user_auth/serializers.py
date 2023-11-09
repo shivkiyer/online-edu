@@ -57,7 +57,7 @@ class RegisterUserSerializer(UserSerializer):
     def validate(self, data):
         '''Validate that password and confirm_password are the same'''
         if not data['password'] == data['confirm_password']:
-            raise serializers.ValidationError('Passwords are not matching.')
+            raise serializers.ValidationError('Passwords are not matching')
         return data
 
     class Meta(UserSerializer.Meta):

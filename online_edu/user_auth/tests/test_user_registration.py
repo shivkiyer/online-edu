@@ -39,6 +39,7 @@ def test_register_new_user(mock_send_verification_email):
         },
         format='json'
     )
+    assert api_response.data == 'Username must be a valid email'
     assert api_response.status_code == 400
 
     # Should fail because of missing password field
@@ -49,6 +50,7 @@ def test_register_new_user(mock_send_verification_email):
         },
         format='json'
     )
+    assert api_response.data == 'The Password Field Is Required'
     assert api_response.status_code == 400
 
     # Should fail because of missing username field
@@ -59,6 +61,7 @@ def test_register_new_user(mock_send_verification_email):
         },
         format='json'
     )
+    assert api_response.data == 'The Username Field Is Required'
     assert api_response.status_code == 400
 
     # Should fail become of missing username and password
@@ -66,6 +69,7 @@ def test_register_new_user(mock_send_verification_email):
         '/api/user/register-user',
         format='json'
     )
+    assert api_response.data == 'The Username Field Is Required'
     assert api_response.status_code == 400
 
     # Should fail because of username existing
@@ -78,6 +82,7 @@ def test_register_new_user(mock_send_verification_email):
         },
         format='json'
     )
+    assert api_response.data == 'A User With That Username Already Exists.'
     assert api_response.status_code == 400
 
     # Should fail because of missing confirm_password field
@@ -89,6 +94,7 @@ def test_register_new_user(mock_send_verification_email):
         },
         format='json'
     )
+    assert api_response.data == 'The Confirm Password Field Is Required'
     assert api_response.status_code == 400
 
     # Should fail because the passwords do not match
@@ -101,6 +107,7 @@ def test_register_new_user(mock_send_verification_email):
         },
         format='json'
     )
+    assert api_response.data == 'Passwords Are Not Matching'
     assert api_response.status_code == 400
 
     users_in_db = User.objects.all().count()

@@ -28,7 +28,10 @@ class RegisterUserView(CreateAPIView):
         '''Create new user from API request'''
         try:
             user = RegisterUserSerializer(data=self.request.data)
-        except:
+        except Exception as e:
+            logger.critical(
+                'Error in registering new user - {error}'.format(error=str(e))
+            )
             return Response(
                 data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
@@ -52,9 +55,8 @@ class RegisterUserView(CreateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             except Exception as e:
-                logger.error(
-                    'Error in registering new user {username} - {error}'.format(
-                        username=user.data['username'],
+                logger.critical(
+                    'Error in registering new user - {error}'.format(
                         error=str(e)
                     )
                 )
@@ -206,7 +208,6 @@ class ResetPasswordView(APIView):
                 status=status.HTTP_200_OK
             )
         except UserGenericException as e:
-            print('UserGenericException')
             logger.error(
                 'Password failed for user Id {user_id} - {error}'.format(
                     user_id=user_id,

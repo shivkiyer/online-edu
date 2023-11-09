@@ -24,6 +24,7 @@ def test_course_create_endpoint(test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 403
+    assert api_response.data == 'Must be logged in as administrator to create a course'
     assert Course.objects.count() == 0
 
     # Fail - token in header is for non-admin user
@@ -42,6 +43,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
+    assert api_response.data == 'Must be logged in as administrator to create a course'
     assert api_response.status_code == 403
     assert Course.objects.count() == 0
 
@@ -77,6 +79,23 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
+    assert api_response.data == 'A course with this title already exists'
+    assert api_response.status_code == 400
+    assert Course.objects.count() == 1
+
+    # Fail - title missing
+    api_response = client.post(
+        '/api/course/new-course',
+        {
+            'description': 'Some course description',
+            'price': 3.99
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.data == 'Course title is required'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -92,6 +111,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
+    assert api_response.data == 'Course description is required'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -107,6 +127,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
+    assert api_response.data == 'Course price is required'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -126,6 +147,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
+    assert api_response.data == 'Must be logged in as administrator to create a course'
     assert api_response.status_code == 403
     assert Course.objects.count() == 1
 
