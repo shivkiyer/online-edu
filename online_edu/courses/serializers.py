@@ -21,6 +21,13 @@ class CourseSerializer(serializers.ModelSerializer):
         ]
     )
 
+    def validate(self, data):
+        if data.get('is_free'):
+            data['price'] = 0.00
+        elif data.get('price') is None:
+            raise CourseGenericError('Course price is required')
+        return data
+
     def create(self, validated_data):
         user = validated_data.get('user', None)
         if user is not None and user.is_staff:
@@ -43,10 +50,4 @@ class CourseSerializer(serializers.ModelSerializer):
                     'required': 'Course description is required'
                 }
             },
-            'price': {
-                'error_messages': {
-                    'blank': 'Course price is required',
-                    'required': 'Course price is required'
-                }
-            }
         }

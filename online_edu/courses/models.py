@@ -3,6 +3,7 @@ from django.db.models.signals import pre_save
 from django.utils.text import slugify
 
 from user_auth.models import User
+from .error_definitions import CourseForbiddenError
 
 
 class Course(models.Model):
@@ -13,7 +14,7 @@ class Course(models.Model):
     description = models.TextField()
     instructors = models.ManyToManyField(User, related_name='courses_taught')
     students = models.ManyToManyField(User)
-    price = models.DecimalField(max_digits=4, decimal_places=2)
+    price = models.DecimalField(default=10.99, max_digits=4, decimal_places=2)
     is_free = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
     is_draft = models.BooleanField(default=True)
@@ -24,7 +25,7 @@ class Course(models.Model):
         if user.is_staff:
             self.instructors.add(user)
         else:
-            raise Exception('Instructors have to be administrators')
+            raise CourseForbiddenError('Instructors have to be administrators')
 
     def add_students(self, user):
         '''Add students to the course'''

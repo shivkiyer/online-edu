@@ -34,15 +34,6 @@ def test_course_creation():
             )
     assert Course.objects.count() == 1
 
-    # Fail - Missing price
-    with pytest.raises(Exception):
-        with transaction.atomic():
-            Course.objects.create(
-                title='Another course title',
-                description='Some course description'
-            )
-    assert Course.objects.count() == 1
-
     # Another success - no description
     Course.objects.create(
         title='Another course title',

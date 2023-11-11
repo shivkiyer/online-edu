@@ -167,3 +167,19 @@ def test_course_create_endpoint(test_user, access_token):
     )
     assert api_response.status_code == 201
     assert Course.objects.count() == 2
+
+    # Success - a free course with correct token
+    api_response = client.post(
+        '/api/course/new-course',
+        {
+            'title': 'Some other course title',
+            'description': 'Some course description',
+            'is_free': True
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 201
+    assert Course.objects.count() == 3
