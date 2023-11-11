@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from .models import Course
+from .error_definitions import CourseGenericError, CourseForbiddenError
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -19,6 +20,18 @@ class CourseSerializer(serializers.ModelSerializer):
             )
         ]
     )
+
+    def create(self, validated_data):
+        user = validated_data.get('user', None)
+        if user is not None and user.is_staff:
+            del validated_data['user']
+            course = Course.objects.create(**validated_data)
+            course.add_instructor(user)
+            return course
+        else:
+            raise CourseForbiddenError(
+                'Must be logged in as administrator to create a course'
+            )
 
     class Meta:
         model = Course
