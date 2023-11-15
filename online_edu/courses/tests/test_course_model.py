@@ -34,12 +34,30 @@ def test_course_creation():
             )
     assert Course.objects.count() == 1
 
+    # Fail - price for a non-free course is 0
+    with pytest.raises(Exception):
+        with transaction.atomic():
+            Course.objects.create(
+                title='Some course title',
+                description='Some course description',
+                price=0.00
+            )
+    assert Course.objects.count() == 1
+
     # Another success - no description
     Course.objects.create(
         title='Another course title',
         price=2.99
     )
     assert Course.objects.count() == 2
+
+    # Another success - free course
+    course2 = Course.objects.create(
+        title='Try Another course title',
+        is_free=True
+    )
+    assert course2.price == 0.00
+    assert Course.objects.count() == 3
 
 
 def test_course_instructor(test_user):

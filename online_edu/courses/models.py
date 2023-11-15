@@ -1,9 +1,11 @@
 from django.db import models
 from django.db.models.signals import pre_save
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
 from user_auth.models import User
-from .error_definitions import CourseForbiddenError
+from .error_definitions import CourseForbiddenError, CourseGenericError
+from .managers import CourseManager
 
 
 class Course(models.Model):
@@ -13,12 +15,26 @@ class Course(models.Model):
     slug = models.SlugField(max_length=200)
     description = models.TextField()
     instructors = models.ManyToManyField(User, related_name='courses_taught')
-    students = models.ManyToManyField(User)
+    students = models.ManyToManyField(User, blank=True)
     price = models.DecimalField(default=10.99, max_digits=4, decimal_places=2)
     is_free = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
     is_draft = models.BooleanField(default=True)
     is_archived = models.BooleanField(default=False)
+
+    objects = CourseManager()
+
+    def save(self, *args, **kwargs):
+        if not self.is_free and self.price <= 0:
+            raise CourseGenericError('Price of a non-free course is required.')
+        if self.is_free:
+            self.price = 0.00
+        super().save(*args, **kwargs)
+
+    def clean_fields(self, exclude=None):
+        '''Validation in admin dashboard'''
+        if not self.is_free and self.price <= 0:
+            raise ValidationError('Price of a non-free course is required.')
 
     def add_instructor(self, user):
         '''Add instructors to the course'''

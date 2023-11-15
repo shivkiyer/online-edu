@@ -2,12 +2,13 @@ import logging
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.mixins import ListModelMixin
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.exceptions import InvalidToken
 
 from user_auth.models import User
 from user_auth.views import UserAuthentication
+from .models import Course
 from .serializers import CourseSerializer
 from .error_definitions import CourseGenericError, CourseForbiddenError
 from common.error_definitions import DEFAULT_ERROR_RESPONSE
@@ -16,11 +17,19 @@ from common.error_handling import rest_framework_validation_error
 logger = logging.getLogger(__name__)
 
 
-class CourseView(CreateAPIView, UserAuthentication):
+class CourseView(
+    CreateAPIView,
+    ListModelMixin,
+    UserAuthentication
+):
     '''Create a course with logged-in user as instructor'''
 
     serializer_class = CourseSerializer
     user_model = User
+    lookup_field = 'id'
+
+    def get_queryset(self, *args, **kwargs):
+        return Course.objects.fetch_courses()
 
     def perform_create(self, serializer):
         course = serializer.save(user=self.request.user)
@@ -62,3 +71,6 @@ class CourseView(CreateAPIView, UserAuthentication):
                 data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

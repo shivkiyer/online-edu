@@ -9,4 +9,9 @@ urlpatterns = [
         CourseView.as_view(),
         name='create-course'
     ),
+    path(
+        '',
+        CourseView.as_view(),
+        name='fetch-courses'
+    ),
 ]

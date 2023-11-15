@@ -22,9 +22,11 @@ class CourseSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
-        if data.get('is_free'):
+        course_is_free = data.get('is_free', False)
+        course_price = data.get('price', None)
+        if course_is_free:
             data['price'] = 0.00
-        elif data.get('price') is None:
+        elif course_price is None or course_price <= 0:
             raise CourseGenericError('Course price is required')
         return data
 

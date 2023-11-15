@@ -15,7 +15,7 @@ def test_course_create_endpoint(test_user, access_token):
 
     # Fail - no JWT is provided in header
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Some course title',
             'description': 'Some course description',
@@ -32,7 +32,7 @@ def test_course_create_endpoint(test_user, access_token):
     test_user.save()
     token = access_token(test_user, 15)
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Some course title',
             'description': 'Some course description',
@@ -52,7 +52,7 @@ def test_course_create_endpoint(test_user, access_token):
     test_user.save()
     token = access_token(test_user, 60)
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Some course title',
             'description': 'Some course description',
@@ -68,7 +68,7 @@ def test_course_create_endpoint(test_user, access_token):
 
     # Fail - duplicate title
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Some course title',
             'description': 'Some course description',
@@ -85,7 +85,7 @@ def test_course_create_endpoint(test_user, access_token):
 
     # Fail - title missing
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'description': 'Some course description',
             'price': 3.99
@@ -101,7 +101,7 @@ def test_course_create_endpoint(test_user, access_token):
 
     # Fail - description missing
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Another course title',
             'price': 3.99
@@ -117,10 +117,27 @@ def test_course_create_endpoint(test_user, access_token):
 
     # Fail - price missing
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Another course title',
             'description': 'Some course description',
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.data == 'Course price is required'
+    assert api_response.status_code == 400
+    assert Course.objects.count() == 1
+
+    # Fail - price is 0.00 but course is not free
+    api_response = client.post(
+        '/api/courses/new-course',
+        {
+            'title': 'Another course title',
+            'description': 'Some course description',
+            'price': 0.00
         },
         headers={
             'Authorization': 'Bearer {}'.format(token)
@@ -136,7 +153,7 @@ def test_course_create_endpoint(test_user, access_token):
     # Sleep for 2sec
     time.sleep(2)
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Another course title',
             'description': 'Some course description',
@@ -154,7 +171,7 @@ def test_course_create_endpoint(test_user, access_token):
     # Success - another course with correct token
     token = access_token(test_user, 60)
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Another course title',
             'description': 'Some course description',
@@ -170,7 +187,7 @@ def test_course_create_endpoint(test_user, access_token):
 
     # Success - a free course with correct token
     api_response = client.post(
-        '/api/course/new-course',
+        '/api/courses/new-course',
         {
             'title': 'Some other course title',
             'description': 'Some course description',
