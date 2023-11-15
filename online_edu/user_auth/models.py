@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 from .managers import UserManager
 from .error_definitions import UserGenericException
@@ -25,4 +26,4 @@ class User(AbstractUser):
         try:
             validate_email(self.username)
         except:
-            raise UserGenericException('Username must be a valid email')
+            raise ValidationError('Username must be a valid email')
