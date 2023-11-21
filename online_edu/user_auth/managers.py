@@ -8,9 +8,9 @@ from .error_definitions import UserGenericException
 class UserManager(AbstractUserManager):
     '''Manager for the User model'''
 
-    def get(self, *args, **kwargs):
+    def get_user_by_id(self, id, *args, **kwargs):
         try:
-            return super().get(*args, **kwargs)
+            return self.get(id=id, *args, **kwargs)
         except:
             raise UserGenericException('User not found')
 
