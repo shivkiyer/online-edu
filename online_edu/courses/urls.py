@@ -10,6 +10,11 @@ urlpatterns = [
         name='create-course'
     ),
     path(
+        '<str:slug>',
+        CourseView.as_view(),
+        name='fetch-course'
+    ),
+    path(
         '',
         CourseView.as_view(),
         name='fetch-courses'

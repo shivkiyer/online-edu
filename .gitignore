@@ -10,3 +10,6 @@ __pychache__
 
 # Log files
 **logs/
+
+# Editor config directory
+.vscode/

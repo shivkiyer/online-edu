@@ -2,7 +2,7 @@ import logging
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
-from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.exceptions import InvalidToken
 
@@ -20,13 +20,14 @@ logger = logging.getLogger(__name__)
 class CourseView(
     CreateAPIView,
     ListModelMixin,
+    RetrieveModelMixin,
     UserAuthentication
 ):
     '''Create a course with logged-in user as instructor'''
 
     serializer_class = CourseSerializer
     user_model = User
-    lookup_field = 'id'
+    lookup_field = 'slug'
 
     def get_queryset(self, *args, **kwargs):
         return Course.objects.fetch_courses()
@@ -73,4 +74,8 @@ class CourseView(
             )
 
     def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+        slug = self.kwargs.get('slug', None)
+        if slug:
+            return self.retrieve(request, *args, *kwargs)
+        else:
+            return self.list(request, *args, **kwargs)
