@@ -122,7 +122,7 @@ class ResendVerificationEmailView(APIView):
     def get(self, *args, **kwargs):
         user_id = self.kwargs.get('user_id', None)
         try:
-            user_obj = User.objects.get(id=user_id)
+            user_obj = User.objects.get_user_by_id(user_id)
             send_verification_link_email(user_obj)
             logger.info('Verification email resent to user {}'.format(
                 user_obj.username))
@@ -201,7 +201,7 @@ class ResetPasswordView(APIView):
     def get(self, *args, **kwargs):
         user_id = self.kwargs.get('user_id', None)
         try:
-            user_obj = User.objects.get(id=user_id)
+            user_obj = User.objects.get_user_by_id(user_id)
             send_password_reset_email(user_obj)
             logger.info('Password reset email sent to user {}'.format(
                 user_obj.username))
