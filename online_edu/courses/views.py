@@ -34,6 +34,8 @@ class CourseView(
 
     def get_queryset(self, *args, **kwargs):
         '''Return courses not in draft mode and not archived'''
+        if self.request.user is not None and self.request.user.is_staff:
+            return Course.objects.all()
         return Course.objects.fetch_courses()
 
     def perform_create(self, serializer):

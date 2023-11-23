@@ -50,6 +50,19 @@ def test_user():
 
 
 @pytest.fixture
+def test_configurable_user():
+    '''User with username, password and admin status as arguments'''
+
+    def _user_gen(username, password, is_staff):
+        sample_user = User.objects.create(username=username, is_staff=is_staff)
+        sample_user.set_password(password)
+        sample_user.save()
+        return sample_user
+
+    return _user_gen
+
+
+@pytest.fixture
 def verification_token(test_user):
     '''Creating a verification token with JWT'''
 

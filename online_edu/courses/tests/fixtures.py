@@ -1,5 +1,4 @@
 import pytest
-from random import randint
 from faker import Faker
 
 from courses.models import Course
