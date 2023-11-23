@@ -4,11 +4,12 @@ from rest_framework.test import APIClient
 
 from courses.models import Course
 from .fixtures import sample_course, sample_courses
+from user_auth.tests.fixtures import test_user, access_token
 
 pytestmark = pytest.mark.django_db
 
 
-def test_course_fetch_all(sample_courses):
+def test_course_fetch_all(sample_courses, test_user, access_token):
     '''Test get all courses endpoint'''
 
     client = APIClient()
@@ -73,11 +74,30 @@ def test_course_fetch_all(sample_courses):
     assert api_response[0]['title'] == courses[1].title
     assert api_response[1]['title'] == courses[4].title
 
+    # An admin user should be able to see all courses
+    user1 = test_user
+    user1.is_staff = True
+    user1.save()
+    token = access_token(user1, 60)
+    api_response = client.get(
+        '/api/courses/',
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    assert len(api_response.data) == 5
 
-def test_course_fetch_detail(sample_course):
+
+def test_course_fetch_detail(sample_course, test_user, access_token):
     '''Test retrieve course endpoint'''
 
     client = APIClient()
+    user1 = test_user
+    user1.is_staff = True
+    user1.save()
+    token = access_token(user1, 60)
 
     # Sample draft course
     course = sample_course
@@ -88,6 +108,16 @@ def test_course_fetch_detail(sample_course):
         format='json'
     )
     assert api_response.status_code == 404
+
+    # Admin user should be able to see a course in draft status
+    api_response = client.get(
+        '/api/courses/{}'.format(course.slug),
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
 
     # Set draft to false
     course.is_draft = False
@@ -116,3 +146,13 @@ def test_course_fetch_detail(sample_course):
         format='json'
     )
     assert api_response.status_code == 404
+
+    # Admin user should be able to see archived course
+    api_response = client.get(
+        '/api/courses/{}'.format(course.slug),
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200

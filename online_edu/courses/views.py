@@ -88,6 +88,7 @@ class CourseView(
     def get(self, request, *args, **kwargs):
         '''Fetch all courses or specific course by slug'''
         slug = self.kwargs.get('slug', None)
+        self.authenticate(request)
         if slug:
             return self.retrieve(request, *args, *kwargs)
         else:
