@@ -43,6 +43,13 @@ class Course(models.Model):
         else:
             raise CourseForbiddenError('Instructors have to be administrators')
 
+    def check_user_is_instructor(self, user):
+        '''Check if a user is an instructor of the course'''
+        instuctor_emails = [x.username for x in self.instructors.all()]
+        if user and user.username in instuctor_emails:
+            return True
+        return False
+
     def add_students(self, user):
         '''Add students to the course'''
         self.students.add(user)
