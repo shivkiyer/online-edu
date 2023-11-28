@@ -100,66 +100,40 @@ class CourseView(
             self.authenticate(request)
             return self.partial_update(request, *args, **kwargs)
         except CourseGenericError as e:
-            logger.error('Error updating course - {}'.format(str(e)))
+            logger.error('Error updating course for url {url} - {error}'.format(
+                url=request.get_full_path(),
+                error=str(e)
+            ))
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
         except CourseForbiddenError as e:
-            logger.critical('Course update by non admin attempted')
+            logger.critical('Course update by non admin attempted for url {}'.format(
+                request.get_full_path()))
             return Response(
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
         except ValidationError as e:
-            logger.error('Error updating course - {}'.format(str(e)))
+            logger.error('Error updating course for url {url} - {error}'.format(
+                url=request.get_full_path(),
+                error=str(e)
+            ))
             return rest_framework_validation_error(e, 'Course could not be updated')
         except InvalidToken as e:
-            logger.critical('Course update by non admin attempted')
+            print(request.get_full_path())
+            logger.critical('Course update by non admin attempted for url {}'.format(
+                request.get_full_path()))
             return Response(
                 data='Must be logged in as administrator to update a course',
                 status=status.HTTP_403_FORBIDDEN
             )
         except Exception as e:
-            logger.critical('Error updating course - {}'.format(str(e)))
-            return Response(
-                data=DEFAULT_ERROR_RESPONSE,
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-class CoursePublishView(CourseView):
-    '''Endpoint for publishing or unpublishing a course'''
-
-    def patch(self, request, *args, **kwargs):
-        '''Change the publish flag on a course'''
-        try:
-            self.authenticate(request)
-            return self.partial_update(request, *args, **kwargs)
-        except CourseGenericError as e:
-            logger.error('Error (un)publishing course - {}'.format(str(e)))
-            return Response(
-                data=str(e),
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except CourseForbiddenError as e:
-            logger.critical('Course update by non admin attempted')
-            return Response(
-                data=str(e),
-                status=status.HTTP_403_FORBIDDEN
-            )
-        except ValidationError as e:
-            logger.error(
-                'Error (un)publishing course - {}'.format(str(e)))
-            return rest_framework_validation_error(e, 'Course could not be (un)published.')
-        except InvalidToken as e:
-            logger.critical('Course update by non admin attempted')
-            return Response(
-                data='Must be logged in as administrator to publish or unpublish a course',
-                status=status.HTTP_403_FORBIDDEN
-            )
-        except Exception as e:
-            logger.critical('Error (un)publishing course - {}'.format(str(e)))
+            logger.critical('Error updating course for url {url} - {error}'.format(
+                url=request.get_full_path(),
+                error=str(e)
+            ))
             return Response(
                 data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST

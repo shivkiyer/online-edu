@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import CourseView, CoursePublishView
+from .views import CourseView  # , CoursePublishView
 
 app_name = 'courses'
 urlpatterns = [
@@ -11,7 +11,7 @@ urlpatterns = [
     ),
     path(
         'publish/<str:slug>',
-        CoursePublishView.as_view(),
+        CourseView.as_view(),
         name='publish-course'
     ),
     path(
