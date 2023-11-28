@@ -18,7 +18,6 @@ class Course(models.Model):
     students = models.ManyToManyField(User, blank=True)
     price = models.DecimalField(default=10.99, max_digits=4, decimal_places=2)
     is_free = models.BooleanField(default=False)
-    is_published = models.BooleanField(default=False)
     is_draft = models.BooleanField(default=True)
     is_archived = models.BooleanField(default=False)
 

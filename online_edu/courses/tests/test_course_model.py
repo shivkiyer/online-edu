@@ -21,7 +21,6 @@ def test_course_creation():
     assert course1.slug != None
     assert course1.is_free == False
     assert course1.is_draft == True
-    assert course1.is_published == False
     assert course1.is_archived == False
 
     # Fail - Non-unique title

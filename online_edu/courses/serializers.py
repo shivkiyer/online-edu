@@ -22,17 +22,19 @@ class CourseSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
-        course_is_free = data.get('is_free', False)
+        course_is_free = data.get('is_free', None)
         course_price = data.get('price', None)
         if course_price is not None and course_price > 0:
             data['is_free'] = False
         elif course_is_free:
             data['price'] = 0.00
-        elif course_price is None or course_price <= 0:
-            raise CourseGenericError('Course price is required')
         return data
 
     def create(self, validated_data):
+        course_is_free = validated_data.get('is_free', False)
+        course_price = validated_data.get('price', None)
+        if not course_is_free and (course_price is None or course_price <= 0):
+            raise CourseGenericError('Course price is required')
         user = validated_data.get('user', None)
         if user is not None and user.is_staff:
             del validated_data['user']
@@ -54,8 +56,6 @@ class CourseSerializer(serializers.ModelSerializer):
                 'description', instance.description)
             instance.price = validated_data.get('price', instance.price)
             instance.is_free = validated_data.get('is_free', instance.is_free)
-            instance.is_published = validated_data.get(
-                'is_published', instance.is_published)
             instance.is_draft = validated_data.get(
                 'is_draft', instance.is_draft)
             instance.is_archived = validated_data.get(
@@ -69,7 +69,8 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['title', 'subtitle', 'description', 'price', 'is_free',]
+        fields = ['title', 'subtitle', 'description',
+                  'price', 'is_free', 'is_draft']
         extra_kwargs = {
             'description': {
                 'error_messages': {
@@ -77,4 +78,7 @@ class CourseSerializer(serializers.ModelSerializer):
                     'required': 'Course description is required'
                 }
             },
+            'is_draft': {
+                'write_only': True
+            }
         }

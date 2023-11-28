@@ -26,7 +26,7 @@ class CourseView(
     UpdateModelMixin,
     UserAuthentication
 ):
-    '''Create a course with logged-in user as instructor'''
+    '''CRUD operations on Course'''
 
     serializer_class = CourseSerializer
     user_model = User
@@ -100,6 +100,7 @@ class CourseView(
             self.authenticate(request)
             return self.partial_update(request, *args, **kwargs)
         except CourseGenericError as e:
+            logger.error('Error updating course - {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
@@ -121,6 +122,44 @@ class CourseView(
             )
         except Exception as e:
             logger.critical('Error updating course - {}'.format(str(e)))
+            return Response(
+                data=DEFAULT_ERROR_RESPONSE,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class CoursePublishView(CourseView):
+    '''Endpoint for publishing or unpublishing a course'''
+
+    def patch(self, request, *args, **kwargs):
+        '''Change the publish flag on a course'''
+        try:
+            self.authenticate(request)
+            return self.partial_update(request, *args, **kwargs)
+        except CourseGenericError as e:
+            logger.error('Error (un)publishing course - {}'.format(str(e)))
+            return Response(
+                data=str(e),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except CourseForbiddenError as e:
+            logger.critical('Course update by non admin attempted')
+            return Response(
+                data=str(e),
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except ValidationError as e:
+            logger.error(
+                'Error (un)publishing course - {}'.format(str(e)))
+            return rest_framework_validation_error(e, 'Course could not be (un)published.')
+        except InvalidToken as e:
+            logger.critical('Course update by non admin attempted')
+            return Response(
+                data='Must be logged in as administrator to publish or unpublish a course',
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except Exception as e:
+            logger.critical('Error (un)publishing course - {}'.format(str(e)))
             return Response(
                 data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
