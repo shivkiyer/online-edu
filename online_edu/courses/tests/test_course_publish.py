@@ -19,7 +19,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
 
     # Fail - non-admin user cannot publish a course
     api_response = client.patch(
-        '/api/courses/publish/{}'.format(course1.slug),
+        '/api/courses/{}/publish'.format(course1.slug),
         {
             'is_draft': 'False'
         },
@@ -34,7 +34,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
     user1.is_staff = True
     user1.save()
     api_response = client.patch(
-        '/api/courses/publish/{}'.format(course1.slug),
+        '/api/courses/{}/publish'.format(course1.slug),
         {
             'is_draft': 'False'
         },
@@ -49,7 +49,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
     # Success - instructor can publish a course
     course1.add_instructor(user1)
     api_response = client.patch(
-        '/api/courses/publish/{}'.format(course1.slug),
+        '/api/courses/{}/publish'.format(course1.slug),
         {
             'is_draft': 'False'
         },
@@ -65,7 +65,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
 
     # Success - instructor can unpublish a course
     api_response = client.patch(
-        '/api/courses/publish/{}'.format(course1.slug),
+        '/api/courses/{}/publish'.format(course1.slug),
         {
             'is_draft': 'True'
         },

@@ -10,7 +10,7 @@ urlpatterns = [
         name='create-course'
     ),
     path(
-        'publish/<str:slug>',
+        '<str:slug>/publish',
         CourseView.as_view(),
         name='publish-course'
     ),
