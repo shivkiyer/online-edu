@@ -122,7 +122,6 @@ class CourseView(
             ))
             return rest_framework_validation_error(e, 'Course could not be updated')
         except InvalidToken as e:
-            print(request.get_full_path())
             logger.critical('Course update by non admin attempted for url {}'.format(
                 request.get_full_path()))
             return Response(
