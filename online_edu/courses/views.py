@@ -1,5 +1,4 @@
 import logging
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, UpdateAPIView
@@ -154,12 +153,6 @@ class CourseRegisterView(UpdateAPIView, UserAuthentication):
         '''Return published courses'''
         return Course.objects.fetch_courses()
 
-    def get_object(self):
-        try:
-            return get_object_or_404(self.get_queryset(), slug=self.kwargs['slug'])
-        except:
-            raise Exception('Course not found')
-
     def partial_update(self, request, *args, **kwargs):
         try:
             user = self.authenticate(request, check_admin=False)
@@ -176,7 +169,7 @@ class CourseRegisterView(UpdateAPIView, UserAuthentication):
             )
         except InvalidToken as e:
             return Response(
-                data='Must be logged in as administrator to create a course',
+                data='Must be logged in to register for course',
                 status=status.HTTP_403_FORBIDDEN
             )
         except Exception as e:
