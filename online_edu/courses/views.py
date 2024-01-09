@@ -1,7 +1,8 @@
 import logging
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.mixins import ListModelMixin, \
     RetrieveModelMixin, \
     UpdateModelMixin
@@ -33,7 +34,7 @@ class CourseView(
     lookup_field = 'slug'
 
     def get_queryset(self, *args, **kwargs):
-        '''Return courses not in draft mode and not archived'''
+        '''Return courses not in draft mode'''
         if self.request.user is not None and self.request.user.is_staff:
             return Course.objects.all()
         return Course.objects.fetch_courses()
@@ -135,5 +136,51 @@ class CourseView(
             ))
             return Response(
                 data=DEFAULT_ERROR_RESPONSE,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class CourseRegisterView(UpdateAPIView, UserAuthentication):
+    '''
+    Register a student for a course and
+    return list of courses for the student.
+    '''
+
+    serializer_class = CourseSerializer
+    lookup_field = 'slug'
+    user_model = User
+
+    def get_queryset(self, *args, **kwargs):
+        '''Return published courses'''
+        return Course.objects.fetch_courses()
+
+    def get_object(self):
+        try:
+            return get_object_or_404(self.get_queryset(), slug=self.kwargs['slug'])
+        except:
+            raise Exception('Course not found')
+
+    def partial_update(self, request, *args, **kwargs):
+        try:
+            user = self.authenticate(request, check_admin=False)
+            if user is not None:
+                course_obj = self.get_object()
+                course_obj.add_students(user)
+            return Response(
+                data=CourseSerializer(user.course_set.all(), many=True).data
+            )
+        except CourseGenericError as e:
+            return Response(
+                data=str(e),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except InvalidToken as e:
+            return Response(
+                data='Must be logged in as administrator to create a course',
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except Exception as e:
+            return Response(
+                data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )

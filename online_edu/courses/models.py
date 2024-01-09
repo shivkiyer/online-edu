@@ -23,6 +23,9 @@ class Course(models.Model):
 
     objects = CourseManager()
 
+    def __str__(self):
+        return self.title
+
     def save(self, *args, **kwargs):
         if not self.is_free and self.price <= 0:
             raise CourseGenericError('Price of a non-free course is required.')
@@ -51,7 +54,10 @@ class Course(models.Model):
 
     def add_students(self, user):
         '''Add students to the course'''
-        self.students.add(user)
+        if user not in self.students.all():
+            self.students.add(user)
+        else:
+            raise CourseGenericError('User is already registered')
 
 
 def generate_course_slug(sender, instance, *args, **kwargs):
