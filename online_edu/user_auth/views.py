@@ -299,9 +299,13 @@ class UserAuthentication(JWTAuthentication):
     '''Returns user from token in header'''
 
     def authenticate(self, request, check_admin=True, *args, **kwargs):
-        user = super().authenticate(request, *args, **kwargs)
-        if user is not None:
-            if check_admin and not user[0].is_staff:
-                return None
-            request.user = user[0]
-            return user[0]
+        try:
+            user = super().authenticate(request, *args, **kwargs)
+            if user is not None:
+                if check_admin and not user[0].is_staff:
+                    return None
+                request.user = user[0]
+                return user[0]
+        except Exception as e:
+            pass
+        return None

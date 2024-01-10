@@ -159,9 +159,17 @@ class CourseRegisterView(UpdateAPIView, UserAuthentication):
             if user is not None:
                 course_obj = self.get_object()
                 course_obj.add_students(user)
-            return Response(
-                data=CourseSerializer(user.course_set.all(), many=True).data
-            )
+                return Response(
+                    data=CourseSerializer(
+                        user.course_set.all(),
+                        many=True
+                    ).data
+                )
+            else:
+                return Response(
+                    data='Must be logged in to register for course',
+                    status=status.HTTP_403_FORBIDDEN
+                )
         except CourseGenericError as e:
             return Response(
                 data=str(e),
