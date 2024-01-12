@@ -1,9 +1,9 @@
+from datetime import datetime
 from django.db import models
 from django.db.models.signals import pre_save
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 
-from user_auth.models import User
 from .error_definitions import CourseForbiddenError, CourseGenericError
 from .managers import CourseManager
 
@@ -14,12 +14,23 @@ class Course(models.Model):
     subtitle = models.CharField(max_length=300, null=True, blank=True)
     slug = models.SlugField(max_length=200)
     description = models.TextField()
-    instructors = models.ManyToManyField(User, related_name='courses_taught')
-    students = models.ManyToManyField(User, blank=True)
-    price = models.DecimalField(default=10.99, max_digits=4, decimal_places=2)
+    instructors = models.ManyToManyField(
+        'user_auth.User', related_name='courses_taught')
+    students = models.ManyToManyField(
+        'user_auth.User',
+        blank=True,
+        through='registration.CourseStudentRegistration'
+    )
+    price = models.DecimalField(
+        default=10.99,
+        max_digits=4,
+        decimal_places=2
+    )
     is_free = models.BooleanField(default=False)
     is_draft = models.BooleanField(default=True)
     is_archived = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = CourseManager()
 
@@ -54,10 +65,13 @@ class Course(models.Model):
 
     def add_students(self, user):
         '''Add students to the course'''
-        if user not in self.students.all():
-            self.students.add(user)
-        else:
-            raise CourseGenericError('User is already registered')
+        # TODO - registering students logic will need to be separated from Course model
+        # CourseStudentRegistration.objects.create(course=self, user=user)
+        pass
+        # if user not in self.students.all():
+        #     self.students.add(user)
+        # else:
+        #     raise CourseGenericError('User is already registered')
 
 
 def generate_course_slug(sender, instance, *args, **kwargs):

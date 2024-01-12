@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # custom apps'
     'user_auth',
     'courses',
+    'registration',
 ]
 
 MIDDLEWARE = [
