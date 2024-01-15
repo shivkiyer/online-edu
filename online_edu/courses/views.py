@@ -10,6 +10,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 
 from user_auth.models import User
 from user_auth.views import UserAuthentication
+from registration.models import CourseStudentRegistration
 from .models import Course
 from .serializers import CourseSerializer
 from .error_definitions import CourseGenericError, CourseForbiddenError
@@ -158,7 +159,10 @@ class CourseRegisterView(UpdateAPIView, UserAuthentication):
             user = self.authenticate(request, check_admin=False)
             if user is not None:
                 course_obj = self.get_object()
-                course_obj.add_students(user)
+                CourseStudentRegistration.objects.register_student(
+                    user=user,
+                    course=course_obj
+                )
                 return Response(
                     data=CourseSerializer(
                         user.course_set.all(),

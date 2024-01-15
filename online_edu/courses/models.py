@@ -63,16 +63,6 @@ class Course(models.Model):
             return True
         return False
 
-    def add_students(self, user):
-        '''Add students to the course'''
-        # TODO - registering students logic will need to be separated from Course model
-        # CourseStudentRegistration.objects.create(course=self, user=user)
-        pass
-        # if user not in self.students.all():
-        #     self.students.add(user)
-        # else:
-        #     raise CourseGenericError('User is already registered')
-
 
 def generate_course_slug(sender, instance, *args, **kwargs):
     '''Generate slug for course'''
