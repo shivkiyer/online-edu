@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, UpdateAPIView
+from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.exceptions import InvalidToken
 
 from user_auth.models import User
@@ -12,7 +12,7 @@ from common.error_definitions import DEFAULT_ERROR_RESPONSE
 from .models import CourseStudentRegistration
 
 
-class CourseRegisterView(UpdateAPIView, UserAuthentication):
+class CourseRegisterView(GenericAPIView, UserAuthentication):
     '''
     Register a student for a course and
     return list of courses for the student.
@@ -26,7 +26,7 @@ class CourseRegisterView(UpdateAPIView, UserAuthentication):
         '''Return published courses'''
         return Course.objects.fetch_courses()
 
-    def partial_update(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
             user = self.authenticate(request, check_admin=False)
             if user is not None:

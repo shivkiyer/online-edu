@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 
-from .fixtures import sample_course
+from courses.tests.fixtures import sample_course
 from user_auth.tests.fixtures import test_user, access_token
 from courses.models import Course
 
@@ -24,7 +24,7 @@ def test_register_student_for_course(
 
     # Fail
     # credentials needed for registration
-    api_response = client.patch(
+    api_response = client.post(
         '/api/registration/{}/register-student'.format(course1.slug),
         format='json'
     )
@@ -36,7 +36,7 @@ def test_register_student_for_course(
 
     # Fail
     # an inactive user should not be able to register
-    api_response = client.patch(
+    api_response = client.post(
         '/api/registration/{}/register-student'.format(course1.slug),
         headers={
             'Authorization': 'Bearer {}'.format(token)
@@ -51,7 +51,7 @@ def test_register_student_for_course(
 
     # Fail
     # course must be published for registration
-    api_response = client.patch(
+    api_response = client.post(
         '/api/registration/{}/register-student'.format(course1.slug),
         headers={
             'Authorization': 'Bearer {}'.format(token)
@@ -66,7 +66,7 @@ def test_register_student_for_course(
 
     # Pass
     # active user with credentials should be able to register
-    api_response = client.patch(
+    api_response = client.post(
         '/api/registration/{}/register-student'.format(course1.slug),
         headers={
             'Authorization': 'Bearer {}'.format(token)
@@ -78,7 +78,7 @@ def test_register_student_for_course(
 
     # Fail
     # user should not be able to register if already registered
-    api_response = client.patch(
+    api_response = client.post(
         '/api/registration/{}/register-student'.format(course1.slug),
         headers={
             'Authorization': 'Bearer {}'.format(token)
@@ -98,7 +98,7 @@ def test_register_student_for_course(
 
     # Pass
     # user should be able to register for another course
-    api_response = client.patch(
+    api_response = client.post(
         '/api/registration/{}/register-student'.format(course2.slug),
         headers={
             'Authorization': 'Bearer {}'.format(token)
