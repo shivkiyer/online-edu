@@ -1,14 +1,9 @@
 from django.urls import path
 
-from .views import CourseView, CourseRegisterView
+from .views import CourseView
 
 app_name = 'courses'
 urlpatterns = [
-    path(
-        '<str:slug>/register-student',
-        CourseRegisterView.as_view(),
-        name='register-course'
-    ),
     path(
         'new-course',
         CourseView.as_view(),
