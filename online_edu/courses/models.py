@@ -50,6 +50,8 @@ class Course(models.Model):
 
     def add_instructor(self, user):
         '''Add instructors to the course'''
+        if self.check_user_is_instructor(user):
+            raise CourseGenericError('Already an instructor')
         if user.is_staff:
             self.instructors.add(user)
         else:

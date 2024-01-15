@@ -25,6 +25,13 @@ class UserManager(AbstractUserManager):
             raise UserGenericException('User not found')
         return user_obj
 
+    def get_user_by_email(self, email):
+        '''Return a user object using email'''
+        try:
+            return self.get(username=email)
+        except:
+            raise UserGenericException('User not found')
+
     def activate_user_by_token(self, token, *args, **kwargs):
         '''Activate a user from JWT'''
         try:
