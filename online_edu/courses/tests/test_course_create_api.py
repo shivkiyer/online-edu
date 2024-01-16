@@ -24,7 +24,7 @@ def test_course_create_endpoint(test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Must be logged in as administrator to create a course'
+    assert api_response.data == 'Invalid login or inactive account'
     assert Course.objects.count() == 0
 
     # Fail - token in header is for non-admin user
@@ -43,7 +43,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Must be logged in as administrator to create a course'
+    assert api_response.data == 'Admin priviliges required for this action'
     assert api_response.status_code == 403
     assert Course.objects.count() == 0
 
@@ -164,7 +164,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Must be logged in as administrator to create a course'
+    assert api_response.data == 'Must be logged in for this action'
     assert api_response.status_code == 403
     assert Course.objects.count() == 1
 

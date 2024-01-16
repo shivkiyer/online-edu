@@ -7,7 +7,7 @@ from user_auth.models import User
 from user_auth.views import UserAuthentication
 from courses.models import Course
 from courses.serializers import CourseSerializer
-from courses.error_definitions import CourseGenericError, CourseForbiddenError
+from common.error_definitions import Http400Error, Http403Error
 from common.error_definitions import DEFAULT_ERROR_RESPONSE
 from .models import CourseStudentRegistration
 
@@ -41,19 +41,14 @@ class CourseRegisterView(GenericAPIView, UserAuthentication):
                         many=True
                     ).data
                 )
-            else:
-                return Response(
-                    data='Must be logged in to register for course',
-                    status=status.HTTP_403_FORBIDDEN
-                )
-        except CourseGenericError as e:
+        except Http400Error as e:
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except InvalidToken as e:
+        except Http403Error as e:
             return Response(
-                data='Must be logged in to register for course',
+                data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
         except Exception as e:
@@ -75,7 +70,7 @@ class CourseInstructorAddView(GenericAPIView, UserAuthentication):
         if self.request.user is not None and self.request.user.is_staff:
             return Course.objects.all()
         else:
-            raise CourseForbiddenError('Must be logged in as an instructor')
+            raise Http403Error('Must be logged in as an instructor')
 
     def post(self, request, *args, **kwargs):
         try:
@@ -91,17 +86,12 @@ class CourseInstructorAddView(GenericAPIView, UserAuthentication):
                     data='Must be logged in as an instructor',
                     status=status.HTTP_403_FORBIDDEN
                 )
-        except InvalidToken as e:
-            return Response(
-                data='Must be logged in as instructor',
-                status=status.HTTP_403_FORBIDDEN
-            )
-        except CourseForbiddenError as e:
+        except Http403Error as e:
             return Response(
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
-        except CourseGenericError as e:
+        except Http400Error as e:
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST

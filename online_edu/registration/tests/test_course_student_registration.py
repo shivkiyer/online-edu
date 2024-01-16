@@ -29,7 +29,7 @@ def test_register_student_for_course(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Must be logged in to register for course'
+    assert api_response.data == 'Invalid login or inactive account'
 
     # Creating JWT
     token = access_token(user1, 60)

@@ -28,7 +28,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
         },
         format='json'
     )
-    assert api_response.status_code == 400
+    assert api_response.status_code == 403
 
     # Fail - admin user not instructor cannot publish a course
     user1.is_staff = True

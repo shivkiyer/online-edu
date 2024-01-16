@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .error_definitions import UserGenericException
+from common.error_definitions import Http400Error
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 def send_verification_link_email(user):
     '''Send an email to newly registered used with verification link'''
     if not user:
-        raise UserGenericException('No user to send email to')
+        raise Http400Error('No user to send email to')
     if user.is_active:
-        raise UserGenericException('User already activated')
+        raise Http400Error('User already activated')
 
     verification_token = RefreshToken.for_user(user)
     message_body = (
@@ -51,7 +51,7 @@ def send_verification_link_email(user):
 def send_password_reset_email(user):
     '''Send a password reset email to an active user'''
     if not user or not user.is_active:
-        raise UserGenericException('No user to send email to')
+        raise Http400Error('No user to send email to')
 
     verification_token = RefreshToken.for_user(user)
     message_body = (

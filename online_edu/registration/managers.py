@@ -1,6 +1,6 @@
 from django.db import models
 
-from courses.error_definitions import CourseGenericError
+from common.error_definitions import Http400Error
 
 
 class CourseStudentRegistrationManager(models.Manager):
@@ -15,6 +15,6 @@ class CourseStudentRegistrationManager(models.Manager):
         except:
             pass
         if register_obj is not None:
-            raise CourseGenericError('User is already registered')
+            raise Http400Error('User is already registered')
 
         return self.create(user=user, course=course)

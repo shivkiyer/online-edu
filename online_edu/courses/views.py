@@ -12,8 +12,7 @@ from user_auth.models import User
 from user_auth.views import UserAuthentication
 from .models import Course
 from .serializers import CourseSerializer
-from .error_definitions import CourseGenericError, CourseForbiddenError
-from common.error_definitions import DEFAULT_ERROR_RESPONSE
+from common.error_definitions import DEFAULT_ERROR_RESPONSE, Http400Error, Http403Error
 from common.error_handling import rest_framework_validation_error
 
 logger = logging.getLogger(__name__)
@@ -57,13 +56,13 @@ class CourseView(
         try:
             self.authenticate(request)
             return super().create(request, *args, **kwargs)
-        except CourseGenericError as e:
+        except Http400Error as e:
             logger.error('Error creating course - {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except CourseForbiddenError as e:
+        except Http403Error as e:
             logger.critical('Course creation by non admin attempted')
             return Response(
                 data=str(e),
@@ -72,12 +71,6 @@ class CourseView(
         except ValidationError as e:
             logger.error('Error creating course - {}'.format(str(e)))
             return rest_framework_validation_error(e, 'Course could not be created')
-        except InvalidToken as e:
-            logger.critical('Course creation by non admin attempted')
-            return Response(
-                data='Must be logged in as administrator to create a course',
-                status=status.HTTP_403_FORBIDDEN
-            )
         except Exception as e:
             logger.critical('Error creating course - {}'.format(str(e)))
             return Response(
@@ -88,7 +81,7 @@ class CourseView(
     def get(self, request, *args, **kwargs):
         '''Fetch all courses or specific course by slug'''
         slug = self.kwargs.get('slug', None)
-        self.authenticate(request)
+        self.authenticate(request, open_endpoint=True)
         if slug:
             return self.retrieve(request, *args, *kwargs)
         else:
@@ -99,7 +92,7 @@ class CourseView(
         try:
             self.authenticate(request)
             return self.partial_update(request, *args, **kwargs)
-        except CourseGenericError as e:
+        except Http400Error as e:
             logger.error('Error updating course for url {url} - {error}'.format(
                 url=request.get_full_path(),
                 error=str(e)
@@ -108,7 +101,7 @@ class CourseView(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except CourseForbiddenError as e:
+        except Http403Error as e:
             logger.critical('Course update by non admin attempted for url {}'.format(
                 request.get_full_path()))
             return Response(
@@ -121,13 +114,6 @@ class CourseView(
                 error=str(e)
             ))
             return rest_framework_validation_error(e, 'Course could not be updated')
-        except InvalidToken as e:
-            logger.critical('Course update by non admin attempted for url {}'.format(
-                request.get_full_path()))
-            return Response(
-                data='Must be logged in as administrator to update a course',
-                status=status.HTTP_403_FORBIDDEN
-            )
         except Exception as e:
             logger.critical('Error updating course for url {url} - {error}'.format(
                 url=request.get_full_path(),

@@ -4,7 +4,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 from .managers import UserManager
-from .error_definitions import UserGenericException
+from common.error_definitions import Http400Error
 
 
 class User(AbstractUser):
@@ -17,7 +17,7 @@ class User(AbstractUser):
         try:
             validate_email(self.username)
         except:
-            raise UserGenericException('Username must be a valid email')
+            raise Http400Error('Username must be a valid email')
         else:
             super().save(*args, **kwargs)
 

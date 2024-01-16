@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from .models import Course
-from .error_definitions import CourseGenericError, CourseForbiddenError
+from common.error_definitions import Http400Error, Http403Error
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -34,7 +34,7 @@ class CourseSerializer(serializers.ModelSerializer):
         course_is_free = validated_data.get('is_free', False)
         course_price = validated_data.get('price', None)
         if not course_is_free and (course_price is None or course_price <= 0):
-            raise CourseGenericError('Course price is required')
+            raise Http400Error('Course price is required')
         user = validated_data.get('user', None)
         if user is not None and user.is_staff:
             del validated_data['user']
@@ -42,7 +42,7 @@ class CourseSerializer(serializers.ModelSerializer):
             course.add_instructor(user)
             return course
         else:
-            raise CourseForbiddenError(
+            raise Http403Error(
                 'Must be logged in as administrator to create a course'
             )
 
@@ -63,7 +63,7 @@ class CourseSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
         else:
-            raise CourseForbiddenError(
+            raise Http403Error(
                 'Only an instructor of a course can update a course'
             )
 

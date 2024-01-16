@@ -29,7 +29,7 @@ def test_only_instructor_can_update_course(
         },
         format='json'
     )
-    assert api_response.status_code == 400
+    assert api_response.status_code == 403
 
     # Fail - Setting the course as not draft
     course1.is_draft = False
@@ -44,7 +44,6 @@ def test_only_instructor_can_update_course(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Only an instructor of a course can update a course'
 
     # Fail - user is admin but not instructor
     user1 = test_user

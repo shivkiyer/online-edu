@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from .models import User
-from .error_definitions import UserGenericException
+from common.error_definitions import Http400Error
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -71,7 +71,7 @@ class ChangePasswordSerializer(RegisterUserSerializer):
     def update(self, instance, validated_data):
         '''Update user password'''
         if not instance.is_active:
-            raise UserGenericException('User not found')
+            raise Http400Error('User not found')
         instance.set_password(validated_data.get('password'))
         instance.save()
         return instance
