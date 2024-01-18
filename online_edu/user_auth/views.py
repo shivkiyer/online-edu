@@ -30,44 +30,26 @@ class RegisterUserView(CreateAPIView):
         '''Create new user from API request'''
         try:
             user = RegisterUserSerializer(data=self.request.data)
+            new_user = user.save()
+            send_verification_link_email(new_user)
+            logger.info('New user {} created'.format(new_user.username))
+            return Response(user.data, status=status.HTTP_201_CREATED)
+        except Http400Error as e:
+            logger.error(
+                'Error in registering new user {}'.format(str(e))
+            )
+            return Response(
+                data=str(e),
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             logger.critical(
-                'Error in registering new user - {error}'.format(error=str(e))
+                'Error in registering new user - {}'.format(str(e))
             )
             return Response(
                 data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
             )
-        new_user = None
-        if user.is_valid():
-            try:
-                new_user = user.save()
-                send_verification_link_email(new_user)
-                logger.info('New user {} created'.format(new_user.username))
-                return Response(user.data, status=status.HTTP_201_CREATED)
-            except Http400Error as e:
-                logger.error(
-                    'Error in registering new user {username} - {error}'.format(
-                        username=user.data['username'],
-                        error=str(e)
-                    )
-                )
-                return Response(
-                    data=str(e),
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            except Exception as e:
-                logger.critical(
-                    'Error in registering new user - {error}'.format(
-                        error=str(e)
-                    )
-                )
-                return Response(
-                    data=DEFAULT_ERROR_RESPONSE,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            return serializer_error_response(user, 'Could not register user')
 
 
 class VerifyUserView(APIView):
@@ -77,7 +59,7 @@ class VerifyUserView(APIView):
         verification_token = self.kwargs.get('token', None)
         if not verification_token:
             logger.critical(
-                'No token passed for verification registered user'
+                'No token passed for verifying registered user'
             )
             return Response(
                 data='Broken link',
@@ -108,11 +90,11 @@ class VerifyUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            logger.error(
+            logger.critical(
                 'Error in verifying user - {}'.format(str(e))
             )
             return Response(
-                data=str(e),
+                data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -266,16 +248,10 @@ class ChangePasswordView(APIView):
                 data=self.request.data
             )
             # Check for password match
-            if not user_form.is_valid():
-                return serializer_error_response(
-                    user_form,
-                    'Could not change user password'
-                )
-            else:
-                user_form.save()
-                logger.info('Password changed for user {}'.format(
-                    user_obj.username))
-                return Response(status=status.HTTP_200_OK)
+            user_form.save()
+            logger.info('Password changed for user {}'.format(
+                user_obj.username))
+            return Response(status=status.HTTP_200_OK)
         except Http400Error as e:
             logger.error(
                 'Change password failed - {error}'.format(error=str(e))

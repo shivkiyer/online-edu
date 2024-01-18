@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from .models import User
 from common.error_definitions import Http400Error
+from common.error_handling import extract_serializer_error
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,6 +17,12 @@ class UserSerializer(serializers.ModelSerializer):
             'required': 'The password field is required'
         }
     )
+
+    def save(self):
+        if self.is_valid():
+            return super().save()
+        else:
+            raise Http400Error(extract_serializer_error(self.errors))
 
     def create(self, validated_data):
         '''Create new user in db'''
