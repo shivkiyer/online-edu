@@ -5,15 +5,12 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.mixins import ListModelMixin, \
     RetrieveModelMixin, \
     UpdateModelMixin
-from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.exceptions import InvalidToken
 
 from user_auth.models import User
 from user_auth.views import UserAuthentication
 from .models import Course
 from .serializers import CourseSerializer
 from common.error_definitions import DEFAULT_ERROR_RESPONSE, Http400Error, Http403Error
-from common.error_handling import rest_framework_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +48,16 @@ class CourseView(
         '''Update a course by an authenticated instructor'''
         course = serializer.save(user=self.request.user)
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         '''Create a new course - POST request'''
         try:
             self.authenticate(request)
-            return super().create(request, *args, **kwargs)
+            serializer = self.get_serializer(data=request.data)
+            self.perform_create(serializer)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
         except Http400Error as e:
             logger.error('Error creating course - {}'.format(str(e)))
             return Response(
@@ -68,9 +70,6 @@ class CourseView(
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
-        except ValidationError as e:
-            logger.error('Error creating course - {}'.format(str(e)))
-            return rest_framework_validation_error(e, 'Course could not be created')
         except Exception as e:
             logger.critical('Error creating course - {}'.format(str(e)))
             return Response(
@@ -108,12 +107,6 @@ class CourseView(
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
-        except ValidationError as e:
-            logger.error('Error updating course for url {url} - {error}'.format(
-                url=request.get_full_path(),
-                error=str(e)
-            ))
-            return rest_framework_validation_error(e, 'Course could not be updated')
         except Exception as e:
             logger.critical('Error updating course for url {url} - {error}'.format(
                 url=request.get_full_path(),

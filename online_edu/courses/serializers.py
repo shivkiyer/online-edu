@@ -3,6 +3,7 @@ from rest_framework.validators import UniqueValidator
 
 from .models import Course
 from common.error_definitions import Http400Error, Http403Error
+from common.error_handling import extract_serializer_error
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -29,6 +30,12 @@ class CourseSerializer(serializers.ModelSerializer):
         elif course_is_free:
             data['price'] = 0.00
         return data
+
+    def save(self, *args, **kwargs):
+        if self.is_valid():
+            return super().save(*args, **kwargs)
+        else:
+            raise Http400Error(extract_serializer_error(self.errors))
 
     def create(self, validated_data):
         course_is_free = validated_data.get('is_free', False)

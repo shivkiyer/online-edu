@@ -17,7 +17,6 @@ from .utils import send_verification_link_email, \
 from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
     Http400Error, \
     Http403Error
-from common.error_handling import serializer_error_response
 
 logger = logging.getLogger(__name__)
 
