@@ -102,10 +102,10 @@ class VerifyUserView(APIView):
 class ResendVerificationEmailView(APIView):
     '''Resending verification email to user'''
 
-    def get(self, *args, **kwargs):
-        user_id = self.kwargs.get('user_id', None)
+    def post(self, *args, **kwargs):
         try:
-            user_obj = User.objects.get_user_by_id(user_id)
+            user_email = self.request.data.get('email', None)
+            user_obj = User.objects.get_user_by_email(user_email)
             send_verification_link_email(user_obj)
             logger.info('Verification email resent to user {}'.format(
                 user_obj.username))
@@ -122,8 +122,7 @@ class ResendVerificationEmailView(APIView):
             )
         except Http404Error as e:
             logger.error(
-                'Error in resending verification email for {user_id} - {error}'.format(
-                    user_id=user_id,
+                'Error in resending verification email - {error}'.format(
                     error=str(e)
                 )
             )
@@ -133,8 +132,7 @@ class ResendVerificationEmailView(APIView):
             )
         except Exception as e:
             logger.error(
-                'Resending verification failed for user Id {user_id} - {error}'.format(
-                    user_id=user_id,
+                'Resending verification failed for {user_id} - {error}'.format(
                     error=str(e)
                 )
             )
@@ -192,10 +190,10 @@ class LoginUserView(APIView):
 class ResetPasswordView(APIView):
     '''Send password reset link to user email'''
 
-    def get(self, *args, **kwargs):
-        user_id = self.kwargs.get('user_id', None)
+    def post(self, *args, **kwargs):
         try:
-            user_obj = User.objects.get_user_by_id(user_id)
+            user_email = self.request.data.get('email', None)
+            user_obj = User.objects.get_user_by_email(user_email)
             send_password_reset_email(user_obj)
             logger.info('Password reset email sent to user {}'.format(
                 user_obj.username))
@@ -204,8 +202,7 @@ class ResetPasswordView(APIView):
             )
         except Http400Error as e:
             logger.error(
-                'Password failed for user Id {user_id} - {error}'.format(
-                    user_id=user_id,
+                'Password reset failed - {error}'.format(
                     error=str(e)
                 )
             )
@@ -215,8 +212,7 @@ class ResetPasswordView(APIView):
             )
         except Http404Error as e:
             logger.error(
-                'Password failed for user Id {user_id} - {error}'.format(
-                    user_id=user_id,
+                'Password reset failed - {error}'.format(
                     error=str(e)
                 )
             )
@@ -226,8 +222,7 @@ class ResetPasswordView(APIView):
             )
         except Exception as e:
             logger.error(
-                'Password failed for user Id {user_id} - {error}'.format(
-                    user_id=user_id,
+                'Password reset failed - {error}'.format(
                     error=str(e)
                 )
             )

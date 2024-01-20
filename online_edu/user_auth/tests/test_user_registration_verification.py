@@ -74,8 +74,11 @@ def test_resend_verification_endpoint(mock_send_mail, test_user):
     # Valid request
     test_user.is_active = False
     test_user.save()
-    api_response = client.get(
-        '/api/user/resend-verification/{user_id}'.format(user_id=test_user.id),
+    api_response = client.post(
+        '/api/user/resend-verification',
+        {
+            'email': test_user.username
+        },
         format='json'
     )
     assert api_response.status_code == 200
@@ -83,17 +86,23 @@ def test_resend_verification_endpoint(mock_send_mail, test_user):
     # User already active
     test_user.is_active = True
     test_user.save()
-    api_response = client.get(
-        '/api/user/resend-verification/{user_id}'.format(user_id=test_user.id),
+    api_response = client.post(
+        '/api/user/resend-verification',
+        {
+            'email': test_user.username
+        },
         format='json'
     )
     assert api_response.data == 'User already activated'
     assert api_response.status_code == 400
 
-    old_user_id = test_user.id
+    old_user_email = test_user.username
     test_user.delete()
-    api_response = client.get(
-        '/api/user/resend-verification/{user_id}'.format(user_id=old_user_id),
+    api_response = client.post(
+        '/api/user/resend-verification',
+        {
+            'email': old_user_email
+        },
         format='json'
     )
     assert api_response.data == 'User not found'

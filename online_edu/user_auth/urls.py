@@ -20,7 +20,7 @@ urlpatterns = [
         name='verify-user'
     ),
     path(
-        'resend-verification/<int:user_id>',
+        'resend-verification',
         ResendVerificationEmailView.as_view(),
         name='resend-verificaion-email'
     ),
@@ -30,7 +30,7 @@ urlpatterns = [
         name='login-user'
     ),
     path(
-        'reset-password/<int:user_id>',
+        'reset-password',
         ResetPasswordView.as_view(),
         name='reset-password'
     ),

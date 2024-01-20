@@ -17,8 +17,11 @@ def test_reset_password_end_point(test_user, mock_send_password_reset_email):
     test_user.is_active = True
     test_user.save()
 
-    api_response = client.get(
-        '/api/user/reset-password/{}'.format(test_user.id),
+    api_response = client.post(
+        '/api/user/reset-password',
+        {
+            'email': test_user.username
+        },
         format='json'
     )
     assert api_response.status_code == 200
@@ -33,16 +36,22 @@ def test_reset_password_fail(test_user, mock_send_mail):
     test_user.is_active = False
     test_user.save()
 
-    api_response = client.get(
-        '/api/user/reset-password/{}'.format(test_user.id),
+    api_response = client.post(
+        '/api/user/reset-password',
+        {
+            'email': test_user.username
+        },
         format='json'
     )
     assert api_response.data == 'No user to send email to'
     assert api_response.status_code == 400
 
     # Non-existing user
-    api_response = client.get(
-        '/api/user/reset-password/{}'.format(str(test_user.id+1)),
+    api_response = client.post(
+        '/api/user/reset-password',
+        {
+            'email': 'someemail@gmail.com'
+        },
         format='json'
     )
     assert api_response.data == 'User not found'
