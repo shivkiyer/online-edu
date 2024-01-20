@@ -46,8 +46,24 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
     assert api_response.status_code == 403
     assert api_response.data == 'Only an instructor of a course can update a course'
 
-    # Success - instructor can publish a course
+    # Making user the instructor
     course1.add_instructor(user1)
+
+    # Fail - wrong course slug URL should give 404
+    api_response = client.patch(
+        '/api/courses/{}/publish'.format(course1.slug+"1"),
+        {
+            'is_draft': 'False'
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 404
+    assert api_response.data == 'Course not found from URL'
+
+    # Success - instructor can publish a course
     api_response = client.patch(
         '/api/courses/{}/publish'.format(course1.slug),
         {

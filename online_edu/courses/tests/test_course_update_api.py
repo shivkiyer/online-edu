@@ -65,8 +65,25 @@ def test_only_instructor_can_update_course(
     assert api_response.status_code == 403
     assert api_response.data == 'Only an instructor of a course can update a course'
 
-    # Success - user is instructor for course
+    # Adding user as instructor of the course
     course1.add_instructor(user1)
+
+    # Fail - using wrong course URL should give 404
+    api_response = client.patch(
+        '/api/courses/{}'.format(course1.slug+"1"),
+        {
+            'subtitle': 'This is a test subtitle',
+            'price': '15.99'
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 404
+    assert api_response.data == 'Course not found from URL'
+
+    # Success - user is instructor for course
     api_response = client.patch(
         '/api/courses/{}'.format(course1.slug),
         {

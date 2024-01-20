@@ -14,3 +14,8 @@ class Http401Error(Exception):
 class Http403Error(Exception):
     '''Raised for 403 (forbidden) error responses'''
     pass
+
+
+class Http404Error(Exception):
+    '''Raised for 404 (not found) error response'''
+    pass

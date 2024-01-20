@@ -1,8 +1,9 @@
 import logging
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
-from rest_framework.mixins import ListModelMixin, \
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import CreateModelMixin, \
+    ListModelMixin, \
     RetrieveModelMixin, \
     UpdateModelMixin
 
@@ -10,23 +11,38 @@ from user_auth.models import User
 from user_auth.views import UserAuthentication
 from .models import Course
 from .serializers import CourseSerializer
-from common.error_definitions import DEFAULT_ERROR_RESPONSE, Http400Error, Http403Error
+from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
+    Http400Error, \
+    Http403Error, \
+    Http404Error
 
 logger = logging.getLogger(__name__)
 
 
+class CourseBaseView(GenericAPIView):
+    '''Base view for a course based on course URL'''
+
+    serializer_class = CourseSerializer
+    user_model = User
+    lookup_field = 'slug'
+
+    def get_object(self):
+        '''Return 404 if course not found from slug'''
+        try:
+            return super().get_object()
+        except:
+            raise Http404Error('Course not found from URL')
+
+
 class CourseView(
-    CreateAPIView,
+    CourseBaseView,
+    CreateModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
     UpdateModelMixin,
     UserAuthentication
 ):
     '''CRUD operations on Course'''
-
-    serializer_class = CourseSerializer
-    user_model = User
-    lookup_field = 'slug'
 
     def get_queryset(self, *args, **kwargs):
         '''Return courses not in draft mode'''
@@ -79,12 +95,24 @@ class CourseView(
 
     def get(self, request, *args, **kwargs):
         '''Fetch all courses or specific course by slug'''
-        slug = self.kwargs.get('slug', None)
-        self.authenticate(request, open_endpoint=True)
-        if slug:
-            return self.retrieve(request, *args, *kwargs)
-        else:
-            return self.list(request, *args, **kwargs)
+        try:
+            slug = self.kwargs.get('slug', None)
+            self.authenticate(request, open_endpoint=True)
+            if slug:
+                return self.retrieve(request, *args, *kwargs)
+            else:
+                return self.list(request, *args, **kwargs)
+        except Http404Error as e:
+            return Response(
+                data=str(e),
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.critical('Error fetching course(s) - {}'.format(str(e)))
+            return Response(
+                data=DEFAULT_ERROR_RESPONSE,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     def patch(self, request, *args, **kwargs):
         '''Update a course by an authenticated instructor'''
@@ -106,6 +134,11 @@ class CourseView(
             return Response(
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
+            )
+        except Http404Error as e:
+            return Response(
+                data=str(e),
+                status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             logger.critical('Error updating course for url {url} - {error}'.format(
