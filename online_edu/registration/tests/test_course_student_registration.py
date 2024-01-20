@@ -44,6 +44,7 @@ def test_register_student_for_course(
         format='json'
     )
     assert api_response.status_code == 403
+    assert api_response.data == 'Must be logged in for this action'
 
     # Activate user
     user1.is_active = True

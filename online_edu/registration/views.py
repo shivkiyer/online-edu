@@ -29,18 +29,17 @@ class CourseRegisterView(GenericAPIView, UserAuthentication):
     def post(self, request, *args, **kwargs):
         try:
             user = self.authenticate(request, check_admin=False)
-            if user is not None:
-                course_obj = self.get_object()
-                CourseStudentRegistration.objects.register_student(
-                    user=user,
-                    course=course_obj
-                )
-                return Response(
-                    data=CourseSerializer(
-                        user.course_set.all(),
-                        many=True
-                    ).data
-                )
+            course_obj = self.get_object()
+            CourseStudentRegistration.objects.register_student(
+                user=user,
+                course=course_obj
+            )
+            return Response(
+                data=CourseSerializer(
+                    user.course_set.all(),
+                    many=True
+                ).data
+            )
         except Http400Error as e:
             return Response(
                 data=str(e),
