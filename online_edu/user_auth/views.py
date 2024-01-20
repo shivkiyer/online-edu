@@ -16,7 +16,8 @@ from .utils import send_verification_link_email, \
     send_password_reset_email
 from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
     Http400Error, \
-    Http403Error
+    Http403Error, \
+    Http404Error
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +120,17 @@ class ResendVerificationEmailView(APIView):
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        except Http404Error as e:
+            logger.error(
+                'Error in resending verification email for {user_id} - {error}'.format(
+                    user_id=user_id,
+                    error=str(e)
+                )
+            )
+            return Response(
+                data=str(e),
+                status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
             logger.error(
                 'Resending verification failed for user Id {user_id} - {error}'.format(
@@ -200,6 +212,17 @@ class ResetPasswordView(APIView):
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
+            )
+        except Http404Error as e:
+            logger.error(
+                'Password failed for user Id {user_id} - {error}'.format(
+                    user_id=user_id,
+                    error=str(e)
+                )
+            )
+            return Response(
+                data=str(e),
+                status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             logger.error(

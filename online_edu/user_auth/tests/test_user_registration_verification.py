@@ -97,4 +97,4 @@ def test_resend_verification_endpoint(mock_send_mail, test_user):
         format='json'
     )
     assert api_response.data == 'User not found'
-    assert api_response.status_code == 400
+    assert api_response.status_code == 404

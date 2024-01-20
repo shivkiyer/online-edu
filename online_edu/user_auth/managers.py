@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import UserManager as AbstractUserManager
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from common.error_definitions import Http400Error
+from common.error_definitions import Http400Error, Http404Error
 
 
 class UserManager(AbstractUserManager):
@@ -12,7 +12,7 @@ class UserManager(AbstractUserManager):
         try:
             return self.get(id=id, *args, **kwargs)
         except:
-            raise Http400Error('User not found')
+            raise Http404Error('User not found')
 
     def get_user_by_token(self, token, *args, **kwargs):
         '''Return a user object from JWT'''
@@ -30,7 +30,7 @@ class UserManager(AbstractUserManager):
         try:
             return self.get(username=email)
         except:
-            raise Http400Error('User not found')
+            raise Http404Error('User not found')
 
     def activate_user_by_token(self, token, *args, **kwargs):
         '''Activate a user from JWT'''
