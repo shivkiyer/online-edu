@@ -1,3 +1,4 @@
+import logging
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -13,6 +14,8 @@ from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
     Http403Error, \
     Http404Error
 from .models import CourseStudentRegistration
+
+logger = logging.getLogger(__name__)
 
 
 class CourseRegisterView(CourseBaseView, UserAuthentication):
@@ -33,6 +36,10 @@ class CourseRegisterView(CourseBaseView, UserAuthentication):
                 user=user,
                 course=course_obj
             )
+            logger.info('Registering student {student} for course {course}'.format(
+                student=user.id,
+                course=course_obj.id
+            ))
             return Response(
                 data=CourseSerializer(
                     user.course_set.all(),
@@ -40,21 +47,25 @@ class CourseRegisterView(CourseBaseView, UserAuthentication):
                 ).data
             )
         except Http400Error as e:
+            logger.error('Error registering student - {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Http403Error as e:
+            logger.error('Error registering student - {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
         except Http404Error as e:
+            logger.error('Error registering student - {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
+            logger.critical('Error registering student {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
@@ -79,25 +90,33 @@ class CourseInstructorAddView(CourseBaseView, UserAuthentication):
                 new_user = User.objects.get_user_by_email(
                     request.data.get('email'))
                 course_obj.add_instructor(new_user)
+                logger.info('Added instructor {teacher} to course {course}'.format(
+                    teacher=new_user.id,
+                    course=course_obj.id
+                ))
                 return Response()
             else:
                 raise Http403Error('Must be logged in as an instructor')
         except Http403Error as e:
+            logger.error('Error adding instructor {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
         except Http400Error as e:
+            logger.error('Error adding instructor {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Http404Error as e:
+            logger.error('Error adding instructor {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
+            logger.critical('Error adding instructor {}'.format(str(e)))
             return Response(
                 data=DEFAULT_ERROR_RESPONSE,
                 status=status.HTTP_400_BAD_REQUEST

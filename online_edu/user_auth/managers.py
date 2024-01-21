@@ -14,7 +14,7 @@ class UserManager(AbstractUserManager):
         except:
             raise Http404Error('User not found')
 
-    def get_user_by_token(self, token, *args, **kwargs):
+    def get_user_by_token(self, token):
         '''Return a user object from JWT'''
         user_data = RefreshToken(token)
         try:
@@ -32,7 +32,7 @@ class UserManager(AbstractUserManager):
         except:
             raise Http404Error('User not found')
 
-    def activate_user_by_token(self, token, *args, **kwargs):
+    def activate_user_by_token(self, token):
         '''Activate a user from JWT'''
         try:
             user_obj = self.get_user_by_token(token)

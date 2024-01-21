@@ -55,14 +55,20 @@ class CourseView(
         course = serializer.save(user=self.request.user)
         logger.info(
             'Creating course {course} by user {user}'.format(
-                course=course.title,
-                user=self.request.user.username
+                course=course.id,
+                user=self.request.user.id
             )
         )
 
     def perform_update(self, serializer):
         '''Update a course by an authenticated instructor'''
         course = serializer.save(user=self.request.user)
+        logger.info(
+            'Updating course {course} by user {user}'.format(
+                course=course.id,
+                user=self.request.user.id
+            )
+        )
 
     def post(self, request, *args, **kwargs):
         '''Create a new course - POST request'''
@@ -103,6 +109,7 @@ class CourseView(
             else:
                 return self.list(request, *args, **kwargs)
         except Http404Error as e:
+            logger.error('Error finding course - {}'.format(str(e)))
             return Response(
                 data=str(e),
                 status=status.HTTP_404_NOT_FOUND
@@ -136,6 +143,9 @@ class CourseView(
                 status=status.HTTP_403_FORBIDDEN
             )
         except Http404Error as e:
+            logger.error('Error updating course - {error}'.format(
+                error=str(e)
+            ))
             return Response(
                 data=str(e),
                 status=status.HTTP_404_NOT_FOUND

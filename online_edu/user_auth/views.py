@@ -32,7 +32,7 @@ class RegisterUserView(CreateAPIView):
             user = RegisterUserSerializer(data=self.request.data)
             new_user = user.save()
             send_verification_link_email(new_user)
-            logger.info('New user {} created'.format(new_user.username))
+            logger.info('New user {} created'.format(new_user.id))
             return Response(user.data, status=status.HTTP_201_CREATED)
         except Http400Error as e:
             logger.error(
@@ -79,7 +79,7 @@ class VerifyUserView(APIView):
             # Set the user to active
             new_user = User.objects.activate_user_by_token(
                 verification_token)
-            logger.info('User {} verified'.format(new_user.username))
+            logger.info('User {} verified'.format(new_user.id))
             return Response(status=status.HTTP_200_OK)
         except Http400Error as e:
             logger.error(
@@ -108,7 +108,7 @@ class ResendVerificationEmailView(APIView):
             user_obj = User.objects.get_user_by_email(user_email)
             send_verification_link_email(user_obj)
             logger.info('Verification email resent to user {}'.format(
-                user_obj.username))
+                user_obj.id))
             return Response(
                 status=status.HTTP_200_OK
             )
@@ -131,8 +131,8 @@ class ResendVerificationEmailView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            logger.error(
-                'Resending verification failed for {user_id} - {error}'.format(
+            logger.critical(
+                'Resending verification failed - {error}'.format(
                     error=str(e)
                 )
             )
@@ -168,7 +168,7 @@ class LoginUserView(APIView):
         if user_obj is not None:
             user_token = AccessToken.for_user(user_obj)
             logger.info('User {} logged in successfully'.format(
-                user_obj.username
+                user_obj.id
             )
             )
             return Response(
@@ -176,7 +176,7 @@ class LoginUserView(APIView):
                 status=status.HTTP_200_OK
             )
         else:
-            logger.error(
+            logger.critical(
                 'User {} not validated'.format(
                     self.request.data.get('username', None)
                 )
@@ -196,7 +196,7 @@ class ResetPasswordView(APIView):
             user_obj = User.objects.get_user_by_email(user_email)
             send_password_reset_email(user_obj)
             logger.info('Password reset email sent to user {}'.format(
-                user_obj.username))
+                user_obj.id))
             return Response(
                 status=status.HTTP_200_OK
             )
@@ -221,7 +221,7 @@ class ResetPasswordView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            logger.error(
+            logger.critical(
                 'Password reset failed - {error}'.format(
                     error=str(e)
                 )
@@ -267,7 +267,7 @@ class ChangePasswordView(APIView):
             # Check for password match
             user_form.save()
             logger.info('Password changed for user {}'.format(
-                user_obj.username))
+                user_obj.id))
             return Response(status=status.HTTP_200_OK)
         except Http400Error as e:
             logger.error(
@@ -278,7 +278,7 @@ class ChangePasswordView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            logger.error(
+            logger.critical(
                 'Password change failed for user - {error}'.format(
                     error=str(e)
                 )
