@@ -60,6 +60,20 @@ def test_add_instructor(sample_course, test_configurable_user, access_token):
     user2.is_staff = True
     user2.save()
 
+    # Fail - wrong course url
+    api_response = client.post(
+        '/api/registration/{}/add-instructor'.format(course1.slug+'1'),
+        {
+            'email': user2.username
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 404
+    assert api_response.data == 'Course not found from URL'
+
     # Success - instructor added
     api_response = client.post(
         '/api/registration/{}/add-instructor'.format(course1.slug),

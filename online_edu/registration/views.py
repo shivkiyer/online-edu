@@ -7,6 +7,7 @@ from user_auth.models import User
 from user_auth.views import UserAuthentication
 from courses.models import Course
 from courses.serializers import CourseSerializer
+from courses.views import CourseBaseView
 from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
     Http400Error, \
     Http403Error, \
@@ -14,15 +15,11 @@ from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
 from .models import CourseStudentRegistration
 
 
-class CourseRegisterView(GenericAPIView, UserAuthentication):
+class CourseRegisterView(CourseBaseView, UserAuthentication):
     '''
     Register a student for a course and
     return list of courses for the student.
     '''
-
-    serializer_class = CourseSerializer
-    lookup_field = 'slug'
-    user_model = User
 
     def get_queryset(self, *args, **kwargs):
         '''Return published courses'''
@@ -52,6 +49,11 @@ class CourseRegisterView(GenericAPIView, UserAuthentication):
                 data=str(e),
                 status=status.HTTP_403_FORBIDDEN
             )
+        except Http404Error as e:
+            return Response(
+                data=str(e),
+                status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
             return Response(
                 data=str(e),
@@ -59,12 +61,8 @@ class CourseRegisterView(GenericAPIView, UserAuthentication):
             )
 
 
-class CourseInstructorAddView(GenericAPIView, UserAuthentication):
+class CourseInstructorAddView(CourseBaseView, UserAuthentication):
     '''Add an instructor to a course'''
-
-    serializer_class = CourseSerializer
-    lookup_field = 'slug'
-    user_model = User
 
     def get_queryset(self, *args, **kwargs):
         '''Return published courses'''

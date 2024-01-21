@@ -59,11 +59,23 @@ def test_register_student_for_course(
         },
         format='json'
     )
-    assert api_response.status_code == 400
+    assert api_response.status_code == 404
+    assert api_response.data == 'Course not found from URL'
 
     # Publishing course
     course1.is_draft = False
     course1.save()
+
+    # Fail - wrong course URL
+    api_response = client.post(
+        '/api/registration/{}/register-student'.format(course1.slug+'1'),
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 404
+    assert api_response.data == 'Course not found from URL'
 
     # Pass
     # active user with credentials should be able to register
