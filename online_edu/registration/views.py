@@ -7,8 +7,10 @@ from user_auth.models import User
 from user_auth.views import UserAuthentication
 from courses.models import Course
 from courses.serializers import CourseSerializer
-from common.error_definitions import Http400Error, Http403Error
-from common.error_definitions import DEFAULT_ERROR_RESPONSE
+from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
+    Http400Error, \
+    Http403Error, \
+    Http404Error
 from .models import CourseStudentRegistration
 
 
@@ -81,10 +83,7 @@ class CourseInstructorAddView(GenericAPIView, UserAuthentication):
                 course_obj.add_instructor(new_user)
                 return Response()
             else:
-                return Response(
-                    data='Must be logged in as an instructor',
-                    status=status.HTTP_403_FORBIDDEN
-                )
+                raise Http403Error('Must be logged in as an instructor')
         except Http403Error as e:
             return Response(
                 data=str(e),
@@ -94,6 +93,11 @@ class CourseInstructorAddView(GenericAPIView, UserAuthentication):
             return Response(
                 data=str(e),
                 status=status.HTTP_400_BAD_REQUEST
+            )
+        except Http404Error as e:
+            return Response(
+                data=str(e),
+                status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
             return Response(
