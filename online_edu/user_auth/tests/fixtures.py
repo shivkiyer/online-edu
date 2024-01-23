@@ -7,11 +7,21 @@ from user_auth.models import User
 
 @pytest.fixture
 def mock_send_mail(monkeypatch):
-    monkeypatch.setattr(
-        'user_auth.utils.send_mail',
-        lambda *args, **kwargs: print('Sending email'),
-        raising=True
-    )
+
+    def _email_generator(throw_error=False):
+
+        def _email_fn(*args, **kwargs):
+            print('Sending email')
+            if throw_error:
+                raise Exception('mock_send_email called')
+
+        monkeypatch.setattr(
+            'user_auth.utils.send_mail',
+            _email_fn,
+            raising=True
+        )
+
+    return _email_generator
 
 
 @pytest.fixture
