@@ -13,6 +13,8 @@ def test_course_create_endpoint(test_user, access_token):
 
     client = APIClient()
 
+    user1 = test_user()
+
     # Fail - no JWT is provided in header
     api_response = client.post(
         '/api/courses/new-course',
@@ -28,9 +30,9 @@ def test_course_create_endpoint(test_user, access_token):
     assert Course.objects.count() == 0
 
     # Fail - token in header is for non-admin user
-    test_user.is_staff = False
-    test_user.save()
-    token = access_token(test_user, 15)
+    user1.is_staff = False
+    user1.save()
+    token = access_token(user1, 15)
     api_response = client.post(
         '/api/courses/new-course',
         {
@@ -48,9 +50,9 @@ def test_course_create_endpoint(test_user, access_token):
     assert Course.objects.count() == 0
 
     # Success - token in header is for admin user
-    test_user.is_staff = True
-    test_user.save()
-    token = access_token(test_user, 60)
+    user1.is_staff = True
+    user1.save()
+    token = access_token(user1, 60)
     api_response = client.post(
         '/api/courses/new-course',
         {
@@ -149,7 +151,7 @@ def test_course_create_endpoint(test_user, access_token):
     assert Course.objects.count() == 1
 
     # Fail - expired token
-    token = access_token(test_user, 1)
+    token = access_token(user1, 1)
     # Sleep for 2sec
     time.sleep(2)
     api_response = client.post(
@@ -169,7 +171,7 @@ def test_course_create_endpoint(test_user, access_token):
     assert Course.objects.count() == 1
 
     # Success - another course with correct token
-    token = access_token(test_user, 60)
+    token = access_token(user1, 60)
     api_response = client.post(
         '/api/courses/new-course',
         {

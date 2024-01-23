@@ -1,20 +1,20 @@
 import pytest
 from rest_framework.test import APIClient
 
-from user_auth.tests.fixtures import test_configurable_user, access_token
+from user_auth.tests.fixtures import test_user, access_token
 from courses.tests.fixtures import sample_course
 
 pytestmark = pytest.mark.django_db
 
 
-def test_add_instructor(sample_course, test_configurable_user, access_token):
+def test_add_instructor(sample_course, test_user, access_token):
     '''Test endpoint for adding an instructor to the course'''
 
     client = APIClient()
 
     # Creating course with one instructor
     course1 = sample_course
-    user1 = test_configurable_user(
+    user1 = test_user(
         'someuser@gmail.com',
         'somepassword',
         True
@@ -24,7 +24,7 @@ def test_add_instructor(sample_course, test_configurable_user, access_token):
     course1.add_instructor(user1)
 
     # Create second user - not admin, not active
-    user2 = test_configurable_user(
+    user2 = test_user(
         'otheruser@gmail.com',
         'somepassword',
         False

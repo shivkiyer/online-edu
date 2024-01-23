@@ -67,15 +67,17 @@ def test_course_instructor(test_user):
         price=1.99
     )
 
+    user1 = test_user()
+
     # Fail - user is not admin
-    test_user.is_staff = False
-    test_user.save()
+    user1.is_staff = False
+    user1.save()
     with pytest.raises(Exception):
-        course1.add_instructor(test_user)
+        course1.add_instructor(user1)
 
     # Make user admin
-    test_user.is_staff = True
-    test_user.save()
-    course1.add_instructor(test_user)
+    user1.is_staff = True
+    user1.save()
+    course1.add_instructor(user1)
     instructor1 = course1.instructors.all()[0]
-    assert instructor1.username == test_user.username
+    assert instructor1.username == user1.username

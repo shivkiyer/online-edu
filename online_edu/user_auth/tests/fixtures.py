@@ -52,18 +52,13 @@ def mock_send_password_reset_email(monkeypatch):
 
 @pytest.fixture
 def test_user():
-    '''Create sample user for test'''
-    sample_user = User.objects.create(username='someuser@somedomain.com')
-    sample_user.set_password('somepassword')
-    sample_user.save()
-    return sample_user
-
-
-@pytest.fixture
-def test_configurable_user():
     '''User with username, password and admin status as arguments'''
 
-    def _user_gen(username, password, is_staff):
+    def _user_gen(username=None, password=None, is_staff=False):
+        if username is None:
+            username = 'someuser@somedomain.com'
+        if password is None:
+            password = 'somepassword'
         sample_user = User.objects.create(username=username, is_staff=is_staff)
         sample_user.set_password(password)
         sample_user.save()
@@ -76,9 +71,11 @@ def test_configurable_user():
 def verification_token(test_user):
     '''Creating a verification token with JWT'''
 
-    def _create_token(exp_time):
+    def _create_token(user=None, exp_time=60):
         '''Token with variable expiry time'''
-        verification_token = RefreshToken.for_user(test_user)
+        if user is None:
+            user = test_user()
+        verification_token = RefreshToken.for_user(user)
         verification_token.set_exp(
             from_time=verification_token.current_time,
             lifetime=timedelta(seconds=exp_time)

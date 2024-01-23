@@ -10,7 +10,7 @@ pytestmark = pytest.mark.django_db
 def test_send_verification_link_email(test_user, mock_send_mail):
     '''Test emailing verification link'''
 
-    user1 = test_user
+    user1 = test_user()
     user1.is_active = False
     user1.save()
 
@@ -38,7 +38,7 @@ def test_send_verification_link_email(test_user, mock_send_mail):
 def test_send_password_reset_email(test_user, mock_send_mail):
     '''Testing send_password_reset_email'''
 
-    user1 = test_user
+    user1 = test_user()
 
     with pytest.raises(Exception) as e:
         send_password_reset_email(None)

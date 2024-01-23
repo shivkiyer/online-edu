@@ -15,7 +15,7 @@ def test_register_student_for_course(
 ):
     '''Test the endpoint for registering students in courses'''
 
-    user1 = test_user
+    user1 = test_user()
     user1.is_active = False
     user1.save()
     course1 = sample_course

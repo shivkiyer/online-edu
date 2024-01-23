@@ -14,8 +14,10 @@ def test_user_verification_endpoint(verification_token, test_user):
     '''Testing the verify-email endpoint'''
     client = APIClient()
 
+    user1 = test_user()
+
     # Token with 60sec validity
-    test_token1 = verification_token(60)
+    test_token1 = verification_token(user1, 60)
 
     api_response = client.get(
         '/api/user/verify-user/{token}'.format(
@@ -24,10 +26,10 @@ def test_user_verification_endpoint(verification_token, test_user):
         format='json'
     )
     assert api_response.status_code == 200
-    assert test_user.is_active == True
+    assert user1.is_active == True
 
     # Token with 1sec validity - expired token test
-    test_token2 = verification_token(1)
+    test_token2 = verification_token(user1, 1)
     # Sleep for 2sec
     time.sleep(2)
 
@@ -41,7 +43,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     assert api_response.status_code == 400
 
     # Tampered token test
-    test_token3 = str(verification_token(60))
+    test_token3 = str(verification_token(user1, 60))
     test_token3 = test_token3[:-1]
 
     api_response = client.get(
@@ -54,8 +56,8 @@ def test_user_verification_endpoint(verification_token, test_user):
     assert api_response.status_code == 400
 
     # Deleted user test
-    test_token4 = verification_token(60)
-    test_user.delete()
+    test_token4 = verification_token(user1, 60)
+    user1.delete()
 
     api_response = client.get(
         '/api/user/verify-user/{token}'.format(
@@ -71,33 +73,35 @@ def test_resend_verification_endpoint(mock_send_mail, test_user):
     '''Testing endpoint for resending verification email'''
     client = APIClient()
 
+    user1 = test_user()
+
     # Valid request
-    test_user.is_active = False
-    test_user.save()
+    user1.is_active = False
+    user1.save()
     api_response = client.post(
         '/api/user/resend-verification',
         {
-            'email': test_user.username
+            'email': user1.username
         },
         format='json'
     )
     assert api_response.status_code == 200
 
     # User already active
-    test_user.is_active = True
-    test_user.save()
+    user1.is_active = True
+    user1.save()
     api_response = client.post(
         '/api/user/resend-verification',
         {
-            'email': test_user.username
+            'email': user1.username
         },
         format='json'
     )
     assert api_response.data == 'User already activated'
     assert api_response.status_code == 400
 
-    old_user_email = test_user.username
-    test_user.delete()
+    old_user_email = user1.username
+    user1.delete()
     api_response = client.post(
         '/api/user/resend-verification',
         {

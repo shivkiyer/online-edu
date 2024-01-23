@@ -13,7 +13,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
 
     client = APIClient()
 
-    user1 = test_user
+    user1 = test_user()
     course1 = sample_course
     token = access_token(user1, 60)
 

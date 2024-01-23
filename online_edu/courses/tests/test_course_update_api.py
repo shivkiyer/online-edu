@@ -3,17 +3,16 @@ import time
 from rest_framework.test import APIClient
 
 from courses.models import Course
-from user_auth.tests.fixtures import test_user, access_token, test_configurable_user
+from user_auth.tests.fixtures import test_user, access_token
 from .fixtures import sample_course
 
 pytestmark = pytest.mark.django_db
 
 
 def test_only_instructor_can_update_course(
-        test_user,
-        access_token,
-        test_configurable_user,
-        sample_course
+    test_user,
+    access_token,
+    sample_course
 ):
     '''Test that only one of the instructors of a course can perform an update'''
 
@@ -46,7 +45,7 @@ def test_only_instructor_can_update_course(
     assert api_response.status_code == 403
 
     # Fail - user is admin but not instructor
-    user1 = test_user
+    user1 = test_user()
     user1.is_staff = True
     user1.save()
     token = access_token(user1, 60)
@@ -101,8 +100,11 @@ def test_only_instructor_can_update_course(
     assert api_response.data['is_free'] == False
 
     # Fail - send request as another admin user but not instructor
-    user2 = test_configurable_user(
-        'otheruser@gmail.com', 'otherpassword', is_staff=True)
+    user2 = test_user(
+        'otheruser@gmail.com',
+        'otherpassword',
+        is_staff=True
+    )
     token = access_token(user2, 60)
     api_response = client.patch(
         '/api/courses/{}'.format(course1.slug),

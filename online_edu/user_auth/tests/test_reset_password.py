@@ -13,14 +13,16 @@ def test_reset_password_end_point(test_user, mock_send_password_reset_email):
 
     client = APIClient()
 
+    user1 = test_user()
+
     # Valid reset password request
-    test_user.is_active = True
-    test_user.save()
+    user1.is_active = True
+    user1.save()
 
     api_response = client.post(
         '/api/user/reset-password',
         {
-            'email': test_user.username
+            'email': user1.username
         },
         format='json'
     )
@@ -32,14 +34,16 @@ def test_reset_password_fail(test_user, mock_send_mail):
 
     client = APIClient()
 
+    user1 = test_user()
+
     # Inactive user
-    test_user.is_active = False
-    test_user.save()
+    user1.is_active = False
+    user1.save()
 
     api_response = client.post(
         '/api/user/reset-password',
         {
-            'email': test_user.username
+            'email': user1.username
         },
         format='json'
     )

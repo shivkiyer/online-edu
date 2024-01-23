@@ -11,6 +11,8 @@ def test_user_login_endpoint(test_user):
 
     client = APIClient()
 
+    user1 = test_user()
+
     # Successful login
     api_response = client.post(
         '/api/user/login',

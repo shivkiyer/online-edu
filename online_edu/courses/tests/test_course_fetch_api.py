@@ -75,7 +75,7 @@ def test_course_fetch_all(sample_courses, test_user, access_token):
     assert api_response[1]['title'] == courses[4].title
 
     # An admin user should be able to see all courses
-    user1 = test_user
+    user1 = test_user()
     user1.is_staff = True
     user1.save()
     token = access_token(user1, 60)
@@ -94,7 +94,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
     '''Test retrieve course endpoint'''
 
     client = APIClient()
-    user1 = test_user
+    user1 = test_user()
     user1.is_staff = True
     user1.save()
     token = access_token(user1, 60)

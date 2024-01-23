@@ -2,22 +2,21 @@ import pytest
 import time
 
 from .fixtures import test_user, \
-    test_configurable_user, \
     verification_token
 from user_auth.models import User
 
 pytestmark = pytest.mark.django_db
 
 
-def test_get_user_by_id(test_configurable_user):
+def test_get_user_by_id(test_user):
     '''Test the basic get_user_by_id query'''
 
-    user1 = test_configurable_user(
+    user1 = test_user(
         'someuser@domain.com',
         'somepassword',
         False
     )
-    user2 = test_configurable_user(
+    user2 = test_user(
         'anotheruser@domain.com',
         'anotherpassword',
         False
@@ -37,13 +36,13 @@ def test_get_user_by_id(test_configurable_user):
 def test_get_user_by_token(test_user, verification_token):
     '''Test extracting user from JWT token'''
 
-    user1 = test_user
+    user1 = test_user()
 
-    token1 = verification_token(60)
+    token1 = verification_token(user1, 60)
     fetch_user = User.objects.get_user_by_token(str(token1))
     assert fetch_user.username == user1.username
 
-    token2 = verification_token(1)
+    token2 = verification_token(user1, 1)
     time.sleep(2)
     with pytest.raises(Exception) as e:
         fetch_user = User.objects.get_user_by_token(token2)
@@ -53,9 +52,9 @@ def test_get_user_by_token(test_user, verification_token):
 def test_get_user_by_email(test_user):
     '''Test extracting user from email'''
 
-    user1 = test_user
+    user1 = test_user()
 
-    fetch_user = User.objects.get_user_by_email(test_user.username)
+    fetch_user = User.objects.get_user_by_email(user1.username)
     assert fetch_user.username == user1.username
 
     with pytest.raises(Exception) as e:
@@ -66,13 +65,13 @@ def test_get_user_by_email(test_user):
 def test_active_user_by_token(test_user, verification_token):
     '''Test activating user from verification token'''
 
-    user1 = test_user
+    user1 = test_user()
 
-    token1 = verification_token(60)
+    token1 = verification_token(user1, 60)
     fetch_user = User.objects.activate_user_by_token(str(token1))
     assert fetch_user.is_active == True
 
-    token2 = verification_token(1)
+    token2 = verification_token(user1, 1)
     time.sleep(2)
     with pytest.raises(Exception) as e:
         fetch_user = User.objects.activate_user_by_token(token2)

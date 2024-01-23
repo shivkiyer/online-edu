@@ -5,7 +5,7 @@ from user_auth.serializers import UserSerializer, \
     RegisterUserSerializer, \
     ChangePasswordSerializer
 from user_auth.models import User
-from .fixtures import test_configurable_user
+from .fixtures import test_user
 
 pytestmark = pytest.mark.django_db
 
@@ -126,10 +126,10 @@ def test_user_register_serializer():
     assert str(e.value) == 'A user with that username already exists.'
 
 
-def test_change_password_serializer(test_configurable_user):
+def test_change_password_serializer(test_user):
     '''Testing ChangePasswordSerializer'''
 
-    user1 = test_configurable_user(
+    user1 = test_user(
         'someuser@domain.com',
         'somepassword',
         False
