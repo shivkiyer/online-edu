@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from .views import CourseView
 
@@ -13,6 +13,10 @@ urlpatterns = [
         '<str:slug>/publish',
         CourseView.as_view(),
         name='publish-course'
+    ),
+    path(
+        '<str:slug>/lectures/',
+        include('lectures.urls', namespace='lectures')
     ),
     path(
         '<str:slug>',
