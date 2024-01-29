@@ -19,7 +19,7 @@ from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
 logger = logging.getLogger(__name__)
 
 
-class CourseBaseView(GenericAPIView):
+class CourseBaseView(GenericAPIView, UserAuthentication):
     '''Base view for a course based on course URL'''
 
     serializer_class = CourseSerializer
@@ -39,8 +39,7 @@ class CourseView(
     CreateModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
-    UpdateModelMixin,
-    UserAuthentication
+    UpdateModelMixin
 ):
     '''CRUD operations on Course'''
 

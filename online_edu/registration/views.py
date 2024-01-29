@@ -18,7 +18,7 @@ from .models import CourseStudentRegistration
 logger = logging.getLogger(__name__)
 
 
-class CourseRegisterView(CourseBaseView, UserAuthentication):
+class CourseRegisterView(CourseBaseView):
     '''
     Register a student for a course and
     return list of courses for the student.
@@ -72,7 +72,7 @@ class CourseRegisterView(CourseBaseView, UserAuthentication):
             )
 
 
-class CourseInstructorAddView(CourseBaseView, UserAuthentication):
+class CourseInstructorAddView(CourseBaseView):
     '''Add an instructor to a course'''
 
     def get_queryset(self, *args, **kwargs):
