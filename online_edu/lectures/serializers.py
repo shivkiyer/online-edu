@@ -31,6 +31,10 @@ class LectureSerializer(serializers.ModelSerializer):
         if self.check_user_is_instructor(course, user):
             del validated_data['user']
             del validated_data['course']
+        if not Lecture.objects.check_title_duplicate(
+            course,
+            validated_data.get('title'),
+        ):
             return Lecture.objects.create(
                 **validated_data,
                 course=course

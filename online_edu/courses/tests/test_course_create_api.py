@@ -45,7 +45,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Admin priviliges required for this action'
+    assert api_response.data == 'Admin privileges required for this action'
     assert api_response.status_code == 403
     assert Course.objects.count() == 0
 

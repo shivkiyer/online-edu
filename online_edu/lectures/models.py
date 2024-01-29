@@ -1,5 +1,7 @@
 from django.db import models
 
+from .managers import LectureManager
+
 
 class Lecture(models.Model):
     '''Lecture model'''
@@ -13,6 +15,8 @@ class Lecture(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = LectureManager()
 
     def __str__(self):
         return self.title

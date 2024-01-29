@@ -305,7 +305,7 @@ class UserAuthentication(JWTAuthentication):
             user = super().authenticate(request, *args, **kwargs)
             if user is not None:
                 if check_admin and not user[0].is_staff:
-                    error_msg = 'Admin priviliges required for this action'
+                    error_msg = 'Admin privileges required for this action'
                 else:
                     request.user = user[0]
                     return user[0]
