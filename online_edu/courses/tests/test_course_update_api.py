@@ -62,7 +62,7 @@ def test_only_instructor_can_update_course(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Only an instructor of a course can update a course'
+    assert api_response.data['detail'] == 'Only an instructor of a course can update a course'
 
     # Adding user as instructor of the course
     course1.add_instructor(user1)
@@ -80,7 +80,7 @@ def test_only_instructor_can_update_course(
         format='json'
     )
     assert api_response.status_code == 404
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
 
     # Success - user is instructor for course
     api_response = client.patch(
@@ -118,7 +118,7 @@ def test_only_instructor_can_update_course(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Only an instructor of a course can update a course'
+    assert api_response.data['detail'] == 'Only an instructor of a course can update a course'
 
     # Success - add this admin user as course instructor
     course1.add_instructor(user2)

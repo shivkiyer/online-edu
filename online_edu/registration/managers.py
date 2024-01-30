@@ -1,6 +1,7 @@
 from django.db import models
+from rest_framework import status
 
-from common.error_definitions import Http400Error
+from common.error_definitions import CustomAPIError
 
 
 class CourseStudentRegistrationManager(models.Manager):
@@ -12,4 +13,7 @@ class CourseStudentRegistrationManager(models.Manager):
             register_obj = self.get(user=user, course=course)
         except:
             return self.create(user=user, course=course)
-        raise Http400Error('User is already registered')
+        raise CustomAPIError(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='User is already registered'
+        )

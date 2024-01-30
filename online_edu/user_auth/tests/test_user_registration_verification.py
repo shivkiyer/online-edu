@@ -39,7 +39,7 @@ def test_user_verification_endpoint(verification_token, test_user):
         ),
         format='json'
     )
-    assert api_response.data == 'Link expired or faulty'
+    assert api_response.data['detail'] == 'Link expired or faulty'
     assert api_response.status_code == 400
 
     # Tampered token test
@@ -52,7 +52,7 @@ def test_user_verification_endpoint(verification_token, test_user):
         ),
         format='json'
     )
-    assert api_response.data == 'Link expired or faulty'
+    assert api_response.data['detail'] == 'Link expired or faulty'
     assert api_response.status_code == 400
 
     # Deleted user test
@@ -65,7 +65,7 @@ def test_user_verification_endpoint(verification_token, test_user):
         ),
         format='json'
     )
-    assert api_response.data == 'User could not be activated'
+    assert api_response.data['detail'] == 'User could not be activated'
     assert api_response.status_code == 400
 
 
@@ -97,7 +97,7 @@ def test_resend_verification_endpoint(mock_send_mail, test_user):
         },
         format='json'
     )
-    assert api_response.data == 'User already activated'
+    assert api_response.data['detail'] == 'User already activated'
     assert api_response.status_code == 400
 
     old_user_email = user1.username
@@ -109,5 +109,5 @@ def test_resend_verification_endpoint(mock_send_mail, test_user):
         },
         format='json'
     )
-    assert api_response.data == 'User not found'
+    assert api_response.data['detail'] == 'User not found'
     assert api_response.status_code == 404

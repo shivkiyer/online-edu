@@ -47,7 +47,7 @@ def test_reset_password_fail(test_user, mock_send_mail):
         },
         format='json'
     )
-    assert api_response.data == 'No user to send email to'
+    assert api_response.data['detail'] == 'No user to send email to'
     assert api_response.status_code == 400
 
     # Non-existing user
@@ -58,5 +58,5 @@ def test_reset_password_fail(test_user, mock_send_mail):
         },
         format='json'
     )
-    assert api_response.data == 'User not found'
+    assert api_response.data['detail'] == 'User not found'
     assert api_response.status_code == 404

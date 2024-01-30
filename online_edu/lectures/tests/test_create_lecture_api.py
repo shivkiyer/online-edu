@@ -31,7 +31,7 @@ def test_create_lecture_endpoint(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Invalid login or inactive account'
+    assert api_response.data['detail'] == 'Invalid login or inactive account'
 
     # Fail - non-admin credentials
     token = access_token(user1, 60)
@@ -46,7 +46,7 @@ def test_create_lecture_endpoint(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Admin privileges required for this action'
+    assert api_response.data['detail'] == 'Admin privileges required for this action'
 
     # Make user admin
     user1.is_staff = True
@@ -64,7 +64,7 @@ def test_create_lecture_endpoint(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Must be an instructor of the course to create lectures'
+    assert api_response.data['detail'] == 'Must be an instructor of the course to create lectures'
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -96,7 +96,7 @@ def test_create_lecture_endpoint(
         format='json'
     )
     assert api_response.status_code == 404
-    assert api_response.data == 'Course not found'
+    assert api_response.data['detail'] == 'Course not found'
 
     # Fail - duplicate lecture title within same course
     api_response = client.post(
@@ -110,7 +110,7 @@ def test_create_lecture_endpoint(
         format='json'
     )
     assert api_response.status_code == 400
-    assert api_response.data == 'Lecture with the same title exists in the course'
+    assert api_response.data['detail'] == 'Lecture with the same title exists in the course'
 
     # Create a second course
     course2 = Course.objects.create(

@@ -54,7 +54,8 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data.lower() == 'the password field is required'
+    assert api_response.data['detail'].lower(
+    ) == 'the password field is required'
     assert api_response.status_code == 400
 
     # Password field missing
@@ -67,7 +68,8 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data.lower() == 'the password field is required'
+    assert api_response.data['detail'].lower(
+    ) == 'the password field is required'
     assert api_response.status_code == 400
 
     # Confirm password field missing
@@ -80,7 +82,8 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data.lower() == 'the confirm password field is required'
+    assert api_response.data['detail'].lower(
+    ) == 'the confirm password field is required'
     assert api_response.status_code == 400
 
     # Password not matching
@@ -94,7 +97,7 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data.lower() == 'passwords are not matching'
+    assert api_response.data['detail'].lower() == 'passwords are not matching'
     assert api_response.status_code == 400
 
     # Token with 1sec validity - expired token test
@@ -112,7 +115,7 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data == 'Link expired or faulty'
+    assert api_response.data['detail'] == 'Link expired or faulty'
     assert api_response.status_code == 400
 
     # Tampered token test
@@ -129,7 +132,7 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data == 'Link expired or faulty'
+    assert api_response.data['detail'] == 'Link expired or faulty'
     assert api_response.status_code == 400
 
     # Inactive user test
@@ -145,7 +148,7 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data == 'User not found'
+    assert api_response.data['detail'] == 'User not found'
     assert api_response.status_code == 400
 
     # Deleted user test
@@ -163,5 +166,5 @@ def test_password_change_endpoint(verification_token, test_user):
         },
         format='json'
     )
-    assert api_response.data == 'User not found'
+    assert api_response.data['detail'] == 'User not found'
     assert api_response.status_code == 400

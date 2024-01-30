@@ -2,8 +2,9 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
+from rest_framework import status
 
-from common.error_definitions import Http400Error, Http403Error
+from common.error_definitions import CustomAPIError
 from .managers import CourseManager
 
 
@@ -38,7 +39,10 @@ class Course(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.is_free and self.price <= 0:
-            raise Http400Error('Price of a non-free course is required.')
+            raise CustomAPIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Price of a non-free course is required.'
+            )
         if self.is_free:
             self.price = 0.00
         super().save(*args, **kwargs)
@@ -51,11 +55,17 @@ class Course(models.Model):
     def add_instructor(self, user):
         '''Add instructors to the course'''
         if self.check_user_is_instructor(user):
-            raise Http400Error('Already an instructor')
+            raise CustomAPIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Already an instructor'
+            )
         if user.is_staff:
             self.instructors.add(user)
         else:
-            raise Http403Error('Instructors have to be administrators')
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Instructors have to be administrators'
+            )
 
     def check_user_is_instructor(self, user):
         '''Check if a user is an instructor of the course'''

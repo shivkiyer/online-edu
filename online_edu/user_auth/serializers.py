@@ -1,9 +1,9 @@
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from rest_framework import serializers
+from rest_framework import serializers, status
 
 from .models import User
-from common.error_definitions import Http400Error
+from common.error_definitions import CustomAPIError
 from common.error_handling import extract_serializer_error
 
 
@@ -22,7 +22,11 @@ class UserSerializer(serializers.ModelSerializer):
         if self.is_valid():
             return super().save()
         else:
-            raise Http400Error(extract_serializer_error(self.errors))
+            raise CustomAPIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=extract_serializer_error(self.errors)
+            )
+            # raise Http400Error(extract_serializer_error(self.errors))
 
     def create(self, validated_data):
         '''Create new user in db'''
@@ -78,7 +82,11 @@ class ChangePasswordSerializer(RegisterUserSerializer):
     def update(self, instance, validated_data):
         '''Update user password'''
         if not instance.is_active:
-            raise Http400Error('User not found')
+            raise CustomAPIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='User not found'
+            )
+            # raise Http400Error('User not found')
         instance.set_password(validated_data.get('password'))
         instance.save()
         return instance

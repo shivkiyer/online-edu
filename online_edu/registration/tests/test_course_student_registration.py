@@ -29,7 +29,7 @@ def test_register_student_for_course(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Invalid login or inactive account'
+    assert api_response.data['detail'] == 'Invalid login or inactive account'
 
     # Creating JWT
     token = access_token(user1, 60)
@@ -44,7 +44,7 @@ def test_register_student_for_course(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Must be logged in for this action'
+    assert api_response.data['detail'] == 'Must be logged in for this action'
 
     # Activate user
     user1.is_active = True
@@ -60,7 +60,7 @@ def test_register_student_for_course(
         format='json'
     )
     assert api_response.status_code == 404
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
 
     # Publishing course
     course1.is_draft = False
@@ -75,7 +75,7 @@ def test_register_student_for_course(
         format='json'
     )
     assert api_response.status_code == 404
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
 
     # Pass
     # active user with credentials should be able to register
@@ -99,7 +99,7 @@ def test_register_student_for_course(
         format='json'
     )
     assert api_response.status_code == 400
-    assert api_response.data == 'User is already registered'
+    assert api_response.data['detail'] == 'User is already registered'
 
     course2 = Course(
         title='Some course',

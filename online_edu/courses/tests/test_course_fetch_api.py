@@ -107,7 +107,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
         '/api/courses/{}'.format(course.slug),
         format='json'
     )
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
     assert api_response.status_code == 404
 
     # Admin user should be able to see a course in draft status
@@ -136,7 +136,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
         '/api/courses/{}'.format(course.slug + '1'),
         format='json'
     )
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
     assert api_response.status_code == 404
 
     # Make course archived
@@ -147,7 +147,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
         '/api/courses/{}'.format(course.slug),
         format='json'
     )
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
     assert api_response.status_code == 404
 
     # Admin user should be able to see archived course

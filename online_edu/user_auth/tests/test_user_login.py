@@ -32,7 +32,7 @@ def test_user_login_endpoint(test_user):
         },
         format='json'
     )
-    assert api_response.data == 'Invalid username/password'
+    assert api_response.data['detail'] == 'Invalid username/password'
     assert api_response.status_code == 401
 
     api_response = client.post(
@@ -42,7 +42,7 @@ def test_user_login_endpoint(test_user):
         },
         format='json'
     )
-    assert api_response.data == 'Invalid username/password'
+    assert api_response.data['detail'] == 'Invalid username/password'
     assert api_response.status_code == 401
 
     api_response = client.post(
@@ -50,7 +50,7 @@ def test_user_login_endpoint(test_user):
         {},
         format='json'
     )
-    assert api_response.data == 'Invalid username/password'
+    assert api_response.data['detail'] == 'Invalid username/password'
     assert api_response.status_code == 401
 
     # Wrong password
@@ -62,7 +62,7 @@ def test_user_login_endpoint(test_user):
         },
         format='json'
     )
-    assert api_response.data == 'Invalid username/password'
+    assert api_response.data['detail'] == 'Invalid username/password'
     assert api_response.status_code == 401
 
     # Wrong username
@@ -74,7 +74,7 @@ def test_user_login_endpoint(test_user):
         },
         format='json'
     )
-    assert api_response.data == 'Invalid username/password'
+    assert api_response.data['detail'] == 'Invalid username/password'
     assert api_response.status_code == 401
 
     # Wrong username and password
@@ -86,5 +86,5 @@ def test_user_login_endpoint(test_user):
         },
         format='json'
     )
-    assert api_response.data == 'Invalid username/password'
+    assert api_response.data['detail'] == 'Invalid username/password'
     assert api_response.status_code == 401

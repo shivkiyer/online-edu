@@ -1,8 +1,8 @@
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 
 from .models import Course
-from common.error_definitions import Http400Error, Http403Error
+from common.error_definitions import CustomAPIError
 from common.error_handling import extract_serializer_error
 
 
@@ -35,13 +35,19 @@ class CourseSerializer(serializers.ModelSerializer):
         if self.is_valid():
             return super().save(*args, **kwargs)
         else:
-            raise Http400Error(extract_serializer_error(self.errors))
+            raise CustomAPIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=extract_serializer_error(self.errors)
+            )
 
     def create(self, validated_data):
         course_is_free = validated_data.get('is_free', False)
         course_price = validated_data.get('price', None)
         if not course_is_free and (course_price is None or course_price <= 0):
-            raise Http400Error('Course price is required')
+            raise CustomAPIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Course price is required'
+            )
         user = validated_data.get('user', None)
         if user is not None and user.is_staff:
             del validated_data['user']
@@ -49,8 +55,9 @@ class CourseSerializer(serializers.ModelSerializer):
             course.add_instructor(user)
             return course
         else:
-            raise Http403Error(
-                'Must be logged in as administrator to create a course'
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Must be logged in as administrator to create a course'
             )
 
     def update(self, instance, validated_data):
@@ -70,8 +77,9 @@ class CourseSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
         else:
-            raise Http403Error(
-                'Only an instructor of a course can update a course'
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Only an instructor of a course can update a course'
             )
 
     class Meta:

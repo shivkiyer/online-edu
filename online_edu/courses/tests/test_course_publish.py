@@ -44,7 +44,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Only an instructor of a course can update a course'
+    assert api_response.data['detail'] == 'Only an instructor of a course can update a course'
 
     # Making user the instructor
     course1.add_instructor(user1)
@@ -61,7 +61,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
         format='json'
     )
     assert api_response.status_code == 404
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
 
     # Success - instructor can publish a course
     api_response = client.patch(

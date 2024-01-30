@@ -41,7 +41,7 @@ def test_add_instructor(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Invalid login or inactive account'
+    assert api_response.data['detail'] == 'Invalid login or inactive account'
 
     # Fail - new instructor not admin
     api_response = client.post(
@@ -55,7 +55,7 @@ def test_add_instructor(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Instructors have to be administrators'
+    assert api_response.data['detail'] == 'Instructors have to be administrators'
 
     user2.is_staff = True
     user2.save()
@@ -72,7 +72,7 @@ def test_add_instructor(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 404
-    assert api_response.data == 'Course not found from URL'
+    assert api_response.data['detail'] == 'Course not found from URL'
 
     # Success - instructor added
     api_response = client.post(
@@ -99,7 +99,7 @@ def test_add_instructor(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 400
-    assert api_response.data == 'Already an instructor'
+    assert api_response.data['detail'] == 'Already an instructor'
 
     # Fail - adding non-existing user
     api_response = client.post(
@@ -113,7 +113,7 @@ def test_add_instructor(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 404
-    assert api_response.data == 'User not found'
+    assert api_response.data['detail'] == 'User not found'
 
     user1.is_active = False
     user1.save()
@@ -130,7 +130,7 @@ def test_add_instructor(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Must be logged in for this action'
+    assert api_response.data['detail'] == 'Must be logged in for this action'
 
     # Delete requesting user
     user1.delete()
@@ -147,4 +147,4 @@ def test_add_instructor(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Must be logged in for this action'
+    assert api_response.data['detail'] == 'Must be logged in for this action'

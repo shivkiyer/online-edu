@@ -26,7 +26,7 @@ def test_course_create_endpoint(test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data == 'Invalid login or inactive account'
+    assert api_response.data['detail'] == 'Invalid login or inactive account'
     assert Course.objects.count() == 0
 
     # Fail - token in header is for non-admin user
@@ -45,7 +45,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Admin privileges required for this action'
+    assert api_response.data['detail'] == 'Admin privileges required for this action'
     assert api_response.status_code == 403
     assert Course.objects.count() == 0
 
@@ -81,7 +81,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'A course with this title already exists'
+    assert api_response.data['detail'] == 'A course with this title already exists'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -97,7 +97,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Course title is required'
+    assert api_response.data['detail'] == 'Course title is required'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -113,7 +113,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Course description is required'
+    assert api_response.data['detail'] == 'Course description is required'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -129,7 +129,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Course price is required'
+    assert api_response.data['detail'] == 'Course price is required'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -146,7 +146,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Course price is required'
+    assert api_response.data['detail'] == 'Course price is required'
     assert api_response.status_code == 400
     assert Course.objects.count() == 1
 
@@ -166,7 +166,7 @@ def test_course_create_endpoint(test_user, access_token):
         },
         format='json'
     )
-    assert api_response.data == 'Must be logged in for this action'
+    assert api_response.data['detail'] == 'Must be logged in for this action'
     assert api_response.status_code == 403
     assert Course.objects.count() == 1
 

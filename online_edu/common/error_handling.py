@@ -1,11 +1,4 @@
-import logging
-from rest_framework.response import Response
-from rest_framework import status
-
-from .error_definitions import DEFAULT_ERROR_RESPONSE, \
-    Http400Error
-
-logger = logging.getLogger(__name__)
+from .error_definitions import DEFAULT_ERROR_RESPONSE
 
 
 def extract_serializer_error(error, default_msg=DEFAULT_ERROR_RESPONSE):
