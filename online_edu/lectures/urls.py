@@ -14,4 +14,9 @@ urlpatterns = [
         LectureView.as_view(),
         name='fetch-lectures'
     ),
+    path(
+        '<int:id>',
+        LectureView.as_view(),
+        name='fetch-lecture'
+    ),
 ]
