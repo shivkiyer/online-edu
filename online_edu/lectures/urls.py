@@ -17,6 +17,6 @@ urlpatterns = [
     path(
         '<int:id>',
         LectureView.as_view(),
-        name='fetch-lecture'
+        name='fetch-edit-lecture'
     ),
 ]

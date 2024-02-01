@@ -179,6 +179,8 @@ class UserAuthentication(JWTAuthentication):
                 else:
                     request.user = user[0]
                     return user[0]
+            else:
+                request.user = None
         except Exception as e:
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,

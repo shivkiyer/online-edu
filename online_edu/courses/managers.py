@@ -10,7 +10,7 @@ class CourseManager(models.Manager):
     def fetch_courses(self, is_draft=False, is_archived=False):
         return self.get_queryset().filter(is_draft=is_draft, is_archived=is_archived)
 
-    def get_course_by_slug(self, slug):
+    def get_course_by_slug(self, slug, admin_only=True):
         '''Return course using slug field'''
         if slug is None:
             raise CustomAPIError(
@@ -18,7 +18,11 @@ class CourseManager(models.Manager):
                 detail='Slug missing'
             )
         try:
-            return self.get_queryset().get(slug=slug)
+            course = self.get_queryset().get(slug=slug)
+            if not admin_only:
+                if course.is_draft or course.is_archived:
+                    raise
+            return course
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,

@@ -21,25 +21,31 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
     lookup_field = 'id'
     course = None
 
-    def init_lecture(self, login_required=True):
+    def init_lecture(self, admin_only=True):
         '''
         Initialize lecture view
             - fetch course object
             - authenticate user
         '''
         course_slug = self.kwargs.get('slug', None)
-        self.course = Course.objects.get_course_by_slug(course_slug)
-        if login_required:
-            self.authenticate(self.request)
+        self.course = Course.objects.get_course_by_slug(
+            course_slug,
+            admin_only=admin_only
+        )
+
+    def check_permissions(self, request):
+        if request.user is None:
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Must be logged in to access a lecture'
+            )
 
     def get_queryset(self):
-        self.init_lecture(login_required=False)
         return Lecture.objects.filter(
             course=self.course
         )
 
     def get_object(self):
-        self.init_lecture()
         try:
             return super().get_object()
         except:
@@ -58,11 +64,21 @@ class LectureView(
     '''Basic lecture view'''
 
     def get(self, request, *args, **kwargs):
+        try:
+            self.authenticate(request)
+        except Exception as e:
+            pass
+        if self.request.user is not None and self.request.user.is_staff:
+            self.init_lecture()
+        else:
+            self.init_lecture(admin_only=False)
         if self.kwargs.get('id', None) is None:
             return self.list(request, *args, **kwargs)
+        self.check_permissions(request)
         return self.retrieve(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        self.authenticate(self.request)
         self.init_lecture()
         serializer = LectureSerializer(data=request.data)
         serializer.save(
