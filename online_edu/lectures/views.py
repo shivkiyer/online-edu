@@ -3,7 +3,8 @@ from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, \
     ListModelMixin, \
-    RetrieveModelMixin
+    RetrieveModelMixin, \
+    UpdateModelMixin
 
 from user_auth.models import User
 from user_auth.views import UserAuthentication
@@ -59,9 +60,16 @@ class LectureView(
     LectureBaseView,
     CreateModelMixin,
     ListModelMixin,
-    RetrieveModelMixin
+    RetrieveModelMixin,
+    UpdateModelMixin
 ):
     '''Basic lecture view'''
+
+    def perform_update(self, serializer):
+        serializer.save(
+            user=self.request.user,
+            course=self.course
+        )
 
     def get(self, request, *args, **kwargs):
         try:
@@ -86,3 +94,8 @@ class LectureView(
             course=self.course
         )
         return Response(serializer.data)
+
+    def patch(self, request, *args, **kwargs):
+        self.authenticate(self.request)
+        self.init_lecture()
+        return self.partial_update(request, *args, **kwargs)

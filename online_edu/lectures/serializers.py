@@ -31,6 +31,23 @@ class LectureSerializer(serializers.ModelSerializer):
             )
         return True
 
+    def update(self, instance, validated_data):
+        user = validated_data.get('user', None)
+        course = validated_data.get('course', None)
+        if self.check_user_is_instructor(course, user):
+            del validated_data['user']
+            del validated_data['course']
+        if not Lecture.objects.check_title_duplicate(
+            course,
+            validated_data.get('title'),
+            exclude_course=instance
+        ):
+            instance.title = validated_data.get('title', instance.title)
+            instance.description = validated_data.get(
+                'description', instance.description)
+            instance.save()
+            return instance
+
     def create(self, validated_data):
         user = validated_data.get('user', None)
         course = validated_data.get('course', None)
