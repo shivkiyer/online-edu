@@ -18,6 +18,14 @@ class LectureSerializer(serializers.ModelSerializer):
                 detail=extract_serializer_error(self.errors)
             )
 
+    def validate(self, data):
+        if not data:
+            raise CustomAPIError(
+                status_code=400,
+                detail='Empty request body'
+            )
+        return data
+
     def check_user_is_instructor(self, course, user):
         if user is None:
             raise CustomAPIError(
@@ -34,19 +42,20 @@ class LectureSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         user = validated_data.get('user', None)
         course = validated_data.get('course', None)
+        title_data = validated_data.get('title', None)
         if self.check_user_is_instructor(course, user):
             del validated_data['user']
             del validated_data['course']
-        if not Lecture.objects.check_title_duplicate(
+        if title_data is not None and not Lecture.objects.check_title_duplicate(
             course,
             validated_data.get('title'),
-            exclude_course=instance
+            exclude_lecture=instance
         ):
             instance.title = validated_data.get('title', instance.title)
-            instance.description = validated_data.get(
-                'description', instance.description)
-            instance.save()
-            return instance
+        instance.description = validated_data.get(
+            'description', instance.description)
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         user = validated_data.get('user', None)

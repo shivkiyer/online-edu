@@ -7,7 +7,7 @@ from common.error_definitions import CustomAPIError
 class LectureManager(models.Manager):
     '''Manager for Lecture model'''
 
-    def check_title_duplicate(self, course, title, exclude_course=None):
+    def check_title_duplicate(self, course, title, exclude_lecture=None):
         '''Check if course with same title exists in course'''
         if course is None:
             raise CustomAPIError(
@@ -21,8 +21,8 @@ class LectureManager(models.Manager):
             )
         try:
             query = self.get_queryset()
-            if exclude_course is not None:
-                query = query.exclude(id=exclude_course.id)
+            if exclude_lecture is not None:
+                query = query.exclude(id=exclude_lecture.id)
             course_obj = query.get(
                 course=course,
                 title=title
