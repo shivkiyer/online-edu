@@ -84,6 +84,20 @@ def test_create_lecture_endpoint(
     assert Lecture.objects.all().count() == 1
     assert Lecture.objects.all()[0].course.id == course1.id
 
+    # Fail - missing title
+    api_response = client.post(
+        '/api/courses/{}/lectures/new-lecture'.format(course1.slug),
+        {
+            'description': 'Some description'
+        },
+        headers={
+            'Authorization': 'Bearer {}'.format(token)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+    assert api_response.data['detail'] == 'The title of a lecture is required'
+
     # Fail - wrong course slug
     api_response = client.post(
         '/api/courses/{}/lectures/new-lecture'.format(course1.slug+'1'),
