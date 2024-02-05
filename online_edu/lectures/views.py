@@ -10,6 +10,7 @@ from user_auth.models import User
 from user_auth.views import UserAuthentication
 from courses.models import Course
 from common.error_definitions import CustomAPIError
+from registration.models import CourseStudentRegistration
 from .models import Lecture
 from .serializers import LectureSerializer
 
@@ -26,7 +27,6 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
         '''
         Initialize lecture view
             - fetch course object
-            - authenticate user
         '''
         course_slug = self.kwargs.get('slug', None)
         self.course = Course.objects.get_course_by_slug(
@@ -34,11 +34,19 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
             admin_only=admin_only
         )
 
-    def check_permissions(self, request):
+    def check_lecture_permissions(self, request):
         if request.user is None:
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Must be logged in to access a lecture'
+            )
+        if not request.user.is_staff and not CourseStudentRegistration.objects.is_student_registered(
+            user=request.user,
+            course=self.course
+        ):
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Must register for the course to access a lecture'
             )
 
     def get_queryset(self):
@@ -73,7 +81,7 @@ class LectureView(
 
     def get(self, request, *args, **kwargs):
         try:
-            self.authenticate(request)
+            self.authenticate(request, check_admin=False)
         except Exception as e:
             pass
         if self.request.user is not None and self.request.user.is_staff:
@@ -82,7 +90,7 @@ class LectureView(
             self.init_lecture(admin_only=False)
         if self.kwargs.get('id', None) is None:
             return self.list(request, *args, **kwargs)
-        self.check_permissions(request)
+        self.check_lecture_permissions(request)
         return self.retrieve(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

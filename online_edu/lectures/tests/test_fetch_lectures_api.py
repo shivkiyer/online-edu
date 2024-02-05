@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 
 from courses.models import Course
 from lectures.models import Lecture
+from registration.models import CourseStudentRegistration
 from user_auth.tests.fixtures import test_user, access_token
 
 pytestmark = pytest.mark.django_db
@@ -150,8 +151,28 @@ def test_fetch_lecture(test_user, access_token):
 
     # Create sample user
     user1 = test_user()
+    user1.is_active = True
+    user1.save()
     token1 = access_token(user1, 60)
 
+    # Fail - unregistered student cannot access lecture details
+    api_response = client.get(
+        '/api/courses/{slug}/lectures/{id}'.format(
+            slug=course1.slug,
+            id=lecture1.id
+        ),
+        headers={
+            'Authorization': 'Bearer {}'.format(token1)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 403
+    assert api_response.data['detail'] == 'Must register for the course to access a lecture'
+
+    # Register student for course
+    CourseStudentRegistration.objects.register_student(user1, course1)
+
+    # Success
     api_response = client.get(
         '/api/courses/{slug}/lectures/{id}'.format(
             slug=course1.slug,
