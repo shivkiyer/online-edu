@@ -74,8 +74,11 @@ class LectureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lecture
-        fields = ['title', 'description']
+        fields = ['id', 'title', 'description']
         extra_kwargs = {
+            'id': {
+                'read_only': True
+            },
             'title': {
                 'error_messages': {
                     'required': 'The title of a lecture is required',
