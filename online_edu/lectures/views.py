@@ -113,4 +113,9 @@ class LectureView(
     def delete(self, request, *args, **kwargs):
         self.authenticate(self.request)
         self.init_lecture()
+        if not self.course.check_user_is_instructor(request.user):
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Only an instructor can delete lectures'
+            )
         return self.destroy(request, *args, **kwargs)
