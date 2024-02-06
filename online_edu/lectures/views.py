@@ -4,7 +4,8 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, \
     ListModelMixin, \
     RetrieveModelMixin, \
-    UpdateModelMixin
+    UpdateModelMixin, \
+    DestroyModelMixin
 
 from user_auth.models import User
 from user_auth.views import UserAuthentication
@@ -69,7 +70,8 @@ class LectureView(
     CreateModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
-    UpdateModelMixin
+    UpdateModelMixin,
+    DestroyModelMixin
 ):
     '''Basic lecture view'''
 
@@ -107,3 +109,8 @@ class LectureView(
         self.authenticate(self.request)
         self.init_lecture()
         return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.authenticate(self.request)
+        self.init_lecture()
+        return self.destroy(request, *args, **kwargs)

@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import LectureView
 
-app_name = 'courses'
+app_name = 'lectures'
 urlpatterns = [
     path(
         'new-lecture',
