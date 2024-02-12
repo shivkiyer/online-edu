@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import LectureView
+from .views import LectureView, AdjustLectureOrderView
 
 app_name = 'lectures'
 urlpatterns = [
@@ -10,13 +10,18 @@ urlpatterns = [
         name='create-lecture'
     ),
     path(
-        '',
-        LectureView.as_view(),
-        name='fetch-lectures'
+        '<int:id>/move-lecture/<str:direction>',
+        AdjustLectureOrderView.as_view(),
+        name='move-lecture'
     ),
     path(
         '<int:id>',
         LectureView.as_view(),
         name='fetch-edit-lecture'
+    ),
+    path(
+        '',
+        LectureView.as_view(),
+        name='fetch-lectures'
     ),
 ]

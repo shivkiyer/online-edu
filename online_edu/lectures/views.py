@@ -119,3 +119,20 @@ class LectureView(
                 detail='Only an instructor can delete lectures'
             )
         return self.destroy(request, *args, **kwargs)
+
+
+class AdjustLectureOrderView(LectureBaseView):
+    '''Move a lecture up or down in a course'''
+
+    def post(self, request, *args, **kwargs):
+        self.authenticate(self.request)
+        self.init_lecture()
+        if not self.course.check_user_is_instructor(request.user):
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Only an instructor can change the order of lectures'
+            )
+        lecture = self.get_object()
+        Lecture.objects.change_lecture_order(
+            lecture, self.kwargs.get('direction'))
+        return Response()
