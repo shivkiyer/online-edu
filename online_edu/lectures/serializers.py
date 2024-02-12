@@ -74,9 +74,12 @@ class LectureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lecture
-        fields = ['id', 'title', 'description']
+        fields = ['id', 'title', 'description', 'seq_no']
         extra_kwargs = {
             'id': {
+                'read_only': True
+            },
+            'seq_no': {
                 'read_only': True
             },
             'title': {
