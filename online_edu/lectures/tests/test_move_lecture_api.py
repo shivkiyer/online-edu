@@ -247,3 +247,17 @@ def test_moving_lecture_endpoint(
     )
     assert api_response.status_code == 400
     assert api_response.data['detail'] == 'Lecture is already the last in the course'
+
+    # Fail - lecture 0 is already the last
+    api_response = client.post(
+        '/api/courses/{slug}/lectures/{id}/move-lecture/downn'.format(
+            slug=course1.slug,
+            id=lectures[2].id
+        ),
+        headers={
+            'Authorization': 'Bearer {}'.format(token1)
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+    assert api_response.data['detail'] == 'Direction in which the lecture needs to be moved can be up or down'
