@@ -13,3 +13,6 @@ __pychache__
 
 # Editor config directory
 .vscode/
+
+# Media files
+media/

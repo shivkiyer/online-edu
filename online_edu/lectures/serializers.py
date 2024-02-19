@@ -21,7 +21,7 @@ class LectureSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if not data:
             raise CustomAPIError(
-                status_code=400,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Empty request body'
             )
         return data
