@@ -53,7 +53,7 @@ class Course(models.Model):
             raise ValidationError('Price of a non-free course is required.')
 
     def add_instructor(self, user):
-        '''Add instructors to the course'''
+        '''Add an instructor to the course'''
         if self.check_user_is_instructor(user):
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,

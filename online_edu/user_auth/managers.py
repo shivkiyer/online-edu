@@ -10,6 +10,7 @@ class UserManager(AbstractUserManager):
     '''Manager for the User model'''
 
     def get_user_by_id(self, id, *args, **kwargs):
+        '''Fetch user by db Id'''
         try:
             return self.get(id=id, *args, **kwargs)
         except:

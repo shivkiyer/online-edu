@@ -27,6 +27,7 @@ class LectureSerializer(serializers.ModelSerializer):
         return data
 
     def check_user_is_instructor(self, course, user):
+        '''Check if user is an instructor of a course'''
         if user is None:
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,

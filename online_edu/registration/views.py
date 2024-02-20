@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from user_auth.models import User
-from user_auth.views import UserAuthentication
 from courses.models import Course
 from courses.serializers import CourseSerializer
 from courses.views import CourseBaseView

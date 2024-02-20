@@ -36,6 +36,13 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
         )
 
     def check_lecture_permissions(self, request):
+        '''
+        Check user permissions
+        - admin user has CRUD permissions
+        - unauthenticated user has only list view permission
+        - authenticated user not registered for course has only list view permission
+        - authenticated user registered for course has list and detail view permission
+        '''
         if request.user is None:
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -51,11 +58,13 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
             )
 
     def get_queryset(self):
+        '''Fetch list of lectures for course'''
         return Lecture.objects.filter(
             course=self.course
         )
 
     def get_object(self):
+        '''Fetch lecture object'''
         try:
             return super().get_object()
         except:
@@ -76,6 +85,7 @@ class LectureView(
     '''Basic lecture view'''
 
     def perform_update(self, serializer):
+        '''When updating a lecture'''
         serializer.save(
             user=self.request.user,
             course=self.course

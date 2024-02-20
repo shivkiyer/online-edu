@@ -8,6 +8,10 @@ class CourseManager(models.Manager):
     '''Manager for Course model'''
 
     def fetch_courses(self, is_draft=False, is_archived=False):
+        '''
+        Return course list
+        by default - courses that are published and not archived
+        '''
         return self.get_queryset().filter(is_draft=is_draft, is_archived=is_archived)
 
     def get_course_by_slug(self, slug, admin_only=True):

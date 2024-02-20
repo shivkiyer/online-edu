@@ -23,7 +23,7 @@ class LectureManager(models.Manager):
             query = self.get_queryset()
             if exclude_lecture is not None:
                 query = query.exclude(id=exclude_lecture.id)
-            course_obj = query.get(
+            query.get(
                 course=course,
                 title=title
             )
@@ -35,7 +35,7 @@ class LectureManager(models.Manager):
         )
 
     def change_lecture_order(self, lecture, direction='up'):
-        '''Change sequence of lectures'''
+        '''Change sequence of lectures by moving lecture up or down in list'''
         direction = direction.lower()
         if lecture.seq_no == 1 and direction == 'up':
             raise CustomAPIError(
