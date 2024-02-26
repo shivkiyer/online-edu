@@ -7,7 +7,21 @@ from common.error_handling import extract_serializer_error
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    '''Serializer for course'''
+    '''
+    Serializer for course
+
+    Attributes
+    --------------
+    title : str
+        Title field for course. Required and unique validators applied.
+
+    Methods
+    --------------
+    validate(data) - Validates course data
+    save() - saves and returns course model instance
+    create(validated_data) - creates and returns course model instance
+    update(self, instance, validated_data) - updates and returns course model instance
+    '''
 
     title = serializers.CharField(
         error_messages={
@@ -23,6 +37,20 @@ class CourseSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
+        '''
+        Validates course data.
+        Sets price of free courses to be 0.
+
+        Parameters
+        -------------
+        data : dict
+            Course data
+
+        Returns
+        -------------
+        data : dict
+            Validated course data
+        '''
         course_is_free = data.get('is_free', None)
         course_price = data.get('price', None)
         if course_price is not None and course_price > 0:
@@ -32,6 +60,18 @@ class CourseSerializer(serializers.ModelSerializer):
         return data
 
     def save(self, *args, **kwargs):
+        '''
+        Saves course model instance to database and returns it.
+
+        Raises
+        --------------
+        400 error
+            If course data is not valid
+
+        Returns
+        --------------
+        Course model instance
+        '''
         if self.is_valid():
             return super().save(*args, **kwargs)
         else:
@@ -41,6 +81,25 @@ class CourseSerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
+        '''
+        Creates a new course in database and returns model instance.
+
+        Parameters
+        --------------
+        validated_data : dict
+            Validated data
+
+        Raises
+        --------------
+        400 error
+            If course is not free but course price is missing
+        403 error
+            If user creating course is not an admin
+
+        Returns
+        --------------
+        Course model instance
+        '''
         course_is_free = validated_data.get('is_free', False)
         course_price = validated_data.get('price', None)
         if not course_is_free and (course_price is None or course_price <= 0):
@@ -61,6 +120,25 @@ class CourseSerializer(serializers.ModelSerializer):
             )
 
     def update(self, instance, validated_data):
+        '''
+        Updates a course in database and returns model instance.
+
+        Parameters
+        -------------
+        instance : Course
+            Course model instance
+        validated_data : dict
+            Validated course data
+
+        Raises
+        -------------
+        403 error
+            If a non-instructor user tries to update a course
+
+        Returns
+        -------------
+        Course model instance
+        '''
         user = validated_data.get('user', None)
         if user is not None and instance.check_user_is_instructor(user):
             instance.title = validated_data.get('title', instance.title)
