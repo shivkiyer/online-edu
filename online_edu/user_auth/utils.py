@@ -12,7 +12,19 @@ logger = logging.getLogger(__name__)
 
 
 def send_verification_link_email(user):
-    '''Send an email to newly registered used with verification link'''
+    '''
+    Send an email to newly registered used with verification link
+
+    Parameters
+    -------------
+    user : User model instance
+
+    Raises
+    -------------
+    400 error
+        If user is missing
+        If user is already activated
+    '''
     if not user:
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -56,7 +68,18 @@ def send_verification_link_email(user):
 
 
 def send_password_reset_email(user):
-    '''Send a password reset email to an active user'''
+    '''
+    Send a password reset email to an active user
+
+    Parameters
+    -------------
+    user : User model instance
+
+    Raises
+    -------------
+    400 error
+        If user is not activated
+    '''
     if not user or not user.is_active:
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,

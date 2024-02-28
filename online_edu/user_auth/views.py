@@ -20,11 +20,37 @@ logger = logging.getLogger(__name__)
 
 
 class RegisterUserView(CreateAPIView):
-    '''Register a new user'''
+    '''
+    Register a new user
+
+    Attributes
+    ----------------
+    serializer_class : RegisterUserSerializer
+
+    Methods
+    ----------------
+    post(*args, **kwargs):
+        Register a new user and return new user data
+    '''
     serializer_class = RegisterUserSerializer
 
     def post(self, *args, **kwargs):
-        '''Create new user from API request'''
+        '''
+        Create new user from API request
+
+        Raises
+        ---------------
+        400 error
+            If username is missing
+            If username is not a valid email
+            If password is missing
+            If confirm_password is missing
+            If password and confirm_password are not matching
+
+        Returns
+        ---------------
+        Response with user data
+        '''
         user = RegisterUserSerializer(data=self.request.data)
         new_user = user.save()
         send_verification_link_email(new_user)
@@ -33,9 +59,25 @@ class RegisterUserView(CreateAPIView):
 
 
 class VerifyUserView(APIView):
-    '''Checks token received on clicking verification link'''
+    '''
+    Checks token received on clicking verification link
+
+    Methods
+    --------------------
+    get(*args, **kwargs):
+        Processes verification link click
+    '''
 
     def get(self, *args, **kwargs):
+        '''
+        Activate user from verification link
+
+        Raises
+        -----------------
+        400 error
+            Invalid link if token is missing
+            Link expired or faulty is token is expired or tampered
+        '''
         verification_token = self.kwargs.get('token', None)
         if not verification_token:
             logger.critical(
@@ -63,9 +105,24 @@ class VerifyUserView(APIView):
 
 
 class ResendVerificationEmailView(APIView):
-    '''Resending verification email to user'''
+    '''
+    Resending verification email to user
+
+    Methods
+    --------------
+    post(*args, **kwargs):
+        Resend verification link to provided email
+    '''
 
     def post(self, *args, **kwargs):
+        '''
+        Resend verification link to provided email
+
+        Raises
+        ----------------
+        404 error
+            User not found from email
+        '''
         user_email = self.request.data.get('email', None)
         user_obj = User.objects.get_user_by_email(user_email)
         send_verification_link_email(user_obj)
@@ -77,10 +134,25 @@ class ResendVerificationEmailView(APIView):
 
 
 class LoginUserView(APIView):
-    '''Login user and return token'''
+    '''
+    Login user and return token
+
+    Methods
+    ----------------
+    post(*args, **kwargs):
+        Login a user and return JWT
+    '''
     serializer_class = UserSerializer
 
     def post(self, *args, **kwargs):
+        '''
+        Log a user in with email and password
+
+        Raises
+        --------------
+        401 error
+            Invalid username/password if login fails
+        '''
         user_obj = authenticate(
             username=self.request.data.get('username', None),
             password=self.request.data.get('password', None)
@@ -108,9 +180,24 @@ class LoginUserView(APIView):
 
 
 class ResetPasswordView(APIView):
-    '''Send password reset link to user email'''
+    '''
+    Send password reset link to user email
+
+    Methods
+    ---------------
+    post(*args, **kwargs):
+        Send a password reset link to provided email
+    '''
 
     def post(self, *args, **kwargs):
+        '''
+        Send a password reset link to provided email
+
+        Raises
+        --------------
+        404 error
+            If user not found from email
+        '''
         user_email = self.request.data.get('email', None)
         user_obj = User.objects.get_user_by_email(user_email)
         send_password_reset_email(user_obj)
@@ -122,11 +209,28 @@ class ResetPasswordView(APIView):
 
 
 class ChangePasswordView(APIView):
-    '''Change a user password'''
+    '''
+    Change a user password
+
+    Methods
+    -----------------
+    post(*args, **kwargs):
+        Update a user password
+    '''
 
     serializer_class = ChangePasswordSerializer
 
     def post(self, *args, **kwargs):
+        '''
+        Update a user password
+
+        Raises
+        ----------------
+        400 error
+            If request does not contain JWT or if JWT expired
+        404 error
+            If user cannot be found
+        '''
         verification_token = self.kwargs.get('token', None)
         if not verification_token:
             logger.critical(
@@ -160,7 +264,14 @@ class ChangePasswordView(APIView):
 
 
 class UserAuthentication(JWTAuthentication):
-    '''Returns user from token in header'''
+    '''
+    Returns user from token in header
+
+    Methods
+    --------------------
+    authenticate:
+        Extract JWT from request header and return user model instance
+    '''
 
     def authenticate(
         self,
@@ -170,6 +281,26 @@ class UserAuthentication(JWTAuthentication):
         *args,
         **kwargs
     ):
+        '''
+        Extract JWT from request header and return user model instance.
+        User model instance is also inserted into request object.
+
+        Parameters
+        ---------------
+        request : Request
+        check_admin : boolean
+            If the authentication should enforce admin only credentials.
+            Default is True
+        open_endpoint : boolean
+            If the endpoint requesting does not need authentication.
+            Default is False.
+
+        Raises
+        ---------------
+        403 error
+            If no token in header
+            If admin is required by token is not of admin user
+        '''
         error_msg = None
         try:
             user = super().authenticate(request, *args, **kwargs)

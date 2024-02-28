@@ -7,10 +7,38 @@ from common.error_definitions import CustomAPIError
 
 
 class UserManager(AbstractUserManager):
-    '''Manager for the User model'''
+    '''
+    Manager for the User model
+
+    Methods
+    ---------------
+    get_user_by_id(id, *args, **kwargs):
+        Return user model instance by id column
+    get_user_by_token(token):
+        Return user model instance from JWT
+    get_user_by_email(email):
+        Return user model instance from email
+    activate_user_by_token(token):
+        Activate a user account from a JWT
+    '''
 
     def get_user_by_id(self, id, *args, **kwargs):
-        '''Fetch user by db Id'''
+        '''
+        Fetch user by db Id
+
+        Parameters
+        -------------
+        id : int
+
+        Raises
+        -------------
+        404 error
+            User not found
+
+        Returns
+        -------------
+        User model instance
+        '''
         try:
             return self.get(id=id, *args, **kwargs)
         except:
@@ -20,7 +48,23 @@ class UserManager(AbstractUserManager):
             )
 
     def get_user_by_token(self, token):
-        '''Return a user object from JWT'''
+        '''
+        Return a user object from JWT
+
+        Parameters
+        -------------
+        token : str
+            JWT
+
+        Raises
+        -------------
+        400 error
+            User not found
+
+        Returns
+        -------------
+        User model instance
+        '''
         user_data = RefreshToken(token)
         try:
             user_obj = self.get_queryset().filter(
@@ -34,7 +78,22 @@ class UserManager(AbstractUserManager):
         return user_obj
 
     def get_user_by_email(self, email):
-        '''Return a user object using email'''
+        '''
+        Return a user object using email
+
+        Parameters
+        -------------
+        email : str
+
+        Raises
+        -------------
+        404 error
+            User not found
+
+        Returns
+        -------------
+        User model instance
+        '''
         try:
             return self.get(username=email)
         except:
@@ -44,7 +103,19 @@ class UserManager(AbstractUserManager):
             )
 
     def activate_user_by_token(self, token):
-        '''Activate a user from JWT'''
+        '''
+        Activate a user from JWT
+
+        Parameters
+        -------------
+        token : str
+            JWT
+
+        Raises
+        -------------
+        400 error
+            User could not be activated
+        '''
         try:
             user_obj = self.get_user_by_token(token)
             user_obj.is_active = True

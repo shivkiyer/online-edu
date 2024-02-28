@@ -17,7 +17,19 @@ from .serializers import LectureSerializer
 
 
 class LectureBaseView(GenericAPIView, UserAuthentication):
-    '''Basic lecture view'''
+    '''
+    Basic lecture view
+
+    Attributes
+    ---------------
+    serializer_class : class
+        LectureSerializer
+    user_model : class
+        Reference to User model
+    lookup_field : str
+        Model field to extract model instance in detail and update views
+    course : Course model instance
+    '''
 
     serializer_class = LectureSerializer
     user_model = User
@@ -26,8 +38,18 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
 
     def init_lecture(self, admin_only=True):
         '''
-        Initialize lecture view
-            - fetch course object
+        Initialize lecture view by fetching course.
+        Course slug is in URL.
+
+        Parameters
+        --------------
+        admin_only : boolean
+            True if operation is performed by admin
+
+        Raises
+        --------------
+        404 error:
+            If course is not published or archived and admin_only=True
         '''
         course_slug = self.kwargs.get('slug', None)
         self.course = Course.objects.get_course_by_slug(
@@ -42,6 +64,16 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
         - unauthenticated user has only list view permission
         - authenticated user not registered for course has only list view permission
         - authenticated user registered for course has list and detail view permission
+
+        Parameters
+        ----------------
+        request : Request
+
+        Raises
+        ----------------
+        403 error:
+            If no credentials are passed
+            If user asking for detail view is not registed for a course
         '''
         if request.user is None:
             raise CustomAPIError(
@@ -58,13 +90,30 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
             )
 
     def get_queryset(self):
-        '''Fetch list of lectures for course'''
+        '''
+        Fetch list of lectures for course
+
+        Returns
+        ------------
+        List of lectures for a given course
+        '''
         return Lecture.objects.filter(
             course=self.course
         )
 
     def get_object(self):
-        '''Fetch lecture object'''
+        '''
+        Fetch lecture object
+
+        Raises
+        ---------------
+        404 error:
+            If lecture id does not exist in db
+
+        Returns
+        ---------------
+        Lecture model instance with id in URL
+        '''
         try:
             return super().get_object()
         except:
@@ -82,16 +131,67 @@ class LectureView(
     UpdateModelMixin,
     DestroyModelMixin
 ):
-    '''Basic lecture view'''
+    '''
+    Lecture view for CRUD
+
+    Methods
+    -----------------
+    get(request, *args, **kwargs)
+        Handles list and detail views for lectures
+    post(request, *args, **kwargs):
+        Creates a new lecture
+    patch(request, *args, **kwargs):
+        Updates an exiting lecture
+    delete(request, *args, **kwargs):
+        Deletes a lecture
+    '''
 
     def perform_update(self, serializer):
-        '''When updating a lecture'''
+        '''
+        When updating a lecture
+
+        Parameters
+        ---------------
+        serializer : dict
+            Data for updating lecture
+
+        Raises
+        ---------------
+        400 error:
+            If data is empty
+            If new title is the same as another existing lecture
+        403 error:
+            If user is not logged in
+            If user is not instructor
+        404 error:
+            If lecture being updated does not exist in db
+        '''
         serializer.save(
             user=self.request.user,
             course=self.course
         )
 
     def get(self, request, *args, **kwargs):
+        '''
+        List and detail view for lectures
+
+        Parameters
+        --------------
+        request : Request
+
+        Raises
+        --------------
+        403 error:
+            Unregistered user accessing lecture detail view
+        404 error:
+            If course not found
+            If non-admin user accessing unpublished course
+            If lecture cannot be found
+
+        Returns
+        -------------
+        Array with lectures in a course or lecture details
+        '''
         try:
             self.authenticate(request, check_admin=False)
         except Exception as e:
@@ -106,6 +206,29 @@ class LectureView(
         return self.retrieve(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        '''
+        Creates a new lecture
+
+        Parameters
+        -------------
+        request : Request
+
+        Raises
+        -------------
+        400 error:
+            Empty data
+            Title is missing
+            Title is duplicate
+        403 error:
+            User not logged in
+            User not instructor for the course
+        404 error:
+            Course not found
+
+        Returns
+        -------------
+        New lecture details
+        '''
         self.authenticate(self.request)
         self.init_lecture()
         serializer = LectureSerializer(data=request.data)
@@ -116,11 +239,50 @@ class LectureView(
         return Response(serializer.data)
 
     def patch(self, request, *args, **kwargs):
+        '''
+        Updates existing lecture
+
+        Parameters
+        -------------
+        request : Request
+
+        Raises
+        -------------
+        400 error:
+            Empty data
+            New title duplicate of another lecture in course
+        403 error:
+            User not logged in
+            User not instructor for the course
+        404 error:
+            Course not found
+            Lecture not found
+
+        Returns
+        -------------
+        Updated lecture details
+        '''
         self.authenticate(self.request)
         self.init_lecture()
         return self.partial_update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
+        '''
+        Delete a lecture
+
+        Parameters
+        -------------
+        request : Request
+
+        Raises
+        -------------
+        403 error:
+            User not logged in
+            User not instructor for the course
+        404 error:
+            Course not found
+            Lecture not found
+        '''
         self.authenticate(self.request)
         self.init_lecture()
         if not self.course.check_user_is_instructor(request.user):
@@ -132,9 +294,36 @@ class LectureView(
 
 
 class AdjustLectureOrderView(LectureBaseView):
-    '''Move a lecture up or down in a course'''
+    '''
+    Move a lecture up or down in a course
+
+    Methods
+    --------------
+    post(request, *args, **kwargs):
+        Moves the lecture
+    '''
 
     def post(self, request, *args, **kwargs):
+        '''
+        Moves the lecture up or down in the lecture list of a course
+
+        Parameters
+        -------------
+        request : Request
+
+        Raises
+        -------------
+        400 error:
+            First lecture is moved up
+            Last lecture is moved down
+            Direction of movement is not up or down
+        403 error:
+            User not logged in
+            User is not an instructor of the course
+        404 error:
+            Course not found
+            Lecture not found
+        '''
         self.authenticate(self.request)
         self.init_lecture()
         if not self.course.check_user_is_instructor(request.user):

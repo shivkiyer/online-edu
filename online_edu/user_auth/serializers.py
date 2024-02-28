@@ -8,7 +8,20 @@ from common.error_handling import extract_serializer_error
 
 
 class UserSerializer(serializers.ModelSerializer):
-    '''Serializer for User model'''
+    '''
+    Serializer for User model
+
+    Attributes
+    --------------
+    password : str
+
+    Methods
+    -------------
+    save():
+        Saves and returns user model instance
+    create(validated_data):
+        Creates new user model instance
+    '''
     password = serializers.CharField(
         style={'input_type': 'password'},
         write_only=True,
@@ -19,6 +32,20 @@ class UserSerializer(serializers.ModelSerializer):
     )
 
     def save(self):
+        '''
+        Validates data and saves to model instance
+
+        Raises
+        -------------
+        400 error
+            Username is missing
+            Username is not a valid email
+            Password is missing
+
+        Returns
+        -------------
+        User model instance
+        '''
         if self.is_valid():
             return super().save()
         else:
@@ -26,10 +53,19 @@ class UserSerializer(serializers.ModelSerializer):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=extract_serializer_error(self.errors)
             )
-            # raise Http400Error(extract_serializer_error(self.errors))
 
     def create(self, validated_data):
-        '''Create new user in db'''
+        '''
+        Create new user in db
+
+        Parameters
+        ---------------
+        validated_data : dict
+
+        Returns
+        ---------------
+        New user model instance
+        '''
         new_user = User(
             username=validated_data['username']
         )
@@ -55,7 +91,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterUserSerializer(UserSerializer):
-    '''Serializer for registering a new user'''
+    '''
+    Serializer for registering a new user
+
+    Attributes
+    ------------------
+    confirm_password : str
+
+    Methods
+    ------------------
+    validate(data):
+        Verify that password and confirm_password match
+    '''
     confirm_password = serializers.CharField(
         style={'input_type': 'password'},
         write_only=True,
@@ -77,16 +124,35 @@ class RegisterUserSerializer(UserSerializer):
 
 
 class ChangePasswordSerializer(RegisterUserSerializer):
-    '''Serializer for resetting the password of a user'''
+    '''
+    Serializer for resetting the password of a user
+
+    Methods
+    ---------------
+    update(instance, validated_data):
+        Update user model instance from data
+    '''
 
     def update(self, instance, validated_data):
-        '''Update user password'''
+        '''
+        Update user password
+
+        Parameters
+        ----------------
+        instance : User model instance
+        validated_data : dict
+
+        Raises
+        ----------------
+        400 error
+            If user is not active
+            If password and confirm_password are not matching
+        '''
         if not instance.is_active:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='User not found'
             )
-            # raise Http400Error('User not found')
         instance.set_password(validated_data.get('password'))
         instance.save()
         return instance
