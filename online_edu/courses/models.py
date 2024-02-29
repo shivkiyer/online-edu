@@ -1,3 +1,4 @@
+import logging
 from django.db import models
 from django.db.models.signals import pre_save
 from django.utils.text import slugify
@@ -6,6 +7,8 @@ from rest_framework import status
 
 from common.error_definitions import CustomAPIError
 from .managers import CourseManager
+
+logger = logging.getLogger(__name__)
 
 
 class Course(models.Model):
@@ -101,6 +104,9 @@ class Course(models.Model):
         Course model instance after saving to database
         '''
         if not self.is_free and self.price <= 0:
+            logger.error('Course {} does not have valid price but is not free.'.format(
+                self.title
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Price of a non-free course is required.'
@@ -119,6 +125,9 @@ class Course(models.Model):
             If both price and is_free fields are blank
         '''
         if not self.is_free and self.price <= 0:
+            logger.error('Course {} does not have valid price but is not free.'.format(
+                self.title
+            ))
             raise ValidationError('Price of a non-free course is required.')
 
     def add_instructor(self, user):
@@ -138,6 +147,9 @@ class Course(models.Model):
             if user is not an admin
         '''
         if self.check_user_is_instructor(user):
+            logger.error('Attempting to add user {} again as instructor'.format(
+                str(user.id)
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Already an instructor'
@@ -145,6 +157,9 @@ class Course(models.Model):
         if user.is_staff:
             self.instructors.add(user)
         else:
+            logger.critical('Attempting to add non-admin user {} as instructor'.format(
+                str(user.id)
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Instructors have to be administrators'

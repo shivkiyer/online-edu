@@ -32,12 +32,24 @@ class CourseBaseView(GenericAPIView, UserAuthentication):
 
     Methods
     -------------
+    get_queryset() : Base method for course list view
     get_object() : Returns course model instance
     '''
 
     serializer_class = CourseSerializer
     user_model = User
     lookup_field = 'slug'
+
+    def get_queryset(self, *args, **kwargs):
+        '''
+        Return list of courses.
+        If requesting user is admin, all courses are returned.
+        If requesting user is non-admin, only published courses
+        not archived are returned.
+        '''
+        if self.request.user is not None and self.request.user.is_staff:
+            return Course.objects.all()
+        return Course.objects.fetch_courses()
 
     def get_object(self):
         '''Return 404 if course not found from slug'''
@@ -62,24 +74,12 @@ class CourseView(
 
     Methods
     -------------
-    get_queryset() : Base method for course list view
     perform_create(serializer) : Saves serializer data to create new course
     perform_update(serializer) : Updates course with serializer data
     post(request) : Handles POST requests
     get(request) : Handles GET requests (list and detail)
     patch(request) : Handles PATCH requests (partial update of course)
     '''
-
-    def get_queryset(self, *args, **kwargs):
-        '''
-        Return list of courses.
-        If requesting user is admin, all courses are returned.
-        If requesting user is non-admin, only published courses
-        not archived are returned.
-        '''
-        if self.request.user is not None and self.request.user.is_staff:
-            return Course.objects.all()
-        return Course.objects.fetch_courses()
 
     def perform_create(self, serializer):
         '''
@@ -91,9 +91,9 @@ class CourseView(
         '''
         course = serializer.save(user=self.request.user)
         logger.info(
-            'Creating course {course} by user {user}'.format(
-                course=course.id,
-                user=self.request.user.id
+            'Creating course {} by user {}'.format(
+                course.id,
+                self.request.user.id
             )
         )
 
@@ -107,9 +107,9 @@ class CourseView(
         '''
         course = serializer.save(user=self.request.user)
         logger.info(
-            'Updating course {course} by user {user}'.format(
-                course=course.id,
-                user=self.request.user.id
+            'Updating course {} by user {}'.format(
+                course.id,
+                self.request.user.id
             )
         )
 
@@ -161,9 +161,19 @@ class CourseView(
         '''
         slug = self.kwargs.get('slug', None)
         self.authenticate(request, open_endpoint=True)
+        user_id = None
+        if self.request.user is not None:
+            user_id = self.request.user.id
         if slug:
+            logger.info('Course with slug {} fetched by user {}'.format(
+                slug,
+                user_id
+            ))
             return self.retrieve(request, *args, *kwargs)
         else:
+            logger.info('Course list fetched by user {}'.format(
+                user_id
+            ))
             return self.list(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):

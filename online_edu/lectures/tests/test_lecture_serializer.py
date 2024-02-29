@@ -28,7 +28,8 @@ def test_lecture_serializer_create(sample_course, test_user):
     serializer = LectureSerializer(data={'title': 'Lec 1'})
     with pytest.raises(Exception) as e:
         serializer.save(user=user1, course=course1)
-    assert str(e.value) == 'Must be an instructor of the course to create lectures'
+    assert str(
+        e.value) == 'Must be an instructor of the course to create or update lectures'
 
     # Make user admin
     user1.is_staff = True
@@ -38,7 +39,8 @@ def test_lecture_serializer_create(sample_course, test_user):
     serializer = LectureSerializer(data={'title': 'Lec 1'})
     with pytest.raises(Exception) as e:
         serializer.save(user=user1, course=course1)
-    assert str(e.value) == 'Must be an instructor of the course to create lectures'
+    assert str(
+        e.value) == 'Must be an instructor of the course to create or update lectures'
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -107,7 +109,8 @@ def test_lecture_serializer_update(sample_course, test_user):
     )
     with pytest.raises(Exception) as e:
         serializer.save(user=user1, course=course1)
-    assert str(e.value) == 'Must be an instructor of the course to create lectures'
+    assert str(
+        e.value) == 'Must be an instructor of the course to create or update lectures'
 
     # Make user admin
     user1.is_staff = True
@@ -121,7 +124,8 @@ def test_lecture_serializer_update(sample_course, test_user):
     )
     with pytest.raises(Exception) as e:
         serializer.save(user=user1, course=course1)
-    assert str(e.value) == 'Must be an instructor of the course to create lectures'
+    assert str(
+        e.value) == 'Must be an instructor of the course to create or update lectures'
 
     # Make user instructor
     course1.add_instructor(user1)

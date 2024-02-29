@@ -1,7 +1,10 @@
+import logging
 from django.db import models
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
+
+logger = logging.getLogger(__name__)
 
 
 class CourseStudentRegistrationManager(models.Manager):
@@ -55,7 +58,15 @@ class CourseStudentRegistrationManager(models.Manager):
         CourseStudentRegistration model instance
         '''
         if not self.is_student_registered(user=user, course=course):
+            logger.info('User {} successfully registered in course {}'.format(
+                str(user.id),
+                course.title
+            ))
             return self.create(user=user, course=course)
+        logger.error('Repeated registration in course {} by user {}'.format(
+            course.title,
+            str(user.id)
+        ))
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='User is already registered'

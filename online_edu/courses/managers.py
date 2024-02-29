@@ -1,7 +1,10 @@
+import logging
 from django.db import models
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
+
+logger = logging.getLogger(__name__)
 
 
 class CourseManager(models.Manager):
@@ -62,6 +65,7 @@ class CourseManager(models.Manager):
         Course model instance
         '''
         if slug is None:
+            logger.error('Course fetched without slug')
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Slug missing'
@@ -70,9 +74,15 @@ class CourseManager(models.Manager):
             course = self.get_queryset().get(slug=slug)
             if not admin_only:
                 if course.is_draft or course.is_archived:
+                    logger.critical(
+                        'Non-admin user viewing unpublished or archived course'
+                    )
                     raise
             return course
         except:
+            logger.error('Course with slug {} not found'.format(
+                slug
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Course not found'

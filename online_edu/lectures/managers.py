@@ -1,7 +1,10 @@
+import logging
 from django.db import models
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
+
+logger = logging.getLogger(__name__)
 
 
 class LectureManager(models.Manager):
@@ -64,6 +67,10 @@ class LectureManager(models.Manager):
             )
         except:
             return False
+        logger.error('Lecture title {} is duplicate in course {}'.format(
+            title,
+            course.title
+        ))
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Lecture with the same title exists in the course'
@@ -88,14 +95,21 @@ class LectureManager(models.Manager):
             If the direction is not up or down (case not sensitive)
         '''
         direction = direction.lower()
+        course = lecture.course
         if lecture.seq_no == 1 and direction == 'up':
+            logger.error('First lecture in course {} being moved up'.format(
+                course.title
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Lecture is already the first in the course'
             )
-        course = lecture.course
+
         no_of_lectures = self.get_queryset().filter(course=course).count()
         if lecture.seq_no == no_of_lectures and direction == 'down':
+            logger.error('Last lecture in course {} being moved down'.format(
+                course.title
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Lecture is already the last in the course'
@@ -109,10 +123,15 @@ class LectureManager(models.Manager):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Direction in which the lecture needs to be moved can be up or down'
             )
-        prev_lecture = self.get_queryset().get(
+        other_lecture = self.get_queryset().get(
             course=course,
             seq_no=other_seq_no
         )
-        lecture.seq_no, prev_lecture.seq_no = prev_lecture.seq_no, lecture.seq_no
+        logger.info('Lecture in course {} at position {} moved to {}'.format(
+            course.title,
+            lecture.seq_no,
+            other_seq_no
+        ))
+        lecture.seq_no, other_lecture.seq_no = other_lecture.seq_no, lecture.seq_no
         lecture.save()
-        prev_lecture.save()
+        other_lecture.save()

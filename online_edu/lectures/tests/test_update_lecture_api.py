@@ -84,7 +84,7 @@ def test_update_lecture_endpoint(
         format='json'
     )
     assert api_response.status_code == 403
-    assert api_response.data['detail'] == 'Must be an instructor of the course to create lectures'
+    assert api_response.data['detail'] == 'Must be an instructor of the course to create or update lectures'
 
     # Make user instructor
     course1.add_instructor(user1)

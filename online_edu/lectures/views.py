@@ -1,3 +1,4 @@
+import logging
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -14,6 +15,8 @@ from common.error_definitions import CustomAPIError
 from registration.models import CourseStudentRegistration
 from .models import Lecture
 from .serializers import LectureSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class LectureBaseView(GenericAPIView, UserAuthentication):
@@ -76,6 +79,7 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
             If user asking for detail view is not registed for a course
         '''
         if request.user is None:
+            logger.error('Lecture details accessed without credentials')
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Must be logged in to access a lecture'
@@ -84,6 +88,9 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
             user=request.user,
             course=self.course
         ):
+            logger.error('Unregistered student {} attempting to access lecture'.format(
+                self.request.user.id
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Must register for the course to access a lecture'
@@ -203,6 +210,10 @@ class LectureView(
         if self.kwargs.get('id', None) is None:
             return self.list(request, *args, **kwargs)
         self.check_lecture_permissions(request)
+        logger.info('Lecture {} accessed by user {}'.format(
+            self.kwargs.get('id'),
+            self.request.user.id
+        ))
         return self.retrieve(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -286,6 +297,10 @@ class LectureView(
         self.authenticate(self.request)
         self.init_lecture()
         if not self.course.check_user_is_instructor(request.user):
+            logger.critical('Non instructor user {} attempting to delete lecture {}'.format(
+                self.request.user.id,
+                self.kwargs.get('id', None)
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Only an instructor can delete lectures'
@@ -327,6 +342,10 @@ class AdjustLectureOrderView(LectureBaseView):
         self.authenticate(self.request)
         self.init_lecture()
         if not self.course.check_user_is_instructor(request.user):
+            logger.critical('Non instructor user {} moving lecture {}'.format(
+                self.request.user.id,
+                self.kwargs.get('id', None)
+            ))
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Only an instructor can change the order of lectures'

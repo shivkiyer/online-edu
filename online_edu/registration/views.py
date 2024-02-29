@@ -126,12 +126,20 @@ class CourseInstructorAddView(CourseBaseView):
             new_user = User.objects.get_user_by_email(
                 request.data.get('email'))
             course_obj.add_instructor(new_user)
-            logger.info('Added instructor {teacher} to course {course}'.format(
-                teacher=new_user.id,
-                course=course_obj.id
+            logger.info('Added instructor {} to course {}'.format(
+                str(new_user.id),
+                course_obj.title
             ))
             return Response()
         else:
+            user_id = None
+            if user is not None:
+                user_id = user.id
+            logger.critical(
+                'Non instructor user {} attempting to add user as instructor'.format(
+                    str(user_id)
+                )
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Must be logged in as an instructor'
