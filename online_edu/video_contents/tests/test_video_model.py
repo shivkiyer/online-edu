@@ -12,7 +12,7 @@ from common.file_handling import clean_test_media
 pytestmark = pytest.mark.django_db
 
 
-def test_video_model(test_lectures):
+def test_video_model():
     '''Test for creation of video model instance'''
 
     course1 = Course.objects.create(
@@ -20,12 +20,12 @@ def test_video_model(test_lectures):
         description='Course 1 description',
         is_free=True
     )
-    lectures = test_lectures(course1, 3)
 
     test_file = SimpleUploadedFile('lec1.txt', b'Some text')
 
     video1 = VideoContent.objects.create(
-        lecture=lectures[0],
+        course=course1,
+        name='Video 1',
         video_file=test_file
     )
 
@@ -36,7 +36,7 @@ def test_video_model(test_lectures):
     clean_test_media()
 
 
-def test_video_file_paths(test_lectures):
+def test_video_file_paths():
     '''Test that video files are uploaded by course directories'''
 
     course1 = Course.objects.create(
@@ -50,9 +50,6 @@ def test_video_file_paths(test_lectures):
         is_free=True
     )
 
-    lectures1 = test_lectures(course1, 2)
-    lectures2 = test_lectures(course2, 2)
-
     file1 = SimpleUploadedFile(
         'lec1course1.txt',
         b'Lec 1 for course 1'
@@ -63,11 +60,13 @@ def test_video_file_paths(test_lectures):
     )
 
     video_file1 = VideoContent.objects.create(
-        lecture=lectures1[0],
+        course=course1,
+        name='Video 1 of course 1',
         video_file=file1
     )
     video_file2 = VideoContent.objects.create(
-        lecture=lectures2[0],
+        course=course2,
+        name='Video 1 of course 2',
         video_file=file2
     )
 
