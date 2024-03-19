@@ -7,9 +7,11 @@ from common.error_definitions import CustomAPIError
 from .models import VideoContent
 from courses.models import Course
 from lectures.models import Lecture
+from user_auth.models import User
+from user_auth.views import UserAuthentication
 
 
-class VideoContentView(APIView):
+class VideoContentView(APIView, UserAuthentication):
     '''
     View for uploading videos
 
@@ -25,6 +27,7 @@ class VideoContentView(APIView):
     '''
 
     parser_classes = [FormParser, MultiPartParser, ]
+    user_model = User
 
     def post(self, request, filename, *args, **kwargs):
         '''
@@ -42,6 +45,10 @@ class VideoContentView(APIView):
             If course slug is not present in url
             If video name is not provided in request body
             If video name is not unique
+        403 error:
+            If no credentials are provided in header
+            If non-admin credentials are provided in header
+            If non-instructor credentials are provided in header
         404 error:
             If lecture cannot be found
 
@@ -49,6 +56,7 @@ class VideoContentView(APIView):
         ---------------
         201
         '''
+        user = self.authenticate(request)
         file_obj = request.data['File']
 
         course_slug = self.kwargs.get('slug', None)
@@ -56,6 +64,11 @@ class VideoContentView(APIView):
             course_slug,
             admin_only=True
         )
+        if not course_obj.check_user_is_instructor(user):
+            raise CustomAPIError(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Only an instructor can add videos'
+            )
 
         video_name = request.data.get('name')
         if video_name is None:
