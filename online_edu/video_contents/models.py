@@ -3,6 +3,7 @@ from rest_framework import status
 
 from courses.models import Course
 from common.error_definitions import CustomAPIError
+from .managers import VideoContentManager
 
 
 def video_file_path(instance, filename):
@@ -66,5 +67,7 @@ class VideoContent(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = VideoContentManager()
+
     def __str__(self):
-        return self.name
+        return self.video_file.url

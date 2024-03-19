@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from .views import LectureView, AdjustLectureOrderView
 
@@ -13,6 +13,10 @@ urlpatterns = [
         '<int:id>/move-lecture/<str:direction>',
         AdjustLectureOrderView.as_view(),
         name='move-lecture'
+    ),
+    path(
+        '<int:id>/videos/',
+        include('video_contents.urls', namespace='video_contents')
     ),
     path(
         '<int:id>',

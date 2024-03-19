@@ -17,6 +17,8 @@ class LectureManager(models.Manager):
         Checks if a lecture with title already exists in the course
     change_lecture_order(lecture, direction='up'):
         Moves a lecture in the list of lectures for a course
+    add_video_to_lecture(id, video):
+        Adds a video to a lecture
     '''
 
     def check_title_duplicate(self, course, title, exclude_lecture=None):
@@ -135,3 +137,26 @@ class LectureManager(models.Manager):
         lecture.seq_no, other_lecture.seq_no = other_lecture.seq_no, lecture.seq_no
         lecture.save()
         other_lecture.save()
+
+    def add_video_to_lecture(self, id, video):
+        '''
+        Adds a video to a lecture
+
+        Parameters
+        -------------
+        id : int
+        video : VideoContent model instance
+
+        Raises
+        -------------
+        404 error:
+            If the lecture cannot be found
+        '''
+        try:
+            lecture_obj = self.get_queryset().get(id=id)
+            lecture_obj.videos.add(video)
+        except:
+            raise CustomAPIError(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Associated lecture could not be found'
+            )
