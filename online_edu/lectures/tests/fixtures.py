@@ -15,8 +15,8 @@ def test_lectures(sample_course):
             no_of_lectures = 1
         lectures = [Lecture.objects.create(
             course=course,
-            title='Lec {}'.format(str(i)),
-            description='Lec {} descr'.format(str(i))
+            title=f'Lec {i}',
+            description=f'Lec {i} descr'
         ) for i in range(no_of_lectures)]
         return lectures
 

@@ -21,10 +21,7 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
 
     # Fail - no credentials passed
     api_response = client.delete(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         format='json'
     )
     assert api_response.status_code == 403
@@ -36,12 +33,9 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
 
     # Fail - credentials of non-admin user passed
     api_response = client.delete(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -54,12 +48,9 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
 
     # Fail - user must be instructor to delete lectures
     api_response = client.delete(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -71,12 +62,9 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
 
     # Success
     api_response = client.delete(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )

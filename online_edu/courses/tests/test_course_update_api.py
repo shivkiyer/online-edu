@@ -21,7 +21,7 @@ def test_only_instructor_can_update_course(
     # Fail - Course in draft mode and no admin authenticated
     course1 = sample_course
     api_response = client.patch(
-        '/api/courses/{}'.format(course1.slug),
+        f'/api/courses/{course1.slug}',
         {
             'subtitle': 'This is a test subtitle',
             'is_free': 'True'
@@ -35,7 +35,7 @@ def test_only_instructor_can_update_course(
     course1.save()
 
     api_response = client.patch(
-        '/api/courses/{}'.format(course1.slug),
+        f'/api/courses/{course1.slug}',
         {
             'subtitle': 'This is a test subtitle',
             'is_free': 'True'
@@ -51,13 +51,13 @@ def test_only_instructor_can_update_course(
     token = access_token(user1, 60)
 
     api_response = client.patch(
-        '/api/courses/{}'.format(course1.slug),
+        f'/api/courses/{course1.slug}',
         {
             'subtitle': 'This is a test subtitle',
             'is_free': 'True'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -69,13 +69,13 @@ def test_only_instructor_can_update_course(
 
     # Fail - using wrong course URL should give 404
     api_response = client.patch(
-        '/api/courses/{}'.format(course1.slug+"1"),
+        f'/api/courses/{course1.slug+"1"}',
         {
             'subtitle': 'This is a test subtitle',
             'price': '15.99'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -84,13 +84,13 @@ def test_only_instructor_can_update_course(
 
     # Success - user is instructor for course
     api_response = client.patch(
-        '/api/courses/{}'.format(course1.slug),
+        f'/api/courses/{course1.slug}',
         {
             'subtitle': 'This is a test subtitle',
             'price': '15.99'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -107,13 +107,13 @@ def test_only_instructor_can_update_course(
     )
     token = access_token(user2, 60)
     api_response = client.patch(
-        '/api/courses/{}'.format(course1.slug),
+        f'/api/courses/{course1.slug}',
         {
             'subtitle': 'This is another test subtitle',
             'is_free': 'True'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -123,13 +123,13 @@ def test_only_instructor_can_update_course(
     # Success - add this admin user as course instructor
     course1.add_instructor(user2)
     api_response = client.patch(
-        '/api/courses/{}'.format(course1.slug),
+        f'/api/courses/{course1.slug}',
         {
             'subtitle': 'This is another test subtitle',
             'is_free': 'True'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )

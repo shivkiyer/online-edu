@@ -80,9 +80,7 @@ class CourseManager(models.Manager):
                     raise
             return course
         except:
-            logger.error('Course with slug {} not found'.format(
-                slug
-            ))
+            logger.error(f'Course with slug {slug} not found')
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Course not found'

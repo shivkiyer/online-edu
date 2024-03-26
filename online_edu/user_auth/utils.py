@@ -111,5 +111,7 @@ def send_password_reset_email(user):
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.username]
     )
-    logger.info('Sent password reset email to {}'.format(user.username))
+    logger.info(
+        f'Sent password reset email to {user.username}'
+    )
     return

@@ -24,7 +24,7 @@ def test_create_lecture_endpoint(
 
     # Fail - no credentials
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/new-lecture',
         {
             'title': 'Some title'
         },
@@ -36,12 +36,12 @@ def test_create_lecture_endpoint(
     # Fail - non-admin credentials
     token = access_token(user1, 60)
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/new-lecture',
         {
             'title': 'Some title'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -54,12 +54,12 @@ def test_create_lecture_endpoint(
 
     # Fail -  user is not instructor of course
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/new-lecture',
         {
             'title': 'Some title'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -71,12 +71,12 @@ def test_create_lecture_endpoint(
 
     # Success
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/new-lecture',
         {
             'title': 'Some title'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -86,12 +86,12 @@ def test_create_lecture_endpoint(
 
     # Fail - missing title
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/new-lecture',
         {
             'description': 'Some description'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -100,12 +100,12 @@ def test_create_lecture_endpoint(
 
     # Fail - wrong course slug
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course1.slug+'1'),
+        f'/api/courses/{course1.slug+"1"}/lectures/new-lecture',
         {
             'title': 'Some title'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -114,12 +114,12 @@ def test_create_lecture_endpoint(
 
     # Fail - duplicate lecture title within same course
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/new-lecture',
         {
             'title': 'Some title'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -136,12 +136,12 @@ def test_create_lecture_endpoint(
 
     # Success - lecture with same title in second course
     api_response = client.post(
-        '/api/courses/{}/lectures/new-lecture'.format(course2.slug),
+        f'/api/courses/{course2.slug}/lectures/new-lecture',
         {
             'title': 'Some title'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )

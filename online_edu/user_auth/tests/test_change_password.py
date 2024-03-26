@@ -21,9 +21,7 @@ def test_password_change_endpoint(verification_token, test_user):
 
     # Valid password change request
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/change-password/{test_token1}',
         {
             'password': 'newpassword',
             'confirm_password': 'newpassword'
@@ -45,9 +43,7 @@ def test_password_change_endpoint(verification_token, test_user):
 
     # Password field blank
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/change-password/{test_token1}',
         {
             'password': '',
             'confirm_password': '',
@@ -60,9 +56,7 @@ def test_password_change_endpoint(verification_token, test_user):
 
     # Password field missing
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/change-password/{test_token1}',
         {
             'confirm_password': 'newpassword',
         },
@@ -74,9 +68,7 @@ def test_password_change_endpoint(verification_token, test_user):
 
     # Confirm password field missing
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/change-password/{test_token1}',
         {
             'password': 'newpassword',
         },
@@ -88,9 +80,7 @@ def test_password_change_endpoint(verification_token, test_user):
 
     # Password not matching
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/change-password/{test_token1}',
         {
             'password': 'newpassword',
             'confirm_password': 'newpassword1'
@@ -106,9 +96,7 @@ def test_password_change_endpoint(verification_token, test_user):
     time.sleep(2)
 
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token2
-        ),
+        f'/api/user/change-password/{test_token2}',
         {
             'password': 'newpassword',
             'confirm_password': 'newpassword'
@@ -123,9 +111,7 @@ def test_password_change_endpoint(verification_token, test_user):
     test_token3 = test_token3[:-1]
 
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token2
-        ),
+        f'/api/user/change-password/{test_token2}',
         {
             'password': 'newpassword',
             'confirm_password': 'newpassword'
@@ -139,9 +125,7 @@ def test_password_change_endpoint(verification_token, test_user):
     user1.is_active = False
     user1.save()
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/change-password/{test_token1}',
         {
             'password': 'newpassword',
             'confirm_password': 'newpassword'
@@ -157,9 +141,7 @@ def test_password_change_endpoint(verification_token, test_user):
     user1.delete()
 
     api_response = client.post(
-        '/api/user/change-password/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/change-password/{test_token1}',
         {
             'password': 'newpassword',
             'confirm_password': 'newpassword'

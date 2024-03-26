@@ -34,7 +34,7 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Fail - no JWT token in header
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug),
+        f'/api/registration/{course1.slug}/add-instructor',
         {
             'email': user2.username
         },
@@ -45,12 +45,12 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Fail - new instructor not admin
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug),
+        f'/api/registration/{course1.slug}/add-instructor',
         {
             'email': user2.username
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -62,12 +62,12 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Fail - wrong course url
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug+'1'),
+        f'/api/registration/{course1.slug+"1"}/add-instructor',
         {
             'email': user2.username
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -76,12 +76,12 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Success - instructor added
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug),
+        f'/api/registration/{course1.slug}/add-instructor',
         {
             'email': user2.username
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -89,12 +89,12 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Fail - adding user who is already instructor
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug),
+        f'/api/registration/{course1.slug}/add-instructor',
         {
             'email': user2.username
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -103,12 +103,12 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Fail - adding non-existing user
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug),
+        f'/api/registration/{course1.slug}/add-instructor',
         {
             'email': 'randomuser@gmail.com'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -120,12 +120,12 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Fail - requesting instructor has inactive account
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug),
+        f'/api/registration/{course1.slug}/add-instructor',
         {
             'email': user2.username
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -137,12 +137,12 @@ def test_add_instructor(sample_course, test_user, access_token):
 
     # Fail - requesting user does not exist
     api_response = client.post(
-        '/api/registration/{}/add-instructor'.format(course1.slug),
+        f'/api/registration/{course1.slug}/add-instructor',
         {
             'email': user2.username
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )

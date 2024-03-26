@@ -29,9 +29,7 @@ def mock_send_verification_email(monkeypatch):
     monkeypatch.setattr(
         'user_auth.views.send_verification_link_email',
         lambda user: print(
-            'Sending verification email to {username}'.format(
-                username=user.username
-            )
+            f'Sending verification email to {user.username}'
         ),
         raising=True
     )
@@ -42,9 +40,7 @@ def mock_send_password_reset_email(monkeypatch):
     monkeypatch.setattr(
         'user_auth.views.send_password_reset_email',
         lambda user: print(
-            'Sending password reset email to {username}'.format(
-                username=user.username
-            )
+            f'Sending password reset email to {user.username}'
         ),
         raising=True
     )

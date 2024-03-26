@@ -19,12 +19,12 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
 
     # Fail - non-admin user cannot publish a course
     api_response = client.patch(
-        '/api/courses/{}/publish'.format(course1.slug),
+        f'/api/courses/{course1.slug}/publish',
         {
             'is_draft': 'False'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -34,12 +34,12 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
     user1.is_staff = True
     user1.save()
     api_response = client.patch(
-        '/api/courses/{}/publish'.format(course1.slug),
+        f'/api/courses/{course1.slug}/publish',
         {
             'is_draft': 'False'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -51,12 +51,12 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
 
     # Fail - wrong course slug URL should give 404
     api_response = client.patch(
-        '/api/courses/{}/publish'.format(course1.slug+"1"),
+        f'/api/courses/{course1.slug+"1"}/publish',
         {
             'is_draft': 'False'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -65,12 +65,12 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
 
     # Success - instructor can publish a course
     api_response = client.patch(
-        '/api/courses/{}/publish'.format(course1.slug),
+        f'/api/courses/{course1.slug}/publish',
         {
             'is_draft': 'False'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -81,12 +81,12 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
 
     # Success - instructor can unpublish a course
     api_response = client.patch(
-        '/api/courses/{}/publish'.format(course1.slug),
+        f'/api/courses/{course1.slug}/publish',
         {
             'is_draft': 'True'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )

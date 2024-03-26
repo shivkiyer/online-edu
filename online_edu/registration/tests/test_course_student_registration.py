@@ -25,7 +25,7 @@ def test_register_student_for_course(
     # Fail
     # credentials needed for registration
     api_response = client.post(
-        '/api/registration/{}/register-student'.format(course1.slug),
+        f'/api/registration/{course1.slug}/register-student',
         format='json'
     )
     assert api_response.status_code == 403
@@ -37,9 +37,9 @@ def test_register_student_for_course(
     # Fail
     # an inactive user should not be able to register
     api_response = client.post(
-        '/api/registration/{}/register-student'.format(course1.slug),
+        f'/api/registration/{course1.slug}/register-student',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -53,9 +53,9 @@ def test_register_student_for_course(
     # Fail
     # course must be published for registration
     api_response = client.post(
-        '/api/registration/{}/register-student'.format(course1.slug),
+        f'/api/registration/{course1.slug}/register-student',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -68,9 +68,9 @@ def test_register_student_for_course(
 
     # Fail - wrong course URL
     api_response = client.post(
-        '/api/registration/{}/register-student'.format(course1.slug+'1'),
+        f'/api/registration/{course1.slug+"1"}/register-student',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -80,9 +80,9 @@ def test_register_student_for_course(
     # Pass
     # active user with credentials should be able to register
     api_response = client.post(
-        '/api/registration/{}/register-student'.format(course1.slug),
+        f'/api/registration/{course1.slug}/register-student',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -92,9 +92,9 @@ def test_register_student_for_course(
     # Fail
     # user should not be able to register if already registered
     api_response = client.post(
-        '/api/registration/{}/register-student'.format(course1.slug),
+        f'/api/registration/{course1.slug}/register-student',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -112,9 +112,9 @@ def test_register_student_for_course(
     # Pass
     # user should be able to register for another course
     api_response = client.post(
-        '/api/registration/{}/register-student'.format(course2.slug),
+        f'/api/registration/{course2.slug}/register-student',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )

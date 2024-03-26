@@ -88,9 +88,9 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
             user=request.user,
             course=self.course
         ):
-            logger.error('Unregistered student {} attempting to access lecture'.format(
-                self.request.user.id
-            ))
+            logger.error(
+                f'Unregistered student {self.request.user.id} attempting to access lecture'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Must register for the course to access a lecture'
@@ -297,10 +297,9 @@ class LectureView(
         self.authenticate(self.request)
         self.init_lecture()
         if not self.course.check_user_is_instructor(request.user):
-            logger.critical('Non instructor user {} attempting to delete lecture {}'.format(
-                self.request.user.id,
-                self.kwargs.get('id', None)
-            ))
+            logger.critical(
+                f'Non instructor user {self.request.user.id} attempting to delete lecture {self.kwargs.get("id", None)}'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Only an instructor can delete lectures'
@@ -342,10 +341,9 @@ class AdjustLectureOrderView(LectureBaseView):
         self.authenticate(self.request)
         self.init_lecture()
         if not self.course.check_user_is_instructor(request.user):
-            logger.critical('Non instructor user {} moving lecture {}'.format(
-                self.request.user.id,
-                self.kwargs.get('id', None)
-            ))
+            logger.critical(
+                f'Non instructor user {self.request.user.id} moving lecture {self.kwargs.get("id", None)}'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Only an instructor can change the order of lectures'

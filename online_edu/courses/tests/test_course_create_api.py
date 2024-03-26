@@ -41,7 +41,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 3.99
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -61,7 +61,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 3.99
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -77,7 +77,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 3.99
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -93,7 +93,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 3.99
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -109,7 +109,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 3.99
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -125,7 +125,7 @@ def test_course_create_endpoint(test_user, access_token):
             'description': 'Some course description',
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -142,7 +142,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 0.00
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -162,7 +162,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 3.99
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -180,7 +180,7 @@ def test_course_create_endpoint(test_user, access_token):
             'price': 3.99
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -196,7 +196,7 @@ def test_course_create_endpoint(test_user, access_token):
             'is_free': True
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )

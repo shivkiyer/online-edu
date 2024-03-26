@@ -57,10 +57,9 @@ class CourseRegisterView(CourseBaseView):
             user=user,
             course=course_obj
         )
-        logger.info('Registering student {student} for course {course}'.format(
-            student=user.id,
-            course=course_obj.id
-        ))
+        logger.info(
+            f'Registering student {user.id} for course {course_obj.id}'
+        )
         return Response(
             data=CourseSerializer(
                 user.course_set.all(),
@@ -126,19 +125,16 @@ class CourseInstructorAddView(CourseBaseView):
             new_user = User.objects.get_user_by_email(
                 request.data.get('email'))
             course_obj.add_instructor(new_user)
-            logger.info('Added instructor {} to course {}'.format(
-                str(new_user.id),
-                course_obj.title
-            ))
+            logger.info(
+                f'Added instructor {new_user.id} to course {course_obj.title}'
+            )
             return Response()
         else:
             user_id = None
             if user is not None:
                 user_id = user.id
             logger.critical(
-                'Non instructor user {} attempting to add user as instructor'.format(
-                    str(user_id)
-                )
+                f'Non instructor user {user_id} attempting to add user as instructor'
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,

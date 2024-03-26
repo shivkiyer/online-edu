@@ -32,10 +32,7 @@ def test_moving_lecture_endpoint(
 
     # Fail - no credentials
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[0].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
         format='json'
     )
     assert api_response.status_code == 403
@@ -46,12 +43,9 @@ def test_moving_lecture_endpoint(
 
     # Fail - user is non-admin
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[0].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -64,12 +58,9 @@ def test_moving_lecture_endpoint(
 
     # Fail - user is not instructor
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[0].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -81,12 +72,9 @@ def test_moving_lecture_endpoint(
 
     # Fail - cannot move first lecture up
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[0].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -95,12 +83,9 @@ def test_moving_lecture_endpoint(
 
     # Fail - cannot move last lecture down
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/down'.format(
-            slug=course1.slug,
-            id=lectures[4].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[4].id}/move-lecture/down',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -109,12 +94,9 @@ def test_moving_lecture_endpoint(
 
     # Success - move 2nd lecture up
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[1].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[1].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -126,12 +108,9 @@ def test_moving_lecture_endpoint(
     # Sequence now is 1-0-2-3-4
     # Success
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[3].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[3].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -145,12 +124,9 @@ def test_moving_lecture_endpoint(
     # Sequence now is 1-0-3-2-4
     # Success
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[3].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[3].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -164,12 +140,9 @@ def test_moving_lecture_endpoint(
     # Sequence now is 1-3-0-2-4
     # Success
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[3].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[3].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -183,12 +156,9 @@ def test_moving_lecture_endpoint(
     # Sequence now is 3-1-0-2-4
     # Fail - 3rd lecture is now the first
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/up'.format(
-            slug=course1.slug,
-            id=lectures[3].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[3].id}/move-lecture/up',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -197,12 +167,9 @@ def test_moving_lecture_endpoint(
 
     # Success
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/down'.format(
-            slug=course1.slug,
-            id=lectures[0].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/down',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -217,12 +184,9 @@ def test_moving_lecture_endpoint(
     # Sequence now is 3-1-2-0-4
     # Success
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/down'.format(
-            slug=course1.slug,
-            id=lectures[0].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/down',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -236,12 +200,9 @@ def test_moving_lecture_endpoint(
 
     # Fail - lecture 0 is already the last
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/down'.format(
-            slug=course1.slug,
-            id=lectures[0].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/down',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -250,12 +211,9 @@ def test_moving_lecture_endpoint(
 
     # Fail - lecture 0 is already the last
     api_response = client.post(
-        '/api/courses/{slug}/lectures/{id}/move-lecture/downn'.format(
-            slug=course1.slug,
-            id=lectures[2].id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lectures[2].id}/move-lecture/downn',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )

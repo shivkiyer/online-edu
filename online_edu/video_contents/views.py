@@ -55,7 +55,7 @@ class VideoContentView(APIView, UserAuthentication):
 
         Returns
         ---------------
-        201
+        201 with VideoContentSerializer data
         '''
         user = self.authenticate(request)
         file_obj = request.data['File']

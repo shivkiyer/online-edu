@@ -69,10 +69,9 @@ class LectureManager(models.Manager):
             )
         except:
             return False
-        logger.error('Lecture title {} is duplicate in course {}'.format(
-            title,
-            course.title
-        ))
+        logger.error(
+            f'Lecture title {title} is duplicate in course {course.title}'
+        )
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Lecture with the same title exists in the course'
@@ -99,9 +98,9 @@ class LectureManager(models.Manager):
         direction = direction.lower()
         course = lecture.course
         if lecture.seq_no == 1 and direction == 'up':
-            logger.error('First lecture in course {} being moved up'.format(
-                course.title
-            ))
+            logger.error(
+                f'First lecture in course {course.title} being moved up'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Lecture is already the first in the course'
@@ -109,9 +108,9 @@ class LectureManager(models.Manager):
 
         no_of_lectures = self.get_queryset().filter(course=course).count()
         if lecture.seq_no == no_of_lectures and direction == 'down':
-            logger.error('Last lecture in course {} being moved down'.format(
-                course.title
-            ))
+            logger.error(
+                f'Last lecture in course {course.title} being moved down'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Lecture is already the last in the course'
@@ -129,11 +128,9 @@ class LectureManager(models.Manager):
             course=course,
             seq_no=other_seq_no
         )
-        logger.info('Lecture in course {} at position {} moved to {}'.format(
-            course.title,
-            lecture.seq_no,
-            other_seq_no
-        ))
+        logger.info(
+            f'Lecture in course {course.title} at position {lecture.seq_no} moved to {other_seq_no}'
+        )
         lecture.seq_no, other_lecture.seq_no = other_lecture.seq_no, lecture.seq_no
         lecture.save()
         other_lecture.save()

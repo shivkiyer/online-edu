@@ -20,9 +20,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     test_token1 = verification_token(user1, 60)
 
     api_response = client.get(
-        '/api/user/verify-user/{token}'.format(
-            token=test_token1
-        ),
+        f'/api/user/verify-user/{test_token1}',
         format='json'
     )
     assert api_response.status_code == 200
@@ -34,9 +32,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     time.sleep(2)
 
     api_response = client.get(
-        '/api/user/verify-user/{token}'.format(
-            token=test_token2
-        ),
+        f'/api/user/verify-user/{test_token2}',
         format='json'
     )
     assert api_response.data['detail'] == 'Link expired or faulty'
@@ -47,9 +43,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     test_token3 = test_token3[:-1]
 
     api_response = client.get(
-        '/api/user/verify-user/{token}'.format(
-            token=test_token3
-        ),
+        f'/api/user/verify-user/{test_token3}',
         format='json'
     )
     assert api_response.data['detail'] == 'Link expired or faulty'
@@ -60,9 +54,7 @@ def test_user_verification_endpoint(verification_token, test_user):
     user1.delete()
 
     api_response = client.get(
-        '/api/user/verify-user/{token}'.format(
-            token=test_token4
-        ),
+        f'/api/user/verify-user/{test_token4}',
         format='json'
     )
     assert api_response.data['detail'] == 'User could not be activated'

@@ -33,10 +33,7 @@ def test_update_lecture_endpoint(
 
     # Fail - no credentials
     api_response = client.patch(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
             'title': 'Lecture 1 modified'
         },
@@ -50,15 +47,12 @@ def test_update_lecture_endpoint(
 
     # Fail - user not admin
     api_response = client.patch(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
             'title': 'Lecture 1 modified'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -71,15 +65,12 @@ def test_update_lecture_endpoint(
 
     # Fail - user not instructor of course
     api_response = client.patch(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
             'title': 'Lecture 1 modified'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -91,15 +82,12 @@ def test_update_lecture_endpoint(
 
     # Success
     api_response = client.patch(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
             'title': 'Lecture 1 modified'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -109,15 +97,12 @@ def test_update_lecture_endpoint(
 
     # Success - title missing, only updating description
     api_response = client.patch(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
             'description': 'New description'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -128,13 +113,10 @@ def test_update_lecture_endpoint(
 
     # Fail - title and description missing
     api_response = client.patch(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {},
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -149,15 +131,12 @@ def test_update_lecture_endpoint(
 
     # Fail - duplicate title for update
     api_response = client.patch(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
             'title': 'Lec 2'
         },
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )

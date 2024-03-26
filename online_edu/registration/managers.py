@@ -58,15 +58,13 @@ class CourseStudentRegistrationManager(models.Manager):
         CourseStudentRegistration model instance
         '''
         if not self.is_student_registered(user=user, course=course):
-            logger.info('User {} successfully registered in course {}'.format(
-                str(user.id),
-                course.title
-            ))
+            logger.info(
+                f'User {user.id} successfully registered in course {course.title}'
+            )
             return self.create(user=user, course=course)
-        logger.error('Repeated registration in course {} by user {}'.format(
-            course.title,
-            str(user.id)
-        ))
+        logger.error(
+            f'Repeated registration in course {course.title} by user {user.id}'
+        )
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='User is already registered'

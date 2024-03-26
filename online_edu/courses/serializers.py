@@ -80,7 +80,7 @@ class CourseSerializer(serializers.ModelSerializer):
         else:
             err_message = extract_serializer_error(self.errors)
             logger.error(
-                'Error in saving course data - {}'.format(err_message)
+                f'Error in saving course data - {err_message}'
             )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -110,9 +110,8 @@ class CourseSerializer(serializers.ModelSerializer):
         course_is_free = validated_data.get('is_free', False)
         course_price = validated_data.get('price', None)
         if not course_is_free and (course_price is None or course_price <= 0):
-            logger.error('Course {} is not free but does not have valid price'.format(
-                validated_data.get('title', '')
-            ))
+            logger.error(
+                f'Course {validated_data.get("title", "")} is not free but does not have valid price')
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Course price is required'
@@ -122,17 +121,17 @@ class CourseSerializer(serializers.ModelSerializer):
             del validated_data['user']
             course = Course.objects.create(**validated_data)
             course.add_instructor(user)
-            logger.info('Course {} created successfully'.format(
-                course.title
-            ))
+            logger.info(
+                f'Course {course.title} created successfully'
+            )
             return course
         else:
             user_id = None
             if user is not None:
                 user_id = user.id
-            logger.critical('Non-admin user {} attempting to create course'.format(
-                str(user_id)
-            ))
+            logger.critical(
+                f'Non-admin user {user_id} attempting to create course'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Must be logged in as administrator to create a course'
@@ -172,17 +171,15 @@ class CourseSerializer(serializers.ModelSerializer):
             instance.is_archived = validated_data.get(
                 'is_archived', instance.is_archived)
             instance.save()
-            logger.info('Course {} updated successfully'.format(
-                instance.title
-            ))
+            logger.info('Course {instance.title} updated successfully')
             return instance
         else:
             user_id = None
             if user is not None:
                 user_id = user.id
-            logger.critical('Non-admin user {} attempting to create course'.format(
-                str(user_id)
-            ))
+            logger.critical(
+                f'Non-admin user {user_id} attempting to create course'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Only an instructor of a course can update a course'

@@ -54,7 +54,9 @@ class RegisterUserView(CreateAPIView):
         user = RegisterUserSerializer(data=self.request.data)
         new_user = user.save()
         send_verification_link_email(new_user)
-        logger.info('New user {} created'.format(new_user.id))
+        logger.info(
+            f'New user {new_user.id} created'
+        )
         return Response(user.data, status=status.HTTP_201_CREATED)
 
 
@@ -100,7 +102,9 @@ class VerifyUserView(APIView):
         # Set the user to active
         new_user = User.objects.activate_user_by_token(
             verification_token)
-        logger.info('User {} verified'.format(new_user.id))
+        logger.info(
+            f'User {new_user.id} verified'
+        )
         return Response(status=status.HTTP_200_OK)
 
 
@@ -126,8 +130,9 @@ class ResendVerificationEmailView(APIView):
         user_email = self.request.data.get('email', None)
         user_obj = User.objects.get_user_by_email(user_email)
         send_verification_link_email(user_obj)
-        logger.info('Verification email resent to user {}'.format(
-            user_obj.id))
+        logger.info(
+            f'Verification email resent to user {user_obj.id}'
+        )
         return Response(
             status=status.HTTP_200_OK
         )
@@ -159,9 +164,8 @@ class LoginUserView(APIView):
         )
         if user_obj is not None:
             user_token = AccessToken.for_user(user_obj)
-            logger.info('User {} logged in successfully'.format(
-                user_obj.id
-            )
+            logger.info(
+                f'User {user_obj.id} logged in successfully'
             )
             return Response(
                 data=str(user_token),
@@ -169,9 +173,7 @@ class LoginUserView(APIView):
             )
         else:
             logger.critical(
-                'User {} not validated'.format(
-                    self.request.data.get('username', None)
-                )
+                f'User {self.request.data.get("username", None)} not validated'
             )
             raise CustomAPIError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -201,8 +203,9 @@ class ResetPasswordView(APIView):
         user_email = self.request.data.get('email', None)
         user_obj = User.objects.get_user_by_email(user_email)
         send_password_reset_email(user_obj)
-        logger.info('Password reset email sent to user {}'.format(
-            user_obj.id))
+        logger.info(
+            f'Password reset email sent to user {user_obj.id}'
+        )
         return Response(
             status=status.HTTP_200_OK
         )
@@ -258,8 +261,9 @@ class ChangePasswordView(APIView):
         )
         # Check for password match
         user_form.save()
-        logger.info('Password changed for user {}'.format(
-            user_obj.id))
+        logger.info(
+            f'Password changed for user {user_obj.id}'
+        )
         return Response(status=status.HTTP_200_OK)
 
 

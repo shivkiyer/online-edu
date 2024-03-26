@@ -91,10 +91,7 @@ class CourseView(
         '''
         course = serializer.save(user=self.request.user)
         logger.info(
-            'Creating course {} by user {}'.format(
-                course.id,
-                self.request.user.id
-            )
+            f'Creating course {course.id} by user {self.request.user.id}'
         )
 
     def perform_update(self, serializer):
@@ -107,10 +104,7 @@ class CourseView(
         '''
         course = serializer.save(user=self.request.user)
         logger.info(
-            'Updating course {} by user {}'.format(
-                course.id,
-                self.request.user.id
-            )
+            f'Updating course {course.id} by user {self.request.user.id}'
         )
 
     def post(self, request, *args, **kwargs):
@@ -165,15 +159,14 @@ class CourseView(
         if self.request.user is not None:
             user_id = self.request.user.id
         if slug:
-            logger.info('Course with slug {} fetched by user {}'.format(
-                slug,
-                user_id
-            ))
+            logger.info(
+                f'Course with slug {slug} fetched by user {user_id}'
+            )
             return self.retrieve(request, *args, *kwargs)
         else:
-            logger.info('Course list fetched by user {}'.format(
-                user_id
-            ))
+            logger.info(
+                f'Course list fetched by user {user_id}'
+            )
             return self.list(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):

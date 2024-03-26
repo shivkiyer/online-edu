@@ -34,10 +34,7 @@ def video_file_path(instance, filename):
             detail='Associated course not found'
         )
     dir_name = ''.join(filter(str.isalnum, course.slug))
-    return '{dirname}/{filename}'.format(
-        dirname=dir_name,
-        filename=filename
-    )
+    return f'{dir_name}/{filename}'
 
 
 class VideoContent(models.Model):

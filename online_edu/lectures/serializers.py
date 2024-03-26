@@ -44,9 +44,7 @@ class LectureSerializer(serializers.ModelSerializer):
             return super().save(*args, **kwargs)
         else:
             err_message = extract_serializer_error(self.errors)
-            logger.error('Error in creating lecture - {}'.format(
-                err_message
-            ))
+            logger.error(f'Error in creating lecture - {err_message}')
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=err_message
@@ -103,16 +101,15 @@ class LectureSerializer(serializers.ModelSerializer):
         '''
         if user is None:
             logger.critical(
-                'Attempt to create or update lecture without credentials')
+                'Attempt to create or update lecture without credentials'
+            )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Must be logged in as an instructor to create or update lectures'
             )
         if not course.check_user_is_instructor(user):
             logger.critical(
-                'User {} not instructor of course trying to create or update lecture'.format(
-                    user.id
-                )
+                f'User {user.id} not instructor of course trying to create or update lecture'
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -160,11 +157,9 @@ class LectureSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get(
             'description', instance.description)
         instance.save()
-        logger.info('Lecture {} in course {} updated by user {} successfully'.format(
-            instance.title,
-            course.title,
-            str(user.id)
-        ))
+        logger.info(
+            f'Lecture {instance.title} in course {course.title} updated by user {user.id} successfully'
+        )
         return instance
 
     def create(self, validated_data):
@@ -195,11 +190,9 @@ class LectureSerializer(serializers.ModelSerializer):
             course,
             validated_data.get('title'),
         ):
-            logger.info('Lecture {} in course {} created by user {} successfully'.format(
-                validated_data.get('title', None),
-                course.title,
-                str(user.id)
-            ))
+            logger.info(
+                f'Lecture {validated_data.get("title", None)} in course {course.title} created by user {user.id} successfully'
+            )
             return Lecture.objects.create(
                 **validated_data,
                 course=course

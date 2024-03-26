@@ -30,7 +30,7 @@ def test_fetch_lecture_list(test_user, access_token):
 
     # Fail - as unpublished course lecture should not be listed
     api_response = client.get(
-        '/api/courses/{}/lectures/'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/',
         format='json'
     )
     assert api_response.status_code == 404
@@ -42,7 +42,7 @@ def test_fetch_lecture_list(test_user, access_token):
 
     # Success - no credentials for fetching lecture list
     api_response = client.get(
-        '/api/courses/{}/lectures/'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/',
         format='json'
     )
     assert api_response.status_code == 200
@@ -60,9 +60,9 @@ def test_fetch_lecture_list(test_user, access_token):
 
     # Fail - non-admin user cannot access unpublished lectures
     api_response = client.get(
-        '/api/courses/{}/lectures/'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -75,9 +75,9 @@ def test_fetch_lecture_list(test_user, access_token):
 
     # Admin can fetch lectures of unpublished courses
     api_response = client.get(
-        '/api/courses/{}/lectures/'.format(course1.slug),
+        f'/api/courses/{course1.slug}/lectures/',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -105,20 +105,14 @@ def test_fetch_lecture(test_user, access_token):
 
     # Fail - as unpublished course lecture should not be listed
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         format='json'
     )
     assert api_response.status_code == 404
     assert api_response.data['detail'] == 'Course not found'
 
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture2.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
         format='json'
     )
     assert api_response.status_code == 404
@@ -130,20 +124,14 @@ def test_fetch_lecture(test_user, access_token):
 
     # Fail - without credentials lecture details should not listed
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         format='json'
     )
     assert api_response.status_code == 403
     assert api_response.data['detail'] == 'Must be logged in to access a lecture'
 
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture2.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
         format='json'
     )
     assert api_response.status_code == 403
@@ -157,12 +145,9 @@ def test_fetch_lecture(test_user, access_token):
 
     # Fail - unregistered student cannot access lecture details
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -174,12 +159,9 @@ def test_fetch_lecture(test_user, access_token):
 
     # Success
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -191,12 +173,9 @@ def test_fetch_lecture(test_user, access_token):
     course1.save()
 
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture1.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
@@ -208,12 +187,9 @@ def test_fetch_lecture(test_user, access_token):
     user1.save()
 
     api_response = client.get(
-        '/api/courses/{slug}/lectures/{id}'.format(
-            slug=course1.slug,
-            id=lecture2.id
-        ),
+        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
         headers={
-            'Authorization': 'Bearer {}'.format(token1)
+            'Authorization': f'Bearer {token1}'
         },
         format='json'
     )

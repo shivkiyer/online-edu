@@ -82,7 +82,7 @@ def test_course_fetch_all(sample_courses, test_user, access_token):
     api_response = client.get(
         '/api/courses/',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -104,7 +104,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
 
     # Should give 404 as course is in draft mode
     api_response = client.get(
-        '/api/courses/{}'.format(course.slug),
+        f'/api/courses/{course.slug}',
         format='json'
     )
     assert api_response.data['detail'] == 'Course not found from URL'
@@ -112,9 +112,9 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
 
     # Admin user should be able to see a course in draft status
     api_response = client.get(
-        '/api/courses/{}'.format(course.slug),
+        f'/api/courses/{course.slug}',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
@@ -125,7 +125,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
     course.save()
     # Should be retrieved
     api_response = client.get(
-        '/api/courses/{}'.format(course.slug),
+        f'/api/courses/{course.slug}',
         format='json'
     )
     assert api_response.status_code == 200
@@ -133,7 +133,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
 
     # Use wrong slug
     api_response = client.get(
-        '/api/courses/{}'.format(course.slug + '1'),
+        f'/api/courses/{course.slug + "1"}',
         format='json'
     )
     assert api_response.data['detail'] == 'Course not found from URL'
@@ -144,7 +144,7 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
     course.save()
     # Should give 404
     api_response = client.get(
-        '/api/courses/{}'.format(course.slug),
+        f'/api/courses/{course.slug}',
         format='json'
     )
     assert api_response.data['detail'] == 'Course not found from URL'
@@ -152,9 +152,9 @@ def test_course_fetch_detail(sample_course, test_user, access_token):
 
     # Admin user should be able to see archived course
     api_response = client.get(
-        '/api/courses/{}'.format(course.slug),
+        f'/api/courses/{course.slug}',
         headers={
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}'
         },
         format='json'
     )
