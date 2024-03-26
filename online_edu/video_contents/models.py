@@ -1,6 +1,7 @@
 from django.db import models
 from rest_framework import status
 
+from django.conf import settings
 from courses.models import Course
 from common.error_definitions import CustomAPIError
 from .managers import VideoContentManager
@@ -66,6 +67,10 @@ class VideoContent(models.Model):
     video_file = models.FileField(upload_to=video_file_path, max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def video_file_path(self):
+        return f'{settings.BASE_URL}{self.video_file.url}'
 
     objects = VideoContentManager()
 

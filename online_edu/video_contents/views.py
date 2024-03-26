@@ -9,6 +9,7 @@ from courses.models import Course
 from lectures.models import Lecture
 from user_auth.models import User
 from user_auth.views import UserAuthentication
+from .serializers import VideoContentSerializer
 
 
 class VideoContentView(APIView, UserAuthentication):
@@ -88,4 +89,9 @@ class VideoContentView(APIView, UserAuthentication):
         lecture_id = self.kwargs.get('id')
         Lecture.objects.add_video_to_lecture(lecture_id, video_obj)
 
-        return Response(status=status.HTTP_201_CREATED)
+        serializer = VideoContentSerializer(video_obj)
+
+        return Response(
+            data=serializer.data,
+            status=status.HTTP_201_CREATED
+        )
