@@ -5,6 +5,7 @@ from rest_framework import status
 from common.error_definitions import CustomAPIError
 from common.error_handling import extract_serializer_error
 from .models import Lecture
+from video_contents.serializers import VideoContentSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -215,3 +216,15 @@ class LectureSerializer(serializers.ModelSerializer):
                 }
             }
         }
+
+
+class LectureDetailSerializer(serializers.ModelSerializer):
+    '''
+    Serializer for detail view of Lecture including related videos
+    '''
+
+    videos = VideoContentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Lecture
+        fields = ['id', 'title', 'description', 'seq_no', 'videos']

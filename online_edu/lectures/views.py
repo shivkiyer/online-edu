@@ -14,7 +14,7 @@ from courses.models import Course
 from common.error_definitions import CustomAPIError
 from registration.models import CourseStudentRegistration
 from .models import Lecture
-from .serializers import LectureSerializer
+from .serializers import LectureSerializer, LectureDetailSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +128,19 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Lecture not found'
             )
+
+    def get_serializer_class(self):
+        '''
+        Return the serializer_class according to the view.
+
+        Returns
+        ------------------
+        LectureDetailSerializer for detail views and
+        LectureSerializer for all other views
+        '''
+        if self.request.method == 'GET' and self.kwargs.get('id') is not None:
+            return LectureDetailSerializer
+        return LectureSerializer
 
 
 class LectureView(

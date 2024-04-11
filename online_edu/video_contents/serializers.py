@@ -4,6 +4,9 @@ from .models import VideoContent
 
 
 class VideoContentSerializer(serializers.ModelSerializer):
+    '''
+    Serializer for model VideoContent
+    '''
     video_file_path = serializers.ReadOnlyField()
 
     class Meta:
