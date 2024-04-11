@@ -306,16 +306,15 @@ class UserAuthentication(JWTAuthentication):
             If admin is required by token is not of admin user
         '''
         error_msg = None
+        request.user = None
         try:
             user = super().authenticate(request, *args, **kwargs)
             if user is not None:
+                request.user = user[0]
                 if check_admin and not user[0].is_staff:
                     error_msg = 'Admin privileges required for this action'
                 else:
-                    request.user = user[0]
                     return user[0]
-            else:
-                request.user = None
         except Exception as e:
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
