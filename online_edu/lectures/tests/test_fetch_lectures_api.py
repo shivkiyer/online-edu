@@ -6,6 +6,7 @@ from courses.models import Course
 from lectures.models import Lecture
 from registration.models import CourseStudentRegistration
 from user_auth.tests.fixtures import test_user, access_token
+from video_contents.tests.fixtures import test_video
 
 pytestmark = pytest.mark.django_db
 
@@ -87,7 +88,7 @@ def test_fetch_lecture_list(test_user, access_token):
     assert len(api_response.data) == 4
 
 
-def test_fetch_lecture(test_user, access_token):
+def test_fetch_lecture(test_user, access_token, test_video):
     '''Detail view test for lecture'''
 
     client = APIClient()
@@ -167,6 +168,25 @@ def test_fetch_lecture(test_user, access_token):
     )
     assert api_response.status_code == 200
     assert api_response.data['title'] == lecture1.title
+    assert len(api_response.data['videos']) == 0
+
+    # Adding videos to lecture 1
+    lecture1_video1 = test_video(course=course1, name='Lec 1 video 1')
+    lecture1_video2 = test_video(course=course1, name='Lec 1 video 2')
+    Lecture.objects.add_video_to_lecture(lecture1.id, lecture1_video1)
+    Lecture.objects.add_video_to_lecture(lecture1.id, lecture1_video2)
+
+    # Success - lecture detail view should contain video list
+    api_response = client.get(
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        headers={
+            'Authorization': f'Bearer {token1}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    assert api_response.data['title'] == lecture1.title
+    assert len(api_response.data['videos']) == 2
 
     # Unpublish the course
     course1.is_draft = True
@@ -195,3 +215,23 @@ def test_fetch_lecture(test_user, access_token):
     )
     assert api_response.status_code == 200
     assert api_response.data['title'] == lecture2.title
+    assert len(api_response.data['videos']) == 0
+
+    # Adding videos to lecture 2
+    lecture2_video1 = test_video(course=course1, name='Lec 2 video 1')
+    lecture2_video2 = test_video(course=course1, name='Lec 2 video 2')
+    lecture2_video3 = test_video(course=course1, name='Lec 2 video 3')
+    Lecture.objects.add_video_to_lecture(lecture2.id, lecture2_video1)
+    Lecture.objects.add_video_to_lecture(lecture2.id, lecture2_video2)
+    Lecture.objects.add_video_to_lecture(lecture2.id, lecture2_video3)
+
+    api_response = client.get(
+        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
+        headers={
+            'Authorization': f'Bearer {token1}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    assert api_response.data['title'] == lecture2.title
+    assert len(api_response.data['videos']) == 3
