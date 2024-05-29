@@ -16,3 +16,6 @@ __pychache__
 
 # Media files
 media/
+
+# Translation binaries
+**/*.mo
