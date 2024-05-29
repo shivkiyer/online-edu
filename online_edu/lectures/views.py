@@ -1,4 +1,5 @@
 import logging
+from django.utils.translation import gettext_lazy as _
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -8,6 +9,7 @@ from rest_framework.mixins import CreateModelMixin, \
     UpdateModelMixin, \
     DestroyModelMixin
 
+from common.base_view import BaseAPIView
 from user_auth.models import User
 from user_auth.views import UserAuthentication
 from courses.models import Course
@@ -19,7 +21,7 @@ from .serializers import LectureSerializer, LectureDetailSerializer
 logger = logging.getLogger(__name__)
 
 
-class LectureBaseView(GenericAPIView, UserAuthentication):
+class LectureBaseView(BaseAPIView, UserAuthentication):
     '''
     Basic lecture view
 
@@ -82,7 +84,7 @@ class LectureBaseView(GenericAPIView, UserAuthentication):
             logger.error('Lecture details accessed without credentials')
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must be logged in to access a lecture'
+                detail=_('Must be logged in to access a lecture')
             )
         if not request.user.is_staff and not CourseStudentRegistration.objects.is_student_registered(
             user=request.user,
