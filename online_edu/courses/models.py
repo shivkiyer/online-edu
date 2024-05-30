@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
@@ -109,7 +110,7 @@ class Course(models.Model):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Price of a non-free course is required.'
+                detail=_('Price of a non-free course is required.')
             )
         if self.is_free:
             self.price = 0.00
@@ -128,7 +129,7 @@ class Course(models.Model):
             logger.error(
                 f'Course {self.title} does not have valid price but is not free.'
             )
-            raise ValidationError('Price of a non-free course is required.')
+            raise ValidationError(_('Price of a non-free course is required.'))
 
     def add_instructor(self, user):
         '''
@@ -152,7 +153,7 @@ class Course(models.Model):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Already an instructor'
+                detail=_('Already an instructor')
             )
         if user.is_staff:
             self.instructors.add(user)
@@ -162,7 +163,7 @@ class Course(models.Model):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Instructors have to be administrators'
+                detail=_('Instructors have to be administrators')
             )
 
     def check_user_is_instructor(self, user):

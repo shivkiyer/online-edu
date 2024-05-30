@@ -1,7 +1,7 @@
 import logging
 from django.contrib.auth import authenticate
-from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView
+from django.utils.translation import gettext_lazy as _
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
@@ -14,12 +14,13 @@ from .serializers import UserSerializer, \
     ChangePasswordSerializer
 from .utils import send_verification_link_email, \
     send_password_reset_email
+from common.base_view import BaseAPIView
 from common.error_definitions import DEFAULT_ERROR_RESPONSE, CustomAPIError
 
 logger = logging.getLogger(__name__)
 
 
-class RegisterUserView(CreateAPIView):
+class RegisterUserView(BaseAPIView, CreateModelMixin):
     '''
     Register a new user
 
@@ -60,7 +61,7 @@ class RegisterUserView(CreateAPIView):
         return Response(user.data, status=status.HTTP_201_CREATED)
 
 
-class VerifyUserView(APIView):
+class VerifyUserView(BaseAPIView):
     '''
     Checks token received on clicking verification link
 
@@ -87,7 +88,7 @@ class VerifyUserView(APIView):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Broken link'
+                detail=_('Broken link')
             )
         try:
             token_data = TokenRefreshSerializer(
@@ -97,7 +98,7 @@ class VerifyUserView(APIView):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Link expired or faulty'
+                detail=_('Link expired or faulty')
             )
         # Set the user to active
         new_user = User.objects.activate_user_by_token(
@@ -108,7 +109,7 @@ class VerifyUserView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class ResendVerificationEmailView(APIView):
+class ResendVerificationEmailView(BaseAPIView):
     '''
     Resending verification email to user
 
@@ -138,7 +139,7 @@ class ResendVerificationEmailView(APIView):
         )
 
 
-class LoginUserView(APIView):
+class LoginUserView(BaseAPIView):
     '''
     Login user and return token
 
@@ -177,11 +178,11 @@ class LoginUserView(APIView):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid username/password'
+                detail=_('Invalid username/password')
             )
 
 
-class ResetPasswordView(APIView):
+class ResetPasswordView(BaseAPIView):
     '''
     Send password reset link to user email
 
@@ -211,7 +212,7 @@ class ResetPasswordView(APIView):
         )
 
 
-class ChangePasswordView(APIView):
+class ChangePasswordView(BaseAPIView):
     '''
     Change a user password
 
@@ -241,7 +242,7 @@ class ChangePasswordView(APIView):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Broken link'
+                detail=_('Broken link')
             )
         # Check for expired token
         try:
@@ -252,7 +253,7 @@ class ChangePasswordView(APIView):
         except Exception as e:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Link expired or faulty'
+                detail=_('Link expired or faulty')
             )
         user_obj = User.objects.get_user_by_token(verification_token)
         user_form = ChangePasswordSerializer(
@@ -312,17 +313,17 @@ class UserAuthentication(JWTAuthentication):
             if user is not None:
                 request.user = user[0]
                 if check_admin and not user[0].is_staff:
-                    error_msg = 'Admin privileges required for this action'
+                    error_msg = _('Admin privileges required for this action')
                 else:
                     return user[0]
         except Exception as e:
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must be logged in for this action'
+                detail=_('Must be logged in for this action')
             )
         if not open_endpoint:
             if error_msg is None:
-                error_msg = 'Invalid login or inactive account'
+                error_msg = _('Invalid login or inactive account')
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=error_msg

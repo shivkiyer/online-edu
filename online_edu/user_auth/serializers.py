@@ -1,5 +1,6 @@
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 
 from .models import User
@@ -26,8 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'},
         write_only=True,
         error_messages={
-            'blank': 'The password field is required',
-            'required': 'The password field is required'
+            'blank': _('The password field is required'),
+            'required': _('The password field is required')
         }
     )
 
@@ -83,8 +84,8 @@ class UserSerializer(serializers.ModelSerializer):
             'username': {
                 'error_messages':
                 {
-                    'blank': 'The username field is required',
-                    'required': 'The username field is required'
+                    'blank': _('The username field is required'),
+                    'required': _('The username field is required')
                 }
             }
         }
@@ -107,15 +108,15 @@ class RegisterUserSerializer(UserSerializer):
         style={'input_type': 'password'},
         write_only=True,
         error_messages={
-            'blank': 'The confirm password field is required',
-            'required': 'The confirm password field is required'
+            'blank': _('The confirm password field is required'),
+            'required': _('The confirm password field is required')
         }
     )
 
     def validate(self, data):
         '''Validate that password and confirm_password are the same'''
         if not data['password'] == data['confirm_password']:
-            raise serializers.ValidationError('Passwords are not matching')
+            raise serializers.ValidationError(_('Passwords are not matching'))
         return data
 
     class Meta(UserSerializer.Meta):
@@ -151,7 +152,7 @@ class ChangePasswordSerializer(RegisterUserSerializer):
         if not instance.is_active:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='User not found'
+                detail=_('User not found')
             )
         instance.set_password(validated_data.get('password'))
         instance.save()

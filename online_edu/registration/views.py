@@ -1,4 +1,5 @@
 import logging
+from django.utils.translation import gettext_lazy as _
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -98,7 +99,7 @@ class CourseInstructorAddView(CourseBaseView):
         else:
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must be logged in as an instructor'
+                detail=_('Must be logged in as an instructor')
             )
 
     def post(self, request, *args, **kwargs):
@@ -138,5 +139,5 @@ class CourseInstructorAddView(CourseBaseView):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must be logged in as an instructor'
+                detail=_('Must be logged in as an instructor')
             )

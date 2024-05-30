@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
@@ -39,5 +40,5 @@ class VideoContentManager(models.Manager):
             return True
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Another video with the same name already exists'
+            detail=_('Another video with the same name already exists')
         )

@@ -1,5 +1,6 @@
 import logging
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
@@ -67,5 +68,5 @@ class CourseStudentRegistrationManager(models.Manager):
         )
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='User is already registered'
+            detail=_('User is already registered')
         )

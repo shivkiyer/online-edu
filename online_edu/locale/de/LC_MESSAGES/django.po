@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-29 20:01+0000\n"
+"POT-Creation-Date: 2024-05-30 19:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,14 +18,273 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lectures/views.py:87
-msgid "Must be logged in to access a lecture"
-msgstr "Um auf eine Vorlesung zugreifen zu können, müssen Sie angemeldet sein"
+#: common/error_definitions.py:5
+msgid ""
+"An unexpected error occurred. Please try again later or contact the "
+"administrator."
+msgstr "Translation of An unexpected error occurred. Please try again later or contact the administrator."
 
-#: server/settings/base.py:121
+#: courses/managers.py:72
+msgid "Slug missing"
+msgstr "Translation of Slug missing"
+
+#: courses/managers.py:87
+msgid "Course not found"
+msgstr "Translation of Course not found"
+
+#: courses/models.py:113 courses/models.py:132
+msgid "Price of a non-free course is required."
+msgstr "Translation of Price of a non-free course is required."
+
+#: courses/models.py:156
+msgid "Already an instructor"
+msgstr "Translation of Already an instructor"
+
+#: courses/models.py:166
+msgid "Instructors have to be administrators"
+msgstr "Translation of Instructors have to be administrators"
+
+#: courses/serializers.py:32 courses/serializers.py:33
+msgid "Course title is required"
+msgstr "Translation of Course title is required"
+
+#: courses/serializers.py:38
+msgid "A course with this title already exists"
+msgstr "Translation of A course with this title already exists"
+
+#: courses/serializers.py:118
+msgid "Course price is required"
+msgstr "Translation of Course price is required"
+
+#: courses/serializers.py:138
+msgid "Must be logged in as administrator to create a course"
+msgstr "Translation of Must be logged in as administrator to create a course"
+
+#: courses/serializers.py:186
+msgid "Only an instructor of a course can update a course"
+msgstr "Translation of Only an instructor of a course can update a course"
+
+#: courses/serializers.py:196 courses/serializers.py:197
+msgid "Course description is required"
+msgstr "Translation of Course description is required"
+
+#: courses/views.py:62
+msgid "Course not found from URL"
+msgstr "Translation of Course not found from URL"
+
+#: lectures/managers.py:56
+msgid "Course must be specified to verify title"
+msgstr "Translation of Course must be specified to verify title"
+
+#: lectures/managers.py:61
+msgid "Title is required"
+msgstr "Translation of Title is required"
+
+#: lectures/managers.py:78
+msgid "Lecture with the same title exists in the course"
+msgstr "Translation of Lecture with the same title exists in the cours"
+
+#: lectures/managers.py:107
+msgid "Lecture is already the first in the course"
+msgstr "Translation of Lecture is already the first in the course"
+
+#: lectures/managers.py:117
+msgid "Lecture is already the last in the course"
+msgstr "Translation of Lecture is already the last in the course"
+
+#: lectures/managers.py:127
+msgid "Direction in which the lecture needs to be moved can be up or down"
+msgstr "Translation of Direction in which the lecture needs to be moved can be up or down"
+
+#: lectures/managers.py:160
+msgid "Associated lecture could not be found"
+msgstr "Translation of Associated lecture could not be found"
+
+#: lectures/serializers.py:78
+msgid "Empty request body"
+msgstr "Translation of Empty request body"
+
+#: lectures/serializers.py:111
+msgid "Must be logged in as an instructor to create or update lectures"
+msgstr "Translation of Must be logged in as an instructor to create or update lectures"
+
+#: lectures/serializers.py:120
+msgid "Must be an instructor of the course to create or update lectures"
+msgstr "Translation of Must be an instructor of the course to create or update lectures"
+
+#: lectures/serializers.py:217 lectures/serializers.py:218
+msgid "The title of a lecture is required"
+msgstr "Translation of The title of a lecture is required"
+
+#: lectures/views.py:86
+msgid "Must be logged in to access a lecture"
+msgstr "Translation of Must be logged in to access a lecture"
+
+#: lectures/views.py:97
+msgid "Must register for the course to access a lecture"
+msgstr "Translation of Must register for the course to access a lecture"
+
+#: lectures/views.py:130
+msgid "Lecture not found"
+msgstr "Translation of Lecture not found"
+
+#: lectures/views.py:319
+msgid "Only an instructor can delete lectures"
+msgstr "Translation of Only an instructor can delete lectures"
+
+#: lectures/views.py:363
+msgid "Only an instructor can change the order of lectures"
+msgstr "Translation of Only an instructor can change the order of lectures"
+
+#: registration/managers.py:71
+msgid "User is already registered"
+msgstr "Translation of User is already registered"
+
+#: registration/views.py:102 registration/views.py:142
+msgid "Must be logged in as an instructor"
+msgstr "Translation of Must be logged in as an instructor"
+
+#: server/settings/base.py:121 server/settings/test.py:121
 msgid "English"
 msgstr "Englisch"
 
-#: server/settings/base.py:122
+#: server/settings/base.py:122 server/settings/test.py:122
 msgid "German"
 msgstr "Deutsch"
+
+#: user_auth/managers.py:48 user_auth/managers.py:77 user_auth/managers.py:103
+#: user_auth/serializers.py:155
+msgid "User not found"
+msgstr "Translation of User not found"
+
+#: user_auth/managers.py:128
+msgid "User could not be activated"
+msgstr "Translation of User could not be activated"
+
+#: user_auth/models.py:24 user_auth/models.py:34
+msgid "Username must be a valid email"
+msgstr "Translation of Username must be a valid email"
+
+#: user_auth/serializers.py:30 user_auth/serializers.py:31
+msgid "The password field is required"
+msgstr "Translation of The password field is required"
+
+#: user_auth/serializers.py:87 user_auth/serializers.py:88
+msgid "The username field is required"
+msgstr "Translation of The username field is required"
+
+#: user_auth/serializers.py:111 user_auth/serializers.py:112
+msgid "The confirm password field is required"
+msgstr "Translation of The confirm password field is required"
+
+#: user_auth/serializers.py:119
+msgid "Passwords are not matching"
+msgstr "Translation of Passwords are not matching"
+
+#: user_auth/utils.py:32 user_auth/utils.py:87
+msgid "No user to send email to"
+msgstr "Translation of No user to send email to"
+
+#: user_auth/utils.py:37
+msgid "User already activated"
+msgstr "Translation of User already activated"
+
+#: user_auth/utils.py:42
+#, python-brace-format
+msgid ""
+"Hello,\n"
+"Thank you for registering with Online Edu!\n"
+"\n"
+"You are not yet ready to use your account. Before you can login to the "
+"website, please verify your email by clicking on this link:\n"
+"{base_url}{token_url} \n"
+"\n"
+"Please click on this link within {time_limit} minutes of receiving this "
+"email.\n"
+"\n"
+"Thank you,\n"
+"Online Edu"
+msgstr ""
+"Translation of Hello,\n"
+"Translation of Thank you for registering with Online Edu!\n"
+"\n"
+"Translation of You are not yet ready to use your account. Before you can login to the "
+"Translation of website, please verify your email by clicking on this link:\n"
+"{base_url}{token_url} \n"
+"\n"
+"Translation of Please click on this link within {time_limit} minutes of receiving this "
+"Translation of email.\n"
+"\n"
+"Translation of Thank you,\n"
+"Online Edu"
+
+#: user_auth/utils.py:62
+msgid "Verification link"
+msgstr "Translation of Verification link"
+
+#: user_auth/utils.py:92
+#, python-brace-format
+msgid ""
+"Hello,\n"
+"Here is your password reset link:\n"
+"{base_url}{token_url} \n"
+"\n"
+"Please click on this link within {time_limit} minutes of receiving this "
+"email.\n"
+"\n"
+"Thank you,\n"
+"Online Edu"
+msgstr ""
+"Translation of Hello,\n"
+"Translation of Here is your password reset link:\n"
+"{base_url}{token_url} \n"
+"\n"
+"Translation of Please click on this link within {time_limit} minutes of receiving this "
+"Translation of email.\n"
+"\n"
+"Translation of Thank you,\n"
+"Online Edu"
+
+#: user_auth/utils.py:110
+msgid "Password reset link"
+msgstr "Translation of Password reset link"
+
+#: user_auth/views.py:91 user_auth/views.py:245
+msgid "Broken link"
+msgstr "Translation of Broken link"
+
+#: user_auth/views.py:101 user_auth/views.py:256
+msgid "Link expired or faulty"
+msgstr "Translation of Link expired or faulty"
+
+#: user_auth/views.py:181
+msgid "Invalid username/password"
+msgstr "Translation of Invalid username/password"
+
+#: user_auth/views.py:316
+msgid "Admin privileges required for this action"
+msgstr "Translation of Admin privileges required for this action"
+
+#: user_auth/views.py:322
+msgid "Must be logged in for this action"
+msgstr "Translation of Must be logged in for this action"
+
+#: user_auth/views.py:326
+msgid "Invalid login or inactive account"
+msgstr "Translation of Invalid login or inactive account"
+
+#: video_contents/managers.py:43
+msgid "Another video with the same name already exists"
+msgstr "Translation of Another video with the same name already exists"
+
+#: video_contents/models.py:35
+msgid "Associated course not found"
+msgstr "Translation of Associated course not found"
+
+#: video_contents/views.py:72
+msgid "Only an instructor can add videos"
+msgstr "Translation of Only an instructor can add videos"
+
+#: video_contents/views.py:79
+msgid "Video name is required"
+msgstr "Translation of Video name is required"

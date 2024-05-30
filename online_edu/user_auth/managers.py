@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import UserManager as AbstractUserManager
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -44,7 +45,7 @@ class UserManager(AbstractUserManager):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail='User not found'
+                detail=_('User not found')
             )
 
     def get_user_by_token(self, token):
@@ -73,7 +74,7 @@ class UserManager(AbstractUserManager):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='User not found'
+                detail=_('User not found')
             )
         return user_obj
 
@@ -99,7 +100,7 @@ class UserManager(AbstractUserManager):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail='User not found'
+                detail=_('User not found')
             )
 
     def activate_user_by_token(self, token):
@@ -124,5 +125,5 @@ class UserManager(AbstractUserManager):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='User could not be activated'
+                detail=_('User could not be activated')
             )

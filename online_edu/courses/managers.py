@@ -1,5 +1,6 @@
 import logging
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
@@ -68,7 +69,7 @@ class CourseManager(models.Manager):
             logger.error('Course fetched without slug')
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Slug missing'
+                detail=_('Slug missing')
             )
         try:
             course = self.get_queryset().get(slug=slug)
@@ -83,5 +84,5 @@ class CourseManager(models.Manager):
             logger.error(f'Course with slug {slug} not found')
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail='Course not found'
+                detail=_('Course not found')
             )

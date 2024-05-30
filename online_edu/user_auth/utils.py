@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -28,16 +29,16 @@ def send_verification_link_email(user):
     if not user:
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='No user to send email to'
+            detail=_('No user to send email to')
         )
     if user.is_active:
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='User already activated'
+            detail=_('User already activated')
         )
 
     verification_token = RefreshToken.for_user(user)
-    message_body = (
+    message_body = _(
         "Hello,\n"
         "Thank you for registering with Online Edu!\n"
         "\n"
@@ -58,7 +59,7 @@ def send_verification_link_email(user):
     )
 
     send_mail(
-        subject='Verification link',
+        subject=_('Verification link'),
         message=message_body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.username]
@@ -83,11 +84,11 @@ def send_password_reset_email(user):
     if not user or not user.is_active:
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='No user to send email to'
+            detail=_('No user to send email to')
         )
 
     verification_token = RefreshToken.for_user(user)
-    message_body = (
+    message_body = _(
         "Hello,\n"
         "Here is your password reset link:\n"
         "{base_url}{token_url} \n"
@@ -106,7 +107,7 @@ def send_password_reset_email(user):
     )
 
     send_mail(
-        subject='Password reset link',
+        subject=_('Password reset link'),
         message=message_body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.username]

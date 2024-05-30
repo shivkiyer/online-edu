@@ -1,4 +1,5 @@
 import logging
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 
@@ -28,13 +29,13 @@ class CourseSerializer(serializers.ModelSerializer):
 
     title = serializers.CharField(
         error_messages={
-            'blank': 'Course title is required',
-            'required': 'Course title is required'
+            'blank': _('Course title is required'),
+            'required': _('Course title is required')
         },
         validators=[
             UniqueValidator(
                 queryset=Course.objects.all(),
-                message='A course with this title already exists'
+                message=_('A course with this title already exists')
             )
         ]
     )
@@ -114,7 +115,7 @@ class CourseSerializer(serializers.ModelSerializer):
                 f'Course {validated_data.get("title", "")} is not free but does not have valid price')
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Course price is required'
+                detail=_('Course price is required')
             )
         user = validated_data.get('user', None)
         if user is not None and user.is_staff:
@@ -134,7 +135,7 @@ class CourseSerializer(serializers.ModelSerializer):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must be logged in as administrator to create a course'
+                detail=_('Must be logged in as administrator to create a course')
             )
 
     def update(self, instance, validated_data):
@@ -182,7 +183,7 @@ class CourseSerializer(serializers.ModelSerializer):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Only an instructor of a course can update a course'
+                detail=_('Only an instructor of a course can update a course')
             )
 
     class Meta:
@@ -192,8 +193,8 @@ class CourseSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'description': {
                 'error_messages': {
-                    'blank': 'Course description is required',
-                    'required': 'Course description is required'
+                    'blank': _('Course description is required'),
+                    'required': _('Course description is required')
                 }
             },
             'is_draft': {

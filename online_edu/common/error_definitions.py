@@ -1,6 +1,9 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import APIException
 
-DEFAULT_ERROR_RESPONSE = 'An unexpected error occurred. Please try again later or contact the administrator.'
+DEFAULT_ERROR_RESPONSE = _(
+    'An unexpected error occurred. Please try again later or contact the administrator.'
+)
 
 
 class CustomAPIError(APIException):

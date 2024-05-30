@@ -1,7 +1,7 @@
 import logging
+from django.utils.translation import gettext_lazy as _
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, \
     ListModelMixin, \
     RetrieveModelMixin, \
@@ -11,13 +11,14 @@ from user_auth.models import User
 from user_auth.views import UserAuthentication
 from .models import Course
 from .serializers import CourseSerializer
+from common.base_view import BaseAPIView
 from common.error_definitions import DEFAULT_ERROR_RESPONSE, \
     CustomAPIError
 
 logger = logging.getLogger(__name__)
 
 
-class CourseBaseView(GenericAPIView, UserAuthentication):
+class CourseBaseView(BaseAPIView, UserAuthentication):
     '''
     Base view for a course based on course URL
 
@@ -58,7 +59,7 @@ class CourseBaseView(GenericAPIView, UserAuthentication):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail='Course not found from URL'
+                detail=_('Course not found from URL')
             )
 
 

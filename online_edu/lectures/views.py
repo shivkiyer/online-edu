@@ -2,7 +2,6 @@ import logging
 from django.utils.translation import gettext_lazy as _
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, \
     ListModelMixin, \
     RetrieveModelMixin, \
@@ -95,7 +94,7 @@ class LectureBaseView(BaseAPIView, UserAuthentication):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must register for the course to access a lecture'
+                detail=_('Must register for the course to access a lecture')
             )
 
     def get_queryset(self):
@@ -128,7 +127,7 @@ class LectureBaseView(BaseAPIView, UserAuthentication):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail='Lecture not found'
+                detail=_('Lecture not found')
             )
 
     def get_serializer_class(self):
@@ -317,7 +316,7 @@ class LectureView(
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Only an instructor can delete lectures'
+                detail=_('Only an instructor can delete lectures')
             )
         return self.destroy(request, *args, **kwargs)
 
@@ -361,7 +360,7 @@ class AdjustLectureOrderView(LectureBaseView):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Only an instructor can change the order of lectures'
+                detail=_('Only an instructor can change the order of lectures')
             )
         lecture = self.get_object()
         Lecture.objects.change_lecture_order(

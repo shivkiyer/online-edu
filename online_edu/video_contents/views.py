@@ -1,8 +1,9 @@
-from rest_framework.views import APIView
+from django.utils.translation import gettext_lazy as _
 from rest_framework.response import Response
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework import status
 
+from common.base_view import BaseAPIView
 from common.error_definitions import CustomAPIError
 from .models import VideoContent
 from courses.models import Course
@@ -12,7 +13,7 @@ from user_auth.views import UserAuthentication
 from .serializers import VideoContentSerializer
 
 
-class VideoContentView(APIView, UserAuthentication):
+class VideoContentView(BaseAPIView, UserAuthentication):
     '''
     View for uploading videos
 
@@ -68,14 +69,14 @@ class VideoContentView(APIView, UserAuthentication):
         if not course_obj.check_user_is_instructor(user):
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Only an instructor can add videos'
+                detail=_('Only an instructor can add videos')
             )
 
         video_name = request.data.get('name')
         if video_name is None:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Video name is required'
+                detail=_('Video name is required')
             )
 
         VideoContent.objects.is_video_name_unique(video_name)

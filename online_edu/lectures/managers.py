@@ -1,5 +1,6 @@
 import logging
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from common.error_definitions import CustomAPIError
@@ -52,12 +53,12 @@ class LectureManager(models.Manager):
         if course is None:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Course must be specified to verify title'
+                detail=_('Course must be specified to verify title')
             )
         if title is None:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Title is required'
+                detail=_('Title is required')
             )
         try:
             query = self.get_queryset()
@@ -74,7 +75,7 @@ class LectureManager(models.Manager):
         )
         raise CustomAPIError(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Lecture with the same title exists in the course'
+            detail=_('Lecture with the same title exists in the course')
         )
 
     def change_lecture_order(self, lecture, direction='up'):
@@ -103,7 +104,7 @@ class LectureManager(models.Manager):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Lecture is already the first in the course'
+                detail=_('Lecture is already the first in the course')
             )
 
         no_of_lectures = self.get_queryset().filter(course=course).count()
@@ -113,7 +114,7 @@ class LectureManager(models.Manager):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Lecture is already the last in the course'
+                detail=_('Lecture is already the last in the course')
             )
         if direction == 'up':
             other_seq_no = lecture.seq_no - 1
@@ -122,7 +123,9 @@ class LectureManager(models.Manager):
         else:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Direction in which the lecture needs to be moved can be up or down'
+                detail=_(
+                    'Direction in which the lecture needs to be moved can be up or down'
+                )
             )
         other_lecture = self.get_queryset().get(
             course=course,
@@ -155,5 +158,5 @@ class LectureManager(models.Manager):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail='Associated lecture could not be found'
+                detail=_('Associated lecture could not be found')
             )

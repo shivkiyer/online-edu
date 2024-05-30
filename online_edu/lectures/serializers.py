@@ -1,4 +1,5 @@
 import logging
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework import status
 
@@ -74,7 +75,7 @@ class LectureSerializer(serializers.ModelSerializer):
             logger.critical('Empty lecture request')
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Empty request body'
+                detail=_('Empty request body')
             )
         return data
 
@@ -106,7 +107,9 @@ class LectureSerializer(serializers.ModelSerializer):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must be logged in as an instructor to create or update lectures'
+                detail=_(
+                    'Must be logged in as an instructor to create or update lectures'
+                )
             )
         if not course.check_user_is_instructor(user):
             logger.critical(
@@ -114,7 +117,9 @@ class LectureSerializer(serializers.ModelSerializer):
             )
             raise CustomAPIError(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Must be an instructor of the course to create or update lectures'
+                detail=_(
+                    'Must be an instructor of the course to create or update lectures'
+                )
             )
         return True
 
@@ -211,8 +216,8 @@ class LectureSerializer(serializers.ModelSerializer):
             },
             'title': {
                 'error_messages': {
-                    'required': 'The title of a lecture is required',
-                    'blank': 'The title of a lecture is required'
+                    'required': _('The title of a lecture is required'),
+                    'blank': _('The title of a lecture is required')
                 }
             }
         }

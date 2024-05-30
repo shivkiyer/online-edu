@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from .managers import UserManager
@@ -20,7 +21,7 @@ class User(AbstractUser):
         except:
             raise CustomAPIError(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Username must be a valid email'
+                detail=_('Username must be a valid email')
             )
         else:
             super().save(*args, **kwargs)
@@ -30,4 +31,4 @@ class User(AbstractUser):
         try:
             validate_email(self.username)
         except:
-            raise ValidationError('Username must be a valid email')
+            raise ValidationError(_('Username must be a valid email'))
