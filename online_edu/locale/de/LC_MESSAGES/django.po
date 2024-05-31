@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-30 19:35+0000\n"
+"POT-Creation-Date: 2024-05-31 20:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,9 @@ msgstr ""
 msgid ""
 "An unexpected error occurred. Please try again later or contact the "
 "administrator."
-msgstr "Translation of An unexpected error occurred. Please try again later or contact the administrator."
+msgstr ""
+"Translation of An unexpected error occurred. Please try again later or "
+"contact the administrator."
 
 #: courses/managers.py:72
 msgid "Slug missing"
@@ -94,9 +96,11 @@ msgstr "Translation of Lecture is already the last in the course"
 
 #: lectures/managers.py:127
 msgid "Direction in which the lecture needs to be moved can be up or down"
-msgstr "Translation of Direction in which the lecture needs to be moved can be up or down"
+msgstr ""
+"Translation of Direction in which the lecture needs to be moved can be up or "
+"down"
 
-#: lectures/managers.py:160
+#: lectures/managers.py:161
 msgid "Associated lecture could not be found"
 msgstr "Translation of Associated lecture could not be found"
 
@@ -106,13 +110,17 @@ msgstr "Translation of Empty request body"
 
 #: lectures/serializers.py:111
 msgid "Must be logged in as an instructor to create or update lectures"
-msgstr "Translation of Must be logged in as an instructor to create or update lectures"
+msgstr ""
+"Translation of Must be logged in as an instructor to create or update "
+"lectures"
 
-#: lectures/serializers.py:120
+#: lectures/serializers.py:121
 msgid "Must be an instructor of the course to create or update lectures"
-msgstr "Translation of Must be an instructor of the course to create or update lectures"
+msgstr ""
+"Translation of Must be an instructor of the course to create or update "
+"lectures"
 
-#: lectures/serializers.py:217 lectures/serializers.py:218
+#: lectures/serializers.py:219 lectures/serializers.py:220
 msgid "The title of a lecture is required"
 msgstr "Translation of The title of a lecture is required"
 
@@ -144,11 +152,11 @@ msgstr "Translation of User is already registered"
 msgid "Must be logged in as an instructor"
 msgstr "Translation of Must be logged in as an instructor"
 
-#: server/settings/base.py:121 server/settings/test.py:121
+#: server/settings/base.py:122 server/settings/test.py:121
 msgid "English"
 msgstr "Englisch"
 
-#: server/settings/base.py:122 server/settings/test.py:122
+#: server/settings/base.py:123 server/settings/test.py:122
 msgid "German"
 msgstr "Deutsch"
 
@@ -208,12 +216,13 @@ msgstr ""
 "Translation of Hello,\n"
 "Translation of Thank you for registering with Online Edu!\n"
 "\n"
-"Translation of You are not yet ready to use your account. Before you can login to the "
-"Translation of website, please verify your email by clicking on this link:\n"
+"Translation of You are not yet ready to use your account. Before you can "
+"login to the Translation of website, please verify your email by clicking on "
+"this link:\n"
 "{base_url}{token_url} \n"
 "\n"
-"Translation of Please click on this link within {time_limit} minutes of receiving this "
-"Translation of email.\n"
+"Translation of Please click on this link within {time_limit} minutes of "
+"receiving this Translation of email.\n"
 "\n"
 "Translation of Thank you,\n"
 "Online Edu"
@@ -239,8 +248,8 @@ msgstr ""
 "Translation of Here is your password reset link:\n"
 "{base_url}{token_url} \n"
 "\n"
-"Translation of Please click on this link within {time_limit} minutes of receiving this "
-"Translation of email.\n"
+"Translation of Please click on this link within {time_limit} minutes of "
+"receiving this Translation of email.\n"
 "\n"
 "Translation of Thank you,\n"
 "Online Edu"
@@ -280,6 +289,12 @@ msgstr "Translation of Another video with the same name already exists"
 #: video_contents/models.py:35
 msgid "Associated course not found"
 msgstr "Translation of Associated course not found"
+
+#: video_contents/models.py:62
+#, fuzzy
+#| msgid "Video name is required"
+msgid "Video name"
+msgstr "Translation of Video name"
 
 #: video_contents/views.py:72
 msgid "Only an instructor can add videos"

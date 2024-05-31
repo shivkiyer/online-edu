@@ -59,8 +59,7 @@ class VideoContent(models.Model):
     )
     name = models.CharField(
         max_length=300,
-        unique=True,
-        default='Video name'
+        default=_('Video name')
     )
     video_file = models.FileField(upload_to=video_file_path, max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
