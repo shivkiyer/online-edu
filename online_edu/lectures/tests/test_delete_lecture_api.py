@@ -13,6 +13,37 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
 
     client = APIClient()
 
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    token1 = access_token(user1, 60)
+
+    # Create test course
+    course1 = sample_course
+
+    course1.add_instructor(user1)
+
+    # Create test lecture in test course
+    lecture1 = Lecture.objects.create(title='Lecture 1', course=course1)
+
+    # Success
+    api_response = client.delete(
+        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        headers={
+            'Authorization': f'Bearer {token1}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 204
+    assert Lecture.objects.all().count() == 0
+
+
+def test_unauthorized_lecture_delete(sample_course, test_user, access_token):
+    '''Tests to verify only an instructor can delete a lecture'''
+
+    client = APIClient()
+
     # Create test course
     course1 = sample_course
 
@@ -56,17 +87,3 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
     )
     assert api_response.status_code == 403
     assert api_response.data['detail'] == 'Only an instructor can delete lectures'
-
-    # Make test user instructor
-    course1.add_instructor(user1)
-
-    # Success
-    api_response = client.delete(
-        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
-        headers={
-            'Authorization': f'Bearer {token1}'
-        },
-        format='json'
-    )
-    assert api_response.status_code == 204
-    assert Lecture.objects.all().count() == 0

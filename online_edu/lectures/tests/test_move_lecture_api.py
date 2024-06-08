@@ -22,75 +22,20 @@ def test_moving_lecture_endpoint(
     # Test user
     user1 = test_user()
     user1.is_active = True
+    user1.is_staff = True
     user1.save()
 
     # Test course
     course1 = sample_course
 
-    # Test lectures
-    lectures = test_lectures(course1, 5)
-
-    # Fail - no credentials
-    api_response = client.post(
-        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
-        format='json'
-    )
-    assert api_response.status_code == 403
-    assert api_response.data['detail'] == 'Invalid login or inactive account'
-
-    # Create JWT
-    token1 = access_token(user1, 60)
-
-    # Fail - user is non-admin
-    api_response = client.post(
-        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
-        headers={
-            'Authorization': f'Bearer {token1}'
-        },
-        format='json'
-    )
-    assert api_response.status_code == 403
-    assert api_response.data['detail'] == 'Admin privileges required for this action'
-
-    # Make test user admin
-    user1.is_staff = True
-    user1.save()
-
-    # Fail - user is not instructor
-    api_response = client.post(
-        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
-        headers={
-            'Authorization': f'Bearer {token1}'
-        },
-        format='json'
-    )
-    assert api_response.status_code == 403
-    assert api_response.data['detail'] == 'Only an instructor can change the order of lectures'
-
     # Make test user instructor
     course1.add_instructor(user1)
 
-    # Fail - cannot move first lecture up
-    api_response = client.post(
-        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
-        headers={
-            'Authorization': f'Bearer {token1}'
-        },
-        format='json'
-    )
-    assert api_response.status_code == 400
-    assert api_response.data['detail'] == 'Lecture is already the first in the course'
+    # Test lectures
+    lectures = test_lectures(course1, 5)
 
-    # Fail - cannot move last lecture down
-    api_response = client.post(
-        f'/api/courses/{course1.slug}/lectures/{lectures[4].id}/move-lecture/down',
-        headers={
-            'Authorization': f'Bearer {token1}'
-        },
-        format='json'
-    )
-    assert api_response.status_code == 400
-    assert api_response.data['detail'] == 'Lecture is already the last in the course'
+    # Create JWT
+    token1 = access_token(user1, 60)
 
     # Success - move 2nd lecture up
     api_response = client.post(
@@ -153,18 +98,6 @@ def test_moving_lecture_endpoint(
     assert check_lectures[2].title == lectures[0].title
     assert check_lectures[3].title == lectures[2].title
 
-    # Sequence now is 3-1-0-2-4
-    # Fail - 3rd lecture is now the first
-    api_response = client.post(
-        f'/api/courses/{course1.slug}/lectures/{lectures[3].id}/move-lecture/up',
-        headers={
-            'Authorization': f'Bearer {token1}'
-        },
-        format='json'
-    )
-    assert api_response.status_code == 400
-    assert api_response.data['detail'] == 'Lecture is already the first in the course'
-
     # Success
     api_response = client.post(
         f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/down',
@@ -198,9 +131,108 @@ def test_moving_lecture_endpoint(
     assert check_lectures[3].title == lectures[4].title
     assert check_lectures[4].title == lectures[0].title
 
-    # Fail - lecture 0 is already the last
+
+def test_unauthorized_moving_lecture(
+    test_user,
+    access_token,
+    sample_course,
+    test_lectures
+):
+    '''Test that lectures can be moved only by instructors'''
+
+    client = APIClient()
+
+    # Test user
+    user1 = test_user()
+    user1.is_active = True
+    user1.save()
+
+    # Test course
+    course1 = sample_course
+
+    # Test lectures
+    lectures = test_lectures(course1, 5)
+
+    # Fail - no credentials
     api_response = client.post(
-        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/down',
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
+        format='json'
+    )
+    assert api_response.status_code == 403
+    assert api_response.data['detail'] == 'Invalid login or inactive account'
+
+    # Create JWT
+    token1 = access_token(user1, 60)
+
+    # Fail - user is non-admin
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
+        headers={
+            'Authorization': f'Bearer {token1}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 403
+    assert api_response.data['detail'] == 'Admin privileges required for this action'
+
+    # Make test user admin
+    user1.is_staff = True
+    user1.save()
+
+    # Fail - user is not instructor
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
+        headers={
+            'Authorization': f'Bearer {token1}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 403
+    assert api_response.data['detail'] == 'Only an instructor can change the order of lectures'
+
+
+def test_moving_extreme_lectures(
+    test_user,
+    access_token,
+    sample_course,
+    test_lectures
+):
+    '''Test that lectures are moved in the course lecture list'''
+
+    client = APIClient()
+
+    # Test user
+    user1 = test_user()
+    user1.is_active = True
+    user1.is_staff = True
+    user1.save()
+
+    # Test course
+    course1 = sample_course
+
+    # Make test user instructor
+    course1.add_instructor(user1)
+
+    # Create JWT
+    token1 = access_token(user1, 60)
+
+    # Test lectures
+    lectures = test_lectures(course1, 5)
+
+    # Fail - cannot move first lecture up
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/move-lecture/up',
+        headers={
+            'Authorization': f'Bearer {token1}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
+    assert api_response.data['detail'] == 'Lecture is already the first in the course'
+
+    # Fail - cannot move last lecture down
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/{lectures[4].id}/move-lecture/down',
         headers={
             'Authorization': f'Bearer {token1}'
         },
@@ -209,7 +241,36 @@ def test_moving_lecture_endpoint(
     assert api_response.status_code == 400
     assert api_response.data['detail'] == 'Lecture is already the last in the course'
 
-    # Fail - lecture 0 is already the last
+
+def test_moving_lecture_bad_data(
+    test_user,
+    access_token,
+    sample_course,
+    test_lectures
+):
+    '''Test that lectures are moved according to correct input directions'''
+
+    client = APIClient()
+
+    # Test user
+    user1 = test_user()
+    user1.is_active = True
+    user1.is_staff = True
+    user1.save()
+
+    # Test course
+    course1 = sample_course
+
+    # Make test user instructor
+    course1.add_instructor(user1)
+
+    # Create JWT
+    token1 = access_token(user1, 60)
+
+    # Test lectures
+    lectures = test_lectures(course1, 5)
+
+    # Fail - wrong direction
     api_response = client.post(
         f'/api/courses/{course1.slug}/lectures/{lectures[2].id}/move-lecture/downn',
         headers={
