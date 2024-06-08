@@ -23,26 +23,6 @@ def test_course_creation():
     assert course1.is_draft == True
     assert course1.is_archived == False
 
-    # Fail - Non-unique title
-    with pytest.raises(Exception):
-        with transaction.atomic():
-            Course.objects.create(
-                title='Some course title',
-                description='Some course description',
-                price=1.99
-            )
-    assert Course.objects.count() == 1
-
-    # Fail - price for a non-free course is 0
-    with pytest.raises(Exception):
-        with transaction.atomic():
-            Course.objects.create(
-                title='Some course title',
-                description='Some course description',
-                price=0.00
-            )
-    assert Course.objects.count() == 1
-
     # Another success - no description
     Course.objects.create(
         title='Another course title',
@@ -59,8 +39,50 @@ def test_course_creation():
     assert Course.objects.count() == 3
 
 
+def test_course_bad_data():
+    '''
+    Test course creation failure due to bad data
+    '''
+
+    # Fail - price for a non-free course is 0
+    with pytest.raises(Exception):
+        with transaction.atomic():
+            Course.objects.create(
+                title='Some course title',
+                description='Some course description',
+                price=0.00
+            )
+    assert Course.objects.count() == 0
+
+
+def test_course_duplicate_title():
+    '''
+    Test course creation failure due to duplicate title
+    '''
+
+    Course.objects.create(
+        title='Some course title',
+        description='Some course description',
+        price=1.99
+    )
+    assert Course.objects.count() == 1
+
+    # Fail - Non-unique title
+    with pytest.raises(Exception):
+        with transaction.atomic():
+            Course.objects.create(
+                title='Some course title',
+                description='Some course description',
+                price=1.99
+            )
+    assert Course.objects.count() == 1
+
+
 def test_course_instructor(test_user):
-    '''Test that course instructor must be admin user'''
+    '''
+    Test that course instructor must be admin user
+    '''
+
     course1 = Course.objects.create(
         title='Some course title',
         description='Some course description',

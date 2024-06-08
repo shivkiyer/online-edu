@@ -19,6 +19,9 @@ class CourseManager(models.Manager):
 
     get_course_by_slug(slug, admin_only=True):
         Returns course object from course slug
+
+    check_if_title_duplicate(id, title):
+        Throws error if course with different id has same title
     '''
 
     def fetch_courses(self, is_draft=False, is_archived=False):
@@ -86,3 +89,30 @@ class CourseManager(models.Manager):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=_('Course not found')
             )
+
+    def check_if_title_duplicate(self, id, title):
+        '''
+        Check if course with same title exists
+
+        Parameters
+        -------------
+        id : int
+            Id of course to be excluded from search
+        title : str
+            Title to check
+
+        Raises
+        -------------
+        400 error
+            If another course with same title exists
+
+        Returns
+        -------------
+        boolean: False if not duplicate
+        '''
+        if self.get_queryset().exclude(id=id).filter(title__iexact=title).count() >= 1:
+            raise CustomAPIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=_('A course with this title already exists')
+            )
+        return False

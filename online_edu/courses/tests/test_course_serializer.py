@@ -10,33 +10,50 @@ pytestmark = pytest.mark.django_db
 
 
 def test_course_serializer_create(test_user):
+    '''
+    Test CourseSerializer for creating courses
+    '''
+
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    # Success - free course
+    serializer = CourseSerializer(data={
+        'title': 'Some course title',
+        'description': 'Some course description',
+        'is_free': 'True'
+    })
+    course1 = serializer.save(user=user1)
+    assert course1.price == 0
+    assert course1.is_draft == True
+    assert course1.is_archived == False
+    assert course1.slug is not None
+    assert course1.created_at is not None
+    assert course1.updated_at is not None
+    assert Course.objects.all().count() == 1
+
+    # Success - non-free course
+    serializer = CourseSerializer(data={
+        'title': 'Another course title',
+        'description': 'Some course description',
+        'price': 1.01
+    })
+    course2 = serializer.save(user=user1)
+    assert course2.is_free == False
+    assert course2.is_draft == True
+    assert course2.is_archived == False
+    assert course2.slug is not None
+    assert course2.created_at is not None
+    assert course2.updated_at is not None
+    assert Course.objects.all().count() == 2
+
+
+def test_unauthorized_course_serializer_create(test_user):
     '''Test CourseSerializer for creating courses'''
 
     # Non-admin user
     user1 = test_user()
-
-    # Missing title
-    serializer = CourseSerializer(data={})
-    with pytest.raises(Exception) as e:
-        serializer.save()
-    assert str(e.value) == 'Course title is required'
-
-    # Missing description
-    serializer = CourseSerializer(data={
-        'title': 'Some course title'
-    })
-    with pytest.raises(Exception) as e:
-        serializer.save()
-    assert str(e.value) == 'Course description is required'
-
-    # Missing price of free info
-    serializer = CourseSerializer(data={
-        'title': 'Some course title',
-        'description': 'Some course description'
-    })
-    with pytest.raises(Exception) as e:
-        serializer.save()
-    assert str(e.value) == 'Course price is required'
 
     # Must be created by admin user
     serializer = CourseSerializer(data={
@@ -67,6 +84,51 @@ def test_course_serializer_create(test_user):
     assert course1.updated_at is not None
     assert Course.objects.all().count() == 1
 
+
+def test_serializer_create_bad_data(test_user):
+    '''Test CourseSerializer errors for bad data'''
+
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    # Missing title
+    serializer = CourseSerializer(data={})
+    with pytest.raises(Exception) as e:
+        serializer.save(user=user1)
+    assert str(e.value) == 'Course title is required'
+
+    # Missing description
+    serializer = CourseSerializer(data={
+        'title': 'Some course title'
+    })
+    with pytest.raises(Exception) as e:
+        serializer.save(user=user1)
+    assert str(e.value) == 'Course description is required'
+
+    # Missing price of free info
+    serializer = CourseSerializer(data={
+        'title': 'Some course title',
+        'description': 'Some course description'
+    })
+    with pytest.raises(Exception) as e:
+        serializer.save(user=user1)
+    assert str(e.value) == 'Course price is required'
+
+
+def test_serializer_duplicate_title(test_user):
+    '''Test CourseSerializer error for duplicate course title'''
+
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    Course.objects.create(
+        title='Some course title',
+        description='Some course description',
+        is_free=True
+    )
+
     # Duplicate course title
     serializer = CourseSerializer(data={
         'title': 'Some course title',
@@ -77,44 +139,17 @@ def test_course_serializer_create(test_user):
         serializer.save(user=user1)
     assert str(e.value) == 'A course with this title already exists'
 
-    # Success - non-free course
-    serializer = CourseSerializer(data={
-        'title': 'Another course title',
-        'description': 'Some course description',
-        'price': 1.01
-    })
-    course2 = serializer.save(user=user1)
-    assert course2.is_free == False
-    assert course2.is_draft == True
-    assert course2.is_archived == False
-    assert course2.slug is not None
-    assert course2.created_at is not None
-    assert course2.updated_at is not None
-    assert Course.objects.all().count() == 2
-
 
 def test_course_serializer_update(test_user, sample_course):
     '''Testing CourseSerializer for updating courses'''
 
-    # Non-admin user
     user1 = test_user()
+    user1.is_staff = True
+    user1.save()
 
     # Test course
     course1 = sample_course
 
-    # Non-admin non-instructor trying to update course
-    serializer = CourseSerializer(
-        course1,
-        data={'title': 'Changed title'},
-        partial=True
-    )
-    with pytest.raises(Exception) as e:
-        serializer.save(user=user1)
-    assert str(e.value) == 'Only an instructor of a course can update a course'
-
-    # Make user instructor
-    user1.is_staff = True
-    user1.save()
     course1.add_instructor(user1)
 
     # Success - title changed
@@ -167,16 +202,51 @@ def test_course_serializer_update(test_user, sample_course):
     assert course_obj.slug == course1.slug
     assert Course.objects.fetch_courses().count() == 1
 
+
+def test_unauthorized_course_serializer_update(test_user, sample_course):
+    '''Testing CourseSerializer throws error unless instructor updates course'''
+
+    # Non-admin user
+    user1 = test_user()
+
+    # Test course
+    course1 = sample_course
+
+    # Non-admin non-instructor trying to update course
+    serializer = CourseSerializer(
+        course1,
+        data={'title': 'Changed title'},
+        partial=True
+    )
+    with pytest.raises(Exception) as e:
+        serializer.save(user=user1)
+    assert str(e.value) == 'Only an instructor of a course can update a course'
+
+
+def test_duplicate_title_serializer_update(test_user, sample_course):
+    '''Testing CourseSerializer throws error if title is duplicate'''
+
+    # Non-admin user
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    # Test course
+    course1 = sample_course
+
+    course1.add_instructor(user1)
+
     # Second sample course
     course2 = Course.objects.create(
         title='Another course',
         description='Sample descr',
         is_free=True
     )
-    # Cannot make tile same as first course
+
+    # Cannot make first course title same as second course
     serializer = CourseSerializer(
-        course2,
-        data={'title': 'Changed title'},
+        course1,
+        data={'title': 'Another course'},
         partial=True
     )
     with pytest.raises(Exception) as e:

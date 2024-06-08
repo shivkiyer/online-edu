@@ -9,7 +9,76 @@ from .fixtures import sample_course
 pytestmark = pytest.mark.django_db
 
 
-def test_only_instructor_can_update_course(
+def test_course_update_endpoint(
+    test_user,
+    access_token,
+    sample_course
+):
+    '''Test that course can be updated with PUT request'''
+
+    client = APIClient()
+
+    course1 = sample_course
+    course1.is_draft = False
+    course1.save()
+
+    # Admin user
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    # Adding user as instructor of the course
+    course1.add_instructor(user1)
+
+    token = access_token(user1, 60)
+
+    # Success
+    api_response = client.patch(
+        f'/api/courses/{course1.slug}',
+        {
+            'subtitle': 'This is a test subtitle',
+            'price': '15.99'
+        },
+        headers={
+            'Authorization': f'Bearer {token}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    assert api_response.data['subtitle'] == 'This is a test subtitle'
+    assert api_response.data['price'] == '15.99'
+    assert api_response.data['is_free'] == False
+
+    # Create second admin user
+    user2 = test_user(
+        'otheruser@gmail.com',
+        'otherpassword',
+        is_staff=True
+    )
+    token = access_token(user2, 60)
+
+    # Make second user course instructor
+    course1.add_instructor(user2)
+
+    # Success
+    api_response = client.patch(
+        f'/api/courses/{course1.slug}',
+        {
+            'subtitle': 'This is another test subtitle',
+            'is_free': 'True'
+        },
+        headers={
+            'Authorization': f'Bearer {token}'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    assert api_response.data['subtitle'] == 'This is another test subtitle'
+    assert api_response.data['price'] == '0.00'
+    assert api_response.data['is_free'] == True
+
+
+def test_unauthorized_course_update(
     test_user,
     access_token,
     sample_course
@@ -64,9 +133,6 @@ def test_only_instructor_can_update_course(
     assert api_response.status_code == 403
     assert api_response.data['detail'] == 'Only an instructor of a course can update a course'
 
-    # Adding user as instructor of the course
-    course1.add_instructor(user1)
-
     # Fail - using wrong course URL should give 404
     api_response = client.patch(
         f'/api/courses/{course1.slug+"1"}',
@@ -82,58 +148,60 @@ def test_only_instructor_can_update_course(
     assert api_response.status_code == 404
     assert api_response.data['detail'] == 'Course not found from URL'
 
-    # Success - user is instructor for course
+
+def test_course_update_bad_data(
+    test_user,
+    access_token,
+    sample_course
+):
+    '''Test for when an update can be refused due to bad data'''
+
+    client = APIClient()
+
+    course1 = sample_course
+
+    # Admin user
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+    token = access_token(user1, 60)
+
+    # Adding user as instructor of the course
+    course1.add_instructor(user1)
+
+    # Fail - course is not free but price is zero
     api_response = client.patch(
         f'/api/courses/{course1.slug}',
         {
             'subtitle': 'This is a test subtitle',
-            'price': '15.99'
+            'price': '0.0',
+            'is_free': 'False'
         },
         headers={
             'Authorization': f'Bearer {token}'
         },
         format='json'
     )
-    assert api_response.status_code == 200
-    assert api_response.data['subtitle'] == 'This is a test subtitle'
-    assert api_response.data['price'] == '15.99'
-    assert api_response.data['is_free'] == False
+    assert api_response.status_code == 400
+    assert api_response.data['detail'] == 'Price of a non-free course is required.'
 
-    # Fail - send request as another admin user but not instructor
-    user2 = test_user(
-        'otheruser@gmail.com',
-        'otherpassword',
-        is_staff=True
+    # Create another course
+    Course.objects.create(
+        title='Some course',
+        description='Some desc',
+        is_free=True
     )
-    token = access_token(user2, 60)
+
+    # Fail - duplicate course violation
     api_response = client.patch(
         f'/api/courses/{course1.slug}',
         {
-            'subtitle': 'This is another test subtitle',
-            'is_free': 'True'
+            'title': 'Some course',
         },
         headers={
             'Authorization': f'Bearer {token}'
         },
         format='json'
     )
-    assert api_response.status_code == 403
-    assert api_response.data['detail'] == 'Only an instructor of a course can update a course'
-
-    # Success - add this admin user as course instructor
-    course1.add_instructor(user2)
-    api_response = client.patch(
-        f'/api/courses/{course1.slug}',
-        {
-            'subtitle': 'This is another test subtitle',
-            'is_free': 'True'
-        },
-        headers={
-            'Authorization': f'Bearer {token}'
-        },
-        format='json'
-    )
-    assert api_response.status_code == 200
-    assert api_response.data['subtitle'] == 'This is another test subtitle'
-    assert api_response.data['price'] == '0.00'
-    assert api_response.data['is_free'] == True
+    assert api_response.status_code == 400
+    assert api_response.data['detail'] == 'A course with this title already exists'

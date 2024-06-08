@@ -1,13 +1,13 @@
 import pytest
 
 from courses.models import Course
-from .fixtures import sample_courses
+from .fixtures import sample_course, sample_courses
 
 pytestmark = pytest.mark.django_db
 
 
-def test_course_manager(sample_courses):
-    '''Test CourseManager'''
+def test_course_fetch_query(sample_courses):
+    '''Test custom query of CourseManager'''
 
     # Create five random courses
     test_courses = sample_courses(5)
@@ -56,3 +56,65 @@ def test_course_manager(sample_courses):
     courses_found = Course.objects.fetch_courses(is_archived=True)
     assert courses_found.count() == 1
     assert courses_found[0].title == test_courses[4].title
+
+
+def test_course_query_by_slug(sample_course):
+    '''Test query by slug in CourseManager'''
+
+    course = sample_course
+
+    # By default, query is run with admin privileges
+    course_found = Course.objects.get_course_by_slug(course.slug)
+    assert course_found.title == course.title
+
+    # With regular user auth, 404 is returned for draft courses
+    with pytest.raises(Exception):
+        course_found = Course.objects.get_course_by_slug(
+            course.slug,
+            admin_only=False
+        )
+
+    # Published course
+    course.is_draft = False
+    course.save()
+
+    # Published course can be found by regular user auth
+    course_found = Course.objects.get_course_by_slug(
+        course.slug,
+        admin_only=False
+    )
+    assert course_found.title == course.title
+
+    # Archive the course
+    course.is_archived = True
+    course.save()
+
+    # Archived courses cannot be found by regular user
+    with pytest.raises(Exception):
+        course_found = Course.objects.get_course_by_slug(
+            course.slug,
+            admin_only=False
+        )
+
+    # Archived courses can be found by admin user
+    course_found = Course.objects.get_course_by_slug(course.slug)
+    assert course_found.title == course.title
+
+
+def test_check_if_title_duplicate():
+    '''
+    Test for query that checks if title is duplicate
+    '''
+
+    course1 = Course.objects.create(
+        title='Some title',
+        description='Some descr',
+        is_free=True
+    )
+
+    # Title case not the same
+    result = Course.objects.check_if_title_duplicate(course1.id, 'Some Title')
+    assert result == False
+
+    with pytest.raises(Exception) as e:
+        Course.objects.check_if_title_duplicate(None, 'Some Title')

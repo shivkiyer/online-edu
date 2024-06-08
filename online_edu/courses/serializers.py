@@ -31,13 +31,7 @@ class CourseSerializer(serializers.ModelSerializer):
         error_messages={
             'blank': _('Course title is required'),
             'required': _('Course title is required')
-        },
-        validators=[
-            UniqueValidator(
-                queryset=Course.objects.all(),
-                message=_('A course with this title already exists')
-            )
-        ]
+        }
     )
 
     def validate(self, data):
@@ -120,6 +114,10 @@ class CourseSerializer(serializers.ModelSerializer):
         user = validated_data.get('user', None)
         if user is not None and user.is_staff:
             del validated_data['user']
+            Course.objects.check_if_title_duplicate(
+                None,
+                validated_data.get('title')
+            )
             course = Course.objects.create(**validated_data)
             course.add_instructor(user)
             logger.info(
@@ -160,6 +158,10 @@ class CourseSerializer(serializers.ModelSerializer):
         '''
         user = validated_data.get('user', None)
         if user is not None and instance.check_user_is_instructor(user):
+            Course.objects.check_if_title_duplicate(
+                instance.id,
+                validated_data.get('title')
+            )
             instance.title = validated_data.get('title', instance.title)
             instance.subtitle = validated_data.get(
                 'subtitle', instance.subtitle)
