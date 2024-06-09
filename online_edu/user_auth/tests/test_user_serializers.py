@@ -10,8 +10,24 @@ from .fixtures import test_user
 pytestmark = pytest.mark.django_db
 
 
-def test_user_register_serializer():
+def test_user_serializer():
     '''Testing base UserSerializer'''
+
+    # Success
+    serializer = UserSerializer(data={
+        'username': 'someuser@domain.com',
+        'password': 'somepassword'
+    })
+    serializer.save()
+
+    assert 'username' in serializer.data
+    assert 'is_active' in serializer.data
+    assert 'password' not in serializer.data
+    assert User.objects.count() == 1
+
+
+def test_user_serializer_invalid_data(test_user):
+    '''Testing base UserSerializer handling invalid data'''
 
     # Blank user serializer should through username is missing
     serializer = UserSerializer(data={})
@@ -36,21 +52,12 @@ def test_user_register_serializer():
         serializer.save()
     assert str(e.value) == 'Username must be a valid email'
 
-    # Success
-    serializer = UserSerializer(data={
-        'username': 'someuser@domain.com',
-        'password': 'somepassword'
-    })
-    serializer.save()
-
-    assert 'username' in serializer.data
-    assert 'is_active' in serializer.data
-    assert 'password' not in serializer.data
-    assert User.objects.count() == 1
+    # Create test user someuser@somedomain.com
+    user1 = test_user()
 
     # Duplicate username error
     serializer = UserSerializer(data={
-        'username': 'someuser@domain.com',
+        'username': 'someuser@somedomain.com',
         'password': 'somepassword'
     })
     with pytest.raises(Exception) as e:
@@ -60,6 +67,22 @@ def test_user_register_serializer():
 
 def test_user_register_serializer():
     '''Testing the RegisterUserSerializer'''
+
+    # Success
+    serializer = RegisterUserSerializer(data={
+        'username': 'someuser@domain.com',
+        'password': 'somepassword',
+        'confirm_password': 'somepassword'
+    })
+    serializer.save()
+    assert 'username' in serializer.data
+    assert 'is_active' in serializer.data
+    assert 'password' not in serializer.data
+    assert User.objects.count() == 1
+
+
+def test_user_register_serializer_invalid_data(test_user):
+    '''Testing the RegisterUserSerializer handling invalid data'''
 
     # Blank user serializer should through username is missing
     serializer = RegisterUserSerializer(data={})
@@ -104,21 +127,12 @@ def test_user_register_serializer():
         serializer.save()
     assert str(e.value) == 'Passwords are not matching'
 
-    # Success
-    serializer = RegisterUserSerializer(data={
-        'username': 'someuser@domain.com',
-        'password': 'somepassword',
-        'confirm_password': 'somepassword'
-    })
-    serializer.save()
-    assert 'username' in serializer.data
-    assert 'is_active' in serializer.data
-    assert 'password' not in serializer.data
-    assert User.objects.count() == 1
+    # Creating test user someuser@somedomain.com
+    user1 = test_user()
 
     # Duplicate username error
     serializer = RegisterUserSerializer(data={
-        'username': 'someuser@domain.com',
+        'username': 'someuser@somedomain.com',
         'password': 'somepassword'
     })
     with pytest.raises(Exception) as e:
@@ -128,6 +142,38 @@ def test_user_register_serializer():
 
 def test_change_password_serializer(test_user):
     '''Testing ChangePasswordSerializer'''
+
+    user1 = test_user(
+        'someuser@domain.com',
+        'somepassword',
+        False
+    )
+    user1.save()
+
+    # Success
+    serializer = ChangePasswordSerializer(user1, data={
+        'password': 'anotherpassword',
+        'confirm_password': 'anotherpassword'
+    })
+    serializer.save()
+
+    # Old password should not work
+    check_user = authenticate(
+        username='someuser@domain.com',
+        password='somepassword'
+    )
+    assert check_user is None
+
+    # New password should work
+    check_user = authenticate(
+        username='someuser@domain.com',
+        password='anotherpassword'
+    )
+    assert check_user is not None
+
+
+def test_change_password_serializer_invalid_data(test_user):
+    '''Testing ChangePasswordSerializer handling invalid data'''
 
     user1 = test_user(
         'someuser@domain.com',
@@ -169,28 +215,3 @@ def test_change_password_serializer(test_user):
     with pytest.raises(Exception) as e:
         serializer.save()
     assert str(e.value) == 'User not found'
-
-    # Making user active
-    user1.is_active = True
-    user1.save()
-
-    # Success
-    serializer = ChangePasswordSerializer(user1, data={
-        'password': 'anotherpassword',
-        'confirm_password': 'anotherpassword'
-    })
-    serializer.save()
-
-    # Old password should not work
-    check_user = authenticate(
-        username='someuser@domain.com',
-        password='somepassword'
-    )
-    assert check_user is None
-
-    # New password should work
-    check_user = authenticate(
-        username='someuser@domain.com',
-        password='anotherpassword'
-    )
-    assert check_user is not None

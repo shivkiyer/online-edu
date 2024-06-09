@@ -12,6 +12,7 @@ pytestmark = pytest.mark.django_db
 
 def test_password_change_endpoint(verification_token, test_user):
     '''Testing the password change endpoint'''
+
     client = APIClient()
 
     user1 = test_user()
@@ -40,6 +41,17 @@ def test_password_change_endpoint(verification_token, test_user):
     )
     assert check_user != None
     assert check_user.username == user1.username
+
+
+def test_password_change_invalid_data(verification_token, test_user):
+    '''Testing data validation of password change'''
+
+    client = APIClient()
+
+    user1 = test_user()
+
+    # Token with 60sec validity
+    test_token1 = verification_token(user1, 60)
 
     # Password field blank
     api_response = client.post(
@@ -90,6 +102,14 @@ def test_password_change_endpoint(verification_token, test_user):
     assert api_response.data['detail'].lower() == 'passwords are not matching'
     assert api_response.status_code == 400
 
+
+def test_password_change_invalid_token(verification_token, test_user):
+    '''Testing token checking for password change'''
+
+    client = APIClient()
+
+    user1 = test_user()
+
     # Token with 1sec validity - expired token test
     test_token2 = verification_token(user1, 1)
     # Sleep for 2sec
@@ -120,6 +140,20 @@ def test_password_change_endpoint(verification_token, test_user):
     )
     assert api_response.data['detail'] == 'Link expired or faulty'
     assert api_response.status_code == 400
+
+
+def test_password_invalid_user(verification_token, test_user):
+    '''
+    Testing that only valid users with active accounts can
+    change passwords.
+    '''
+
+    client = APIClient()
+
+    user1 = test_user()
+
+    # Token with 60sec validity
+    test_token1 = verification_token(user1, 60)
 
     # Inactive user test
     user1.is_active = False

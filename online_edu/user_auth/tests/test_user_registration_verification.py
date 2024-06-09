@@ -12,6 +12,7 @@ pytestmark = pytest.mark.django_db
 
 def test_user_verification_endpoint(verification_token, test_user):
     '''Testing the verify-email endpoint'''
+
     client = APIClient()
 
     user1 = test_user()
@@ -25,6 +26,14 @@ def test_user_verification_endpoint(verification_token, test_user):
     )
     assert api_response.status_code == 200
     assert user1.is_active == True
+
+
+def test_user_verification_failed_token(verification_token, test_user):
+    '''Testing invalid or expired tokens in user verification'''
+
+    client = APIClient()
+
+    user1 = test_user()
 
     # Token with 1sec validity - expired token test
     test_token2 = verification_token(user1, 1)
@@ -63,6 +72,7 @@ def test_user_verification_endpoint(verification_token, test_user):
 
 def test_resend_verification_endpoint(mock_send_mail, test_user):
     '''Testing endpoint for resending verification email'''
+
     client = APIClient()
 
     user1 = test_user()
@@ -78,6 +88,14 @@ def test_resend_verification_endpoint(mock_send_mail, test_user):
         format='json'
     )
     assert api_response.status_code == 200
+
+
+def test_resend_verification_invalid_user(mock_send_mail, test_user):
+    '''Testing that only inactive users can verify'''
+
+    client = APIClient()
+
+    user1 = test_user()
 
     # User already active
     user1.is_active = True

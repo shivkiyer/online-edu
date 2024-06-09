@@ -24,6 +24,14 @@ def test_user_login_endpoint(test_user):
     )
     assert api_response.status_code == 200
 
+
+def test_user_login_invalid_form(test_user):
+    '''Test bad login form data'''
+
+    client = APIClient()
+
+    user1 = test_user()
+
     # Missing username and/or password
     api_response = client.post(
         '/api/user/login',
