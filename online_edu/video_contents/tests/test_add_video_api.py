@@ -21,6 +21,63 @@ def test_add_video_api(test_user, access_token, test_lectures):
 
     # Test user
     user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    # Test course
+    course1 = Course.objects.create(
+        title='Some course matter',
+        description='Course descr',
+        is_free=True
+    )
+    course1.add_instructor(user1)
+
+    # JWT
+    token1 = access_token(user1, 60)
+
+    # Test lectures for course
+    lectures = test_lectures(course1, 3)
+
+    # Test file
+    test_file = SimpleUploadedFile('somefile.txt', b'Some text')
+
+    # Success - video uploaded
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/videos/add-video/somefile.txt',
+        {
+            'name': 'Some file',
+            'File': test_file
+        },
+        headers={
+            'Authorization': f'Bearer {token1}'
+        },
+        format='multipart'
+    )
+    assert api_response.status_code == 201
+    videos = VideoContent.objects.all()
+    assert videos.count() == 1
+    assert videos[0].video_file.name == 'somecoursematter/somefile.txt'
+    video_path = os.path.join(
+        f'{settings.BASE_DIR}',
+        'test_media',
+        'somecoursematter',
+        'somefile.txt'
+    )
+    assert os.path.exists(video_path)
+    assert len(lectures[0].videos.all()) == 1
+    assert lectures[0].videos.all()[0].id == videos[0].id
+
+    # Delete uploaded file
+    clean_test_media()
+
+
+def test_unauthorized_add_video_(test_user, access_token, test_lectures):
+    '''Test unauthoized upload of videos'''
+
+    client = APIClient()
+
+    # Test user
+    user1 = test_user()
 
     # Test course
     course1 = Course.objects.create(
@@ -84,11 +141,40 @@ def test_add_video_api(test_user, access_token, test_lectures):
     assert api_response.status_code == 403
     assert api_response.data['detail'] == 'Only an instructor can add videos'
 
-    # Make test user instructor
-    course1.add_instructor(user1)
+    # Delete uploaded file
+    clean_test_media()
+
+
+def test_add_video_with_same_name(test_user, access_token, test_lectures):
+    '''Test for preventing multiple videos with same name'''
+
+    client = APIClient()
+
+    # Test user
+    user1 = test_user()
+    user1.is_staff = True
+    user1.save()
+
+    # JWT
     token1 = access_token(user1, 60)
 
-    # Success - video uploaded
+    # Test course
+    course1 = Course.objects.create(
+        title='Some course matter',
+        description='Course descr',
+        is_free=True
+    )
+
+    # Make test user instructor
+    course1.add_instructor(user1)
+
+    # Test lectures for course
+    lectures = test_lectures(course1, 3)
+
+    # Test file
+    test_file = SimpleUploadedFile('somefile.txt', b'Some text')
+
+    # Upload video
     api_response = client.post(
         f'/api/courses/{course1.slug}/lectures/{lectures[0].id}/videos/add-video/somefile.txt',
         {
@@ -101,18 +187,6 @@ def test_add_video_api(test_user, access_token, test_lectures):
         format='multipart'
     )
     assert api_response.status_code == 201
-    videos = VideoContent.objects.all()
-    assert videos.count() == 1
-    assert videos[0].video_file.name == 'somecoursematter/somefile.txt'
-    video_path = os.path.join(
-        f'{settings.BASE_DIR}',
-        'test_media',
-        'somecoursematter',
-        'somefile.txt'
-    )
-    assert os.path.exists(video_path)
-    assert len(lectures[0].videos.all()) == 1
-    assert lectures[0].videos.all()[0].id == videos[0].id
 
     # Fail - uploading video with same name
     api_response = client.post(
