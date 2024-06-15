@@ -18,7 +18,7 @@ def test_lecture_serializer_create(sample_course, test_user):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -34,11 +34,7 @@ def test_lecture_serializer_create(sample_course, test_user):
     assert Lecture.objects.all().count() == 2
 
     # Create another test course
-    course2 = Course.objects.create(
-        title='Some course',
-        description='Some descr',
-        is_free=True
-    )
+    course2 = sample_course(index=2)
     course2.add_instructor(user1)
 
     # Success - same title, different courses
@@ -54,7 +50,7 @@ def test_unauthorized_serializer(sample_course, test_user):
     user1 = test_user()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Fail - non-admin user cannot create lecture
     serializer = LectureSerializer(data={'title': 'Lec 1'})
@@ -84,7 +80,7 @@ def test_lecture_serializer_bad_data(sample_course, test_user):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     course1.add_instructor(user1)
 
@@ -104,7 +100,7 @@ def test_lecture_duplicate_title(sample_course, test_user):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     course1.add_instructor(user1)
 
@@ -129,7 +125,7 @@ def test_lecture_serializer_update(sample_course, test_user):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -168,7 +164,7 @@ def test_unauthorized_lecture_serializer_update(sample_course, test_user):
     user1 = test_user()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Test lecture
     lecture1 = Lecture.objects.create(
@@ -213,7 +209,7 @@ def test_lecture_serializer_bad_data(sample_course, test_user):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -245,7 +241,7 @@ def test_serializer_duplicate_lecture_title(sample_course, test_user):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)

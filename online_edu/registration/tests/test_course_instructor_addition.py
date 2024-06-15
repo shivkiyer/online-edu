@@ -13,7 +13,7 @@ def test_add_instructor(sample_course, test_user, access_token):
     client = APIClient()
 
     # Creating course with one instructor
-    course1 = sample_course
+    course1 = sample_course()
     user1 = test_user(
         'someuser@gmail.com',
         'somepassword',
@@ -54,7 +54,7 @@ def test_unauthorized_instructor_addition(sample_course, test_user, access_token
     client = APIClient()
 
     # Creating course with one instructor
-    course1 = sample_course
+    course1 = sample_course()
     user1 = test_user(
         'someuser@gmail.com',
         'somepassword'
@@ -173,7 +173,7 @@ def test_add_invalid_instructor(sample_course, test_user, access_token):
     client = APIClient()
 
     # Creating course with one instructor
-    course1 = sample_course
+    course1 = sample_course()
     user1 = test_user(
         'someuser@gmail.com',
         'somepassword',
@@ -232,7 +232,7 @@ def test_add_instructor_to_course_not_found(sample_course, test_user, access_tok
     client = APIClient()
 
     # Creating course with one instructor
-    course1 = sample_course
+    course1 = sample_course()
     user1 = test_user(
         'someuser@gmail.com',
         'somepassword',

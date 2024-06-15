@@ -12,7 +12,7 @@ def test_registration_manager(test_user, sample_course):
     '''Testing CourseStudentRegistrationManager'''
 
     user1 = test_user()
-    course1 = sample_course
+    course1 = sample_course()
 
     # Success - student appears in course students field
     registration1 = CourseStudentRegistration.objects.register_student(
@@ -44,11 +44,7 @@ def test_registration_manager(test_user, sample_course):
 
     # Create second course, register first student
     # Courses should appear in student reverse relationship
-    course2 = Course.objects.create(
-        title='Random course',
-        description='Some descr',
-        is_free=True
-    )
+    course2 = sample_course(index=2)
     registration3 = CourseStudentRegistration.objects.register_student(
         user=user1,
         course=course2

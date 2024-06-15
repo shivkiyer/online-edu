@@ -116,22 +116,18 @@ def test_serializer_create_bad_data(test_user):
     assert str(e.value) == 'Course price is required'
 
 
-def test_serializer_duplicate_title(test_user):
+def test_serializer_duplicate_title(test_user, sample_course):
     '''Test CourseSerializer error for duplicate course title'''
 
     user1 = test_user()
     user1.is_staff = True
     user1.save()
 
-    Course.objects.create(
-        title='Some course title',
-        description='Some course description',
-        is_free=True
-    )
+    course1 = sample_course()
 
     # Duplicate course title
     serializer = CourseSerializer(data={
-        'title': 'Some course title',
+        'title': course1.title,
         'description': 'Some course description',
         'is_free': 'True'
     })
@@ -148,7 +144,7 @@ def test_course_serializer_update(test_user, sample_course):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     course1.add_instructor(user1)
 
@@ -210,7 +206,7 @@ def test_unauthorized_course_serializer_update(test_user, sample_course):
     user1 = test_user()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Non-admin non-instructor trying to update course
     serializer = CourseSerializer(
@@ -232,21 +228,17 @@ def test_duplicate_title_serializer_update(test_user, sample_course):
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     course1.add_instructor(user1)
 
     # Second sample course
-    course2 = Course.objects.create(
-        title='Another course',
-        description='Sample descr',
-        is_free=True
-    )
+    course2 = sample_course(index=2)
 
     # Cannot make first course title same as second course
     serializer = CourseSerializer(
         course1,
-        data={'title': 'Another course'},
+        data={'title': course2.title.lower()},
         partial=True
     )
     with pytest.raises(Exception) as e:

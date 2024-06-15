@@ -6,22 +6,19 @@ from courses.models import Course
 from lectures.models import Lecture
 from registration.models import CourseStudentRegistration
 from user_auth.tests.fixtures import test_user, access_token
+from courses.tests.fixtures import sample_course
 from video_contents.tests.fixtures import test_video
 
 pytestmark = pytest.mark.django_db
 
 
-def test_fetch_lecture_list(test_user, access_token):
+def test_fetch_lecture_list(test_user, access_token, sample_course):
     '''List view test for lectures'''
 
     client = APIClient()
 
     # Create sample course
-    course1 = Course.objects.create(
-        title='Course 1',
-        description='Decr 1',
-        is_free=True
-    )
+    course1 = sample_course()
 
     # Create lectures for the course
     lecture1 = Lecture.objects.create(title='Lec 1', course=course1)
@@ -88,17 +85,13 @@ def test_fetch_lecture_list(test_user, access_token):
     assert len(api_response.data) == 4
 
 
-def test_fetch_lecture(test_user, access_token, test_video):
+def test_fetch_lecture(test_user, access_token, sample_course, test_video):
     '''Detail view test for lecture'''
 
     client = APIClient()
 
     # Create sample course
-    course1 = Course.objects.create(
-        title='Course 1',
-        description='Decr 1',
-        is_free=True
-    )
+    course1 = sample_course()
 
     # Create lectures for the course
     lecture1 = Lecture.objects.create(title='Lec 1', course=course1)

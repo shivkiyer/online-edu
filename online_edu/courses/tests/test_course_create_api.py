@@ -3,6 +3,7 @@ import time
 from rest_framework.test import APIClient
 
 from user_auth.tests.fixtures import test_user, access_token
+from .fixtures import sample_course
 from courses.models import Course
 
 pytestmark = pytest.mark.django_db
@@ -212,7 +213,7 @@ def test_bad_course_data_failure(test_user, access_token):
     assert Course.objects.count() == 0
 
 
-def test_duplicate_course_title_failure(test_user, access_token):
+def test_duplicate_course_title_failure(test_user, access_token, sample_course):
     '''
     Tests for course creation failure due to duplicate title
     '''
@@ -223,11 +224,8 @@ def test_duplicate_course_title_failure(test_user, access_token):
     user1.is_staff = True
     user1.save()
 
-    Course.objects.create(
-        title='Some course title',
-        description='Some course description',
-        is_free=True
-    )
+    # Create test course
+    course1 = sample_course()
 
     token = access_token(user1, 60)
 
@@ -235,7 +233,7 @@ def test_duplicate_course_title_failure(test_user, access_token):
     api_response = client.post(
         '/api/courses/new-course',
         {
-            'title': 'Some course title',
+            'title': course1.title,
             'description': 'Some course description',
             'price': 3.99
         },

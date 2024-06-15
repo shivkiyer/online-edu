@@ -18,7 +18,7 @@ def test_publish_course_endpoint(test_user, access_token, sample_course):
     user1 = test_user()
     user1.is_staff = True
     user1.save()
-    course1 = sample_course
+    course1 = sample_course()
 
     # Making user the instructor
     course1.add_instructor(user1)
@@ -66,7 +66,7 @@ def test_unauthorized_course_publishing(test_user, access_token, sample_course):
     client = APIClient()
 
     user1 = test_user()
-    course1 = sample_course
+    course1 = sample_course()
     token = access_token(user1, 60)
 
     # Fail - non-admin user cannot publish a course

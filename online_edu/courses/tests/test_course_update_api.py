@@ -18,7 +18,7 @@ def test_course_update_endpoint(
 
     client = APIClient()
 
-    course1 = sample_course
+    course1 = sample_course()
     course1.is_draft = False
     course1.save()
 
@@ -88,7 +88,7 @@ def test_unauthorized_course_update(
     client = APIClient()
 
     # Fail - Course in draft mode and no admin authenticated
-    course1 = sample_course
+    course1 = sample_course()
     api_response = client.patch(
         f'/api/courses/{course1.slug}',
         {
@@ -158,7 +158,7 @@ def test_course_update_bad_data(
 
     client = APIClient()
 
-    course1 = sample_course
+    course1 = sample_course()
 
     # Admin user
     user1 = test_user()
@@ -186,17 +186,13 @@ def test_course_update_bad_data(
     assert api_response.data['detail'] == 'Price of a non-free course is required.'
 
     # Create another course
-    Course.objects.create(
-        title='Some course',
-        description='Some desc',
-        is_free=True
-    )
+    course2 = sample_course(index=2)
 
     # Fail - duplicate course violation
     api_response = client.patch(
         f'/api/courses/{course1.slug}',
         {
-            'title': 'Some course',
+            'title': course2.title.lower(),
         },
         headers={
             'Authorization': f'Bearer {token}'

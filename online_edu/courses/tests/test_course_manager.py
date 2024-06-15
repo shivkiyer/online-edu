@@ -61,7 +61,7 @@ def test_course_fetch_query(sample_courses):
 def test_course_query_by_slug(sample_course):
     '''Test query by slug in CourseManager'''
 
-    course = sample_course
+    course = sample_course()
 
     # By default, query is run with admin privileges
     course_found = Course.objects.get_course_by_slug(course.slug)
@@ -101,20 +101,17 @@ def test_course_query_by_slug(sample_course):
     assert course_found.title == course.title
 
 
-def test_check_if_title_duplicate():
+def test_check_if_title_duplicate(sample_course):
     '''
     Test for query that checks if title is duplicate
     '''
 
-    course1 = Course.objects.create(
-        title='Some title',
-        description='Some descr',
-        is_free=True
-    )
+    course1 = sample_course()
 
-    # Title case not the same
-    result = Course.objects.check_if_title_duplicate(course1.id, 'Some Title')
+    # Title case not the same, but course excluded
+    result = Course.objects.check_if_title_duplicate(
+        course1.id, course1.title.lower())
     assert result == False
 
     with pytest.raises(Exception) as e:
-        Course.objects.check_if_title_duplicate(None, 'Some Title')
+        Course.objects.check_if_title_duplicate(None, course1.title.lower())

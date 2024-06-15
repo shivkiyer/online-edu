@@ -17,7 +17,7 @@ def test_register_student_for_course(
 
     user1 = test_user()
 
-    course1 = sample_course
+    course1 = sample_course()
     course1.is_draft = False
     course1.save()
 
@@ -38,11 +38,7 @@ def test_register_student_for_course(
     assert api_response.status_code == 200
     assert len(api_response.data) == 1
 
-    course2 = Course(
-        title='Some course',
-        description='Some description',
-        is_free=True
-    )
+    course2 = sample_course(index=2)
     course2.is_draft = False
     course2.save()
 
@@ -69,7 +65,7 @@ def test_register_student_for_course1(
     user1 = test_user()
     user1.is_active = False
     user1.save()
-    course1 = sample_course
+    course1 = sample_course()
 
     client = APIClient()
 
@@ -184,7 +180,7 @@ def test_unauthorized_registration(
     user1.is_active = False
     user1.save()
 
-    course1 = sample_course
+    course1 = sample_course()
     course1.is_draft = False
     course1.save()
 
@@ -227,7 +223,7 @@ def test_invalid_course_registration(
     # Creating JWT
     token = access_token(user1, 60)
 
-    course1 = sample_course
+    course1 = sample_course()
 
     client = APIClient()
 
@@ -284,7 +280,7 @@ def test_multiple_registration(
     # Creating JWT
     token = access_token(user1, 60)
 
-    course1 = sample_course
+    course1 = sample_course()
     course1.is_draft = False
     course1.save()
 

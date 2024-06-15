@@ -20,7 +20,7 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
     token1 = access_token(user1, 60)
 
     # Create test course
-    course1 = sample_course
+    course1 = sample_course()
 
     course1.add_instructor(user1)
 
@@ -45,7 +45,7 @@ def test_unauthorized_lecture_delete(sample_course, test_user, access_token):
     client = APIClient()
 
     # Create test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Create test lecture in test course
     lecture1 = Lecture.objects.create(title='Lecture 1', course=course1)

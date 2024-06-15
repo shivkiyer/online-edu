@@ -139,7 +139,7 @@ def test_user_course_detail_view(sample_course, test_user, access_token):
     token = access_token(user1, 60)
 
     # Sample draft course
-    course = sample_course
+    course = sample_course()
 
     # Should give 404 as course is in draft mode
     api_response = client.get(
@@ -192,7 +192,7 @@ def test_admin_course_detail_view(sample_course, test_user, access_token):
     token = access_token(user1, 60)
 
     # Sample draft course
-    course = sample_course
+    course = sample_course()
 
     # Admin user should be able to see a course in draft status
     api_response = client.get(

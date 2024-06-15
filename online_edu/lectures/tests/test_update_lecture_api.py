@@ -24,7 +24,7 @@ def test_update_lecture_endpoint(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -85,7 +85,7 @@ def test_unauthorized_update_lecture(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Test lecture
     lecture1 = Lecture.objects.create(
@@ -156,7 +156,7 @@ def test_update_lecture_bad_data(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -219,7 +219,7 @@ def test_update_lecture_duplicate_title(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)

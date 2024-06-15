@@ -26,7 +26,7 @@ def test_moving_lecture_endpoint(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make test user instructor
     course1.add_instructor(user1)
@@ -148,7 +148,7 @@ def test_unauthorized_moving_lecture(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Test lectures
     lectures = test_lectures(course1, 5)
@@ -208,7 +208,7 @@ def test_moving_extreme_lectures(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make test user instructor
     course1.add_instructor(user1)
@@ -259,7 +259,7 @@ def test_moving_lecture_bad_data(
     user1.save()
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make test user instructor
     course1.add_instructor(user1)

@@ -11,7 +11,7 @@ def test_lecture_duplicate_title(sample_course):
     '''Test for method to check for duplicate lecture titles'''
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Test lecture within course
     lecture1 = Lecture.objects.create(
@@ -45,7 +45,7 @@ def test_change_lecture_order(sample_course, test_lectures):
     '''Test manager method for changing order of lectures in a course'''
 
     # Test course
-    course1 = sample_course
+    course1 = sample_course()
 
     # Test lectures
     lectures = test_lectures(course1, 3)

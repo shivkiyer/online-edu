@@ -22,7 +22,7 @@ def test_create_lecture_endpoint(
     user1.is_staff = True
     user1.save()
 
-    course1 = sample_course
+    course1 = sample_course()
 
     # Make user instructor
     course1.add_instructor(user1)
@@ -47,11 +47,7 @@ def test_create_lecture_endpoint(
     assert Lecture.objects.all()[0].course.id == course1.id
 
     # Create a second course
-    course2 = Course.objects.create(
-        title='Some title',
-        description='Some descr',
-        is_free=True
-    )
+    course2 = sample_course(index=2)
     course2.add_instructor(user1)
 
     # Success - lecture with same title in second course
@@ -80,7 +76,7 @@ def test_unauthorized_lecture_creation(
 
     # Create test user and course
     user1 = test_user()
-    course1 = sample_course
+    course1 = sample_course()
 
     client = APIClient()
 
@@ -141,7 +137,7 @@ def test_create_lecture_bad_data(
     user1.is_staff = True
     user1.save()
 
-    course1 = sample_course
+    course1 = sample_course()
     # Make user instructor
     course1.add_instructor(user1)
 
