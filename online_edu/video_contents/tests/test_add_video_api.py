@@ -8,7 +8,7 @@ from courses.models import Course
 from video_contents.models import VideoContent
 from user_auth.tests.fixtures import test_user, access_token
 from courses.tests.fixtures import sample_course
-from lectures.tests.fixtures import test_lectures
+from lectures.tests.fixtures import test_lecture, test_lectures
 from common.file_handling import clean_test_media
 
 pytestmark = pytest.mark.django_db

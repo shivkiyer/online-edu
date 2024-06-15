@@ -3,12 +3,13 @@ from rest_framework.test import APIClient
 
 from courses.tests.fixtures import sample_course
 from user_auth.tests.fixtures import test_user, access_token
+from lectures.tests.fixtures import test_lecture
 from lectures.models import Lecture
 
 pytestmark = pytest.mark.django_db
 
 
-def test_lecture_delete_endpoint(sample_course, test_user, access_token):
+def test_lecture_delete_endpoint(test_user, access_token, sample_course, test_lecture):
     '''Tests for deleting a lecture'''
 
     client = APIClient()
@@ -25,7 +26,7 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
     course1.add_instructor(user1)
 
     # Create test lecture in test course
-    lecture1 = Lecture.objects.create(title='Lecture 1', course=course1)
+    lecture1 = test_lecture(course=course1)
 
     # Success
     api_response = client.delete(
@@ -39,7 +40,7 @@ def test_lecture_delete_endpoint(sample_course, test_user, access_token):
     assert Lecture.objects.all().count() == 0
 
 
-def test_unauthorized_lecture_delete(sample_course, test_user, access_token):
+def test_unauthorized_lecture_delete(test_user, access_token, sample_course, test_lecture):
     '''Tests to verify only an instructor can delete a lecture'''
 
     client = APIClient()
@@ -48,7 +49,7 @@ def test_unauthorized_lecture_delete(sample_course, test_user, access_token):
     course1 = sample_course()
 
     # Create test lecture in test course
-    lecture1 = Lecture.objects.create(title='Lecture 1', course=course1)
+    lecture1 = test_lecture(course=course1)
 
     # Fail - no credentials passed
     api_response = client.delete(

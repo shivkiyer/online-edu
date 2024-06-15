@@ -3,6 +3,7 @@ from rest_framework.test import APIClient
 
 from courses.models import Course
 from courses.tests.fixtures import sample_course
+from lectures.tests.fixtures import test_lecture
 from user_auth.tests.fixtures import test_user, access_token
 from lectures.models import Lecture
 
@@ -127,8 +128,9 @@ def test_unauthorized_lecture_creation(
 
 def test_create_lecture_bad_data(
     test_user,
+    access_token,
     sample_course,
-    access_token
+    test_lecture
 ):
     '''Test for bad data used for creating lecture'''
 
@@ -173,16 +175,13 @@ def test_create_lecture_bad_data(
     assert api_response.status_code == 404
     assert api_response.data['detail'] == 'Course not found'
 
-    Lecture.objects.create(
-        course=course1,
-        title='Some title'
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Fail - duplicate lecture title within same course
     api_response = client.post(
         f'/api/courses/{course1.slug}/lectures/new-lecture',
         {
-            'title': 'Some title'
+            'title': lecture1.title
         },
         headers={
             'Authorization': f'Bearer {token}'

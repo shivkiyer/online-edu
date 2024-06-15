@@ -30,9 +30,9 @@ def sample_course():
 
     def _course_generator(title=None, description=None, index=1):
         if title is None:
-            title = f'${TEST_COURSE_TITLE} ${index}'
+            title = f'{TEST_COURSE_TITLE} {index}'
         if description is None:
-            description = f'${TEST_COURSE_DESCRIPTION} ${index}'
+            description = f'{TEST_COURSE_DESCRIPTION} {index}'
         return Course.objects.create(
             title=title,
             description=description,

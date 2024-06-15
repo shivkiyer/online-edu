@@ -4,7 +4,7 @@ from rest_framework.test import APIClient
 from lectures.models import Lecture
 from user_auth.tests.fixtures import test_user, access_token
 from courses.tests.fixtures import sample_course
-from fixtures import test_lectures
+from fixtures import test_lecture, test_lectures
 
 pytestmark = pytest.mark.django_db
 

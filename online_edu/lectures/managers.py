@@ -66,7 +66,7 @@ class LectureManager(models.Manager):
                 query = query.exclude(id=exclude_lecture.id)
             query.get(
                 course=course,
-                title=title
+                title__iexact=title
             )
         except:
             return False

@@ -5,6 +5,7 @@ from courses.models import Course
 from user_auth.tests.fixtures import test_user
 from lectures.serializers import LectureSerializer
 from lectures.models import Lecture
+from lectures.tests.fixtures import test_lecture, test_lectures
 
 pytestmark = pytest.mark.django_db
 
@@ -91,7 +92,7 @@ def test_lecture_serializer_bad_data(sample_course, test_user):
     assert str(e.value) == 'The title of a lecture is required'
 
 
-def test_lecture_duplicate_title(sample_course, test_user):
+def test_lecture_duplicate_title(sample_course, test_user, test_lecture):
     '''Testing serializer prevents duplicate title within same course'''
 
     # Test user
@@ -104,19 +105,16 @@ def test_lecture_duplicate_title(sample_course, test_user):
 
     course1.add_instructor(user1)
 
-    Lecture.objects.create(
-        course=course1,
-        title='Lec 1'
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Fail - duplicate lecture title in same course
-    serializer = LectureSerializer(data={'title': 'Lec 1'})
+    serializer = LectureSerializer(data={'title': lecture1.title.lower()})
     with pytest.raises(Exception) as e:
         serializer.save(user=user1, course=course1)
     assert str(e.value) == 'Lecture with the same title exists in the course'
 
 
-def test_lecture_serializer_update(sample_course, test_user):
+def test_lecture_serializer_update(sample_course, test_user, test_lecture):
     '''Test for updating lecture instance with serializer'''
 
     # Test user
@@ -131,21 +129,17 @@ def test_lecture_serializer_update(sample_course, test_user):
     course1.add_instructor(user1)
 
     # Test lecture
-    lecture1 = Lecture.objects.create(
-        course=course1,
-        title='Lec 1',
-        description='Lec 1 descr'
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Success - change only title
     serializer = LectureSerializer(
         lecture1,
-        {'title': 'New lec 1'},
+        {'title': 'New lecture 1'},
         partial=True
     )
     serializer.save(user=user1, course=course1)
-    assert Lecture.objects.all()[0].title == 'New lec 1'
-    assert Lecture.objects.all()[0].description == 'Lec 1 descr'
+    assert Lecture.objects.all()[0].title == 'New lecture 1'
+    assert Lecture.objects.all()[0].description == lecture1.description
 
     # Success - change only description
     serializer = LectureSerializer(
@@ -157,7 +151,7 @@ def test_lecture_serializer_update(sample_course, test_user):
     assert Lecture.objects.all()[0].description == 'New lec 1 description'
 
 
-def test_unauthorized_lecture_serializer_update(sample_course, test_user):
+def test_unauthorized_lecture_serializer_update(sample_course, test_user, test_lecture):
     '''Test that serializer throws error unless user is instructor'''
 
     # Test user
@@ -167,16 +161,12 @@ def test_unauthorized_lecture_serializer_update(sample_course, test_user):
     course1 = sample_course()
 
     # Test lecture
-    lecture1 = Lecture.objects.create(
-        course=course1,
-        title='Lec 1',
-        description='Lec 1 descr'
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Fail - non-admin user trying to update lecture
     serializer = LectureSerializer(
         lecture1,
-        {'title': 'New lec 1'},
+        {'title': 'New lecture 1'},
         partial=True
     )
     with pytest.raises(Exception) as e:
@@ -191,7 +181,7 @@ def test_unauthorized_lecture_serializer_update(sample_course, test_user):
     # Fail - user not instructor
     serializer = LectureSerializer(
         lecture1,
-        {'title': 'New lec 1'},
+        {'title': 'New lecture 1'},
         partial=True
     )
     with pytest.raises(Exception) as e:
@@ -200,7 +190,7 @@ def test_unauthorized_lecture_serializer_update(sample_course, test_user):
         e.value) == 'Must be an instructor of the course to create or update lectures'
 
 
-def test_lecture_serializer_bad_data(sample_course, test_user):
+def test_lecture_serializer_bad_data(sample_course, test_user, test_lecture):
     '''Test for serializer handling bad data'''
 
     # Test user
@@ -215,11 +205,7 @@ def test_lecture_serializer_bad_data(sample_course, test_user):
     course1.add_instructor(user1)
 
     # Test lecture
-    lecture1 = Lecture.objects.create(
-        course=course1,
-        title='Lec 1',
-        description='Lec 1 descr'
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Fail - empty serializer - nothing to update
     serializer = LectureSerializer(
@@ -232,7 +218,7 @@ def test_lecture_serializer_bad_data(sample_course, test_user):
     assert str(e.value) == 'Empty request body'
 
 
-def test_serializer_duplicate_lecture_title(sample_course, test_user):
+def test_serializer_duplicate_lecture_title(sample_course, test_user, test_lectures):
     '''Test that serializer checks for duplicate lecture title in same course'''
 
     # Test user
@@ -246,24 +232,13 @@ def test_serializer_duplicate_lecture_title(sample_course, test_user):
     # Make user instructor
     course1.add_instructor(user1)
 
-    # Test lecture
-    lecture1 = Lecture.objects.create(
-        course=course1,
-        title='Lec 1',
-        description='Lec 1 descr'
-    )
-
-    # Create another lecture
-    lecture2 = Lecture.objects.create(
-        course=course1,
-        title='Lec 2',
-        description='Lec 2 descr'
-    )
+    # Test lectures
+    lecture1, lecture2 = test_lectures(course=course1, no_of_lectures=2)
 
     # Fail - duplicate title
     serializer = LectureSerializer(
         lecture2,
-        {'title': 'Lec 1'},
+        {'title': 'Lecture 1'},
         partial=True
     )
     with pytest.raises(Exception) as e:

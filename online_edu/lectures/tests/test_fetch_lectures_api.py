@@ -7,12 +7,13 @@ from lectures.models import Lecture
 from registration.models import CourseStudentRegistration
 from user_auth.tests.fixtures import test_user, access_token
 from courses.tests.fixtures import sample_course
+from lectures.tests.fixtures import test_lecture, test_lectures
 from video_contents.tests.fixtures import test_video
 
 pytestmark = pytest.mark.django_db
 
 
-def test_fetch_lecture_list(test_user, access_token, sample_course):
+def test_fetch_lecture_list(test_user, access_token, sample_course, test_lectures):
     '''List view test for lectures'''
 
     client = APIClient()
@@ -21,10 +22,7 @@ def test_fetch_lecture_list(test_user, access_token, sample_course):
     course1 = sample_course()
 
     # Create lectures for the course
-    lecture1 = Lecture.objects.create(title='Lec 1', course=course1)
-    lecture2 = Lecture.objects.create(title='Lec 2', course=course1)
-    lecture3 = Lecture.objects.create(title='Lec 3', course=course1)
-    lecture4 = Lecture.objects.create(title='Lec 4', course=course1)
+    lectures = test_lectures(course=course1, no_of_lectures=4)
 
     # Fail - as unpublished course lecture should not be listed
     api_response = client.get(
@@ -85,7 +83,7 @@ def test_fetch_lecture_list(test_user, access_token, sample_course):
     assert len(api_response.data) == 4
 
 
-def test_fetch_lecture(test_user, access_token, sample_course, test_video):
+def test_fetch_lecture(test_user, access_token, sample_course, test_lectures, test_video):
     '''Detail view test for lecture'''
 
     client = APIClient()
@@ -94,19 +92,18 @@ def test_fetch_lecture(test_user, access_token, sample_course, test_video):
     course1 = sample_course()
 
     # Create lectures for the course
-    lecture1 = Lecture.objects.create(title='Lec 1', course=course1)
-    lecture2 = Lecture.objects.create(title='Lec 2', course=course1)
+    lectures = test_lectures(course=course1, no_of_lectures=2)
 
     # Fail - as unpublished course lecture should not be listed
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}',
         format='json'
     )
     assert api_response.status_code == 404
     assert api_response.data['detail'] == 'Course not found'
 
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[1].id}',
         format='json'
     )
     assert api_response.status_code == 404
@@ -118,14 +115,14 @@ def test_fetch_lecture(test_user, access_token, sample_course, test_video):
 
     # Fail - without credentials lecture details should not listed
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}',
         format='json'
     )
     assert api_response.status_code == 403
     assert api_response.data['detail'] == 'Must be logged in to access a lecture'
 
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[1].id}',
         format='json'
     )
     assert api_response.status_code == 403
@@ -139,7 +136,7 @@ def test_fetch_lecture(test_user, access_token, sample_course, test_video):
 
     # Fail - unregistered student cannot access lecture details
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}',
         headers={
             'Authorization': f'Bearer {token1}'
         },
@@ -153,32 +150,32 @@ def test_fetch_lecture(test_user, access_token, sample_course, test_video):
 
     # Success
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}',
         headers={
             'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
     assert api_response.status_code == 200
-    assert api_response.data['title'] == lecture1.title
+    assert api_response.data['title'] == lectures[0].title
     assert len(api_response.data['videos']) == 0
 
     # Adding videos to lecture 1
     lecture1_video1 = test_video(course=course1, name='Lec 1 video 1')
     lecture1_video2 = test_video(course=course1, name='Lec 1 video 2')
-    Lecture.objects.add_video_to_lecture(lecture1.id, lecture1_video1)
-    Lecture.objects.add_video_to_lecture(lecture1.id, lecture1_video2)
+    Lecture.objects.add_video_to_lecture(lectures[0].id, lecture1_video1)
+    Lecture.objects.add_video_to_lecture(lectures[0].id, lecture1_video2)
 
     # Success - lecture detail view should contain video list
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}',
         headers={
             'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
     assert api_response.status_code == 200
-    assert api_response.data['title'] == lecture1.title
+    assert api_response.data['title'] == lectures[0].title
     assert len(api_response.data['videos']) == 2
 
     # Unpublish the course
@@ -186,7 +183,7 @@ def test_fetch_lecture(test_user, access_token, sample_course, test_video):
     course1.save()
 
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[0].id}',
         headers={
             'Authorization': f'Bearer {token1}'
         },
@@ -200,31 +197,31 @@ def test_fetch_lecture(test_user, access_token, sample_course, test_video):
     user1.save()
 
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[1].id}',
         headers={
             'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
     assert api_response.status_code == 200
-    assert api_response.data['title'] == lecture2.title
+    assert api_response.data['title'] == lectures[1].title
     assert len(api_response.data['videos']) == 0
 
     # Adding videos to lecture 2
     lecture2_video1 = test_video(course=course1, name='Lec 2 video 1')
     lecture2_video2 = test_video(course=course1, name='Lec 2 video 2')
     lecture2_video3 = test_video(course=course1, name='Lec 2 video 3')
-    Lecture.objects.add_video_to_lecture(lecture2.id, lecture2_video1)
-    Lecture.objects.add_video_to_lecture(lecture2.id, lecture2_video2)
-    Lecture.objects.add_video_to_lecture(lecture2.id, lecture2_video3)
+    Lecture.objects.add_video_to_lecture(lectures[1].id, lecture2_video1)
+    Lecture.objects.add_video_to_lecture(lectures[1].id, lecture2_video2)
+    Lecture.objects.add_video_to_lecture(lectures[1].id, lecture2_video3)
 
     api_response = client.get(
-        f'/api/courses/{course1.slug}/lectures/{lecture2.id}',
+        f'/api/courses/{course1.slug}/lectures/{lectures[1].id}',
         headers={
             'Authorization': f'Bearer {token1}'
         },
         format='json'
     )
     assert api_response.status_code == 200
-    assert api_response.data['title'] == lecture2.title
+    assert api_response.data['title'] == lectures[1].title
     assert len(api_response.data['videos']) == 3

@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 from courses.tests.fixtures import sample_course
 from user_auth.tests.fixtures import test_user, access_token
 from lectures.models import Lecture
+from lectures.tests.fixtures import test_lecture, test_lectures
 
 pytestmark = pytest.mark.django_db
 
@@ -11,7 +12,8 @@ pytestmark = pytest.mark.django_db
 def test_update_lecture_endpoint(
     test_user,
     access_token,
-    sample_course
+    sample_course,
+    test_lecture
 ):
     '''Test for updating a lecture'''
 
@@ -33,10 +35,7 @@ def test_update_lecture_endpoint(
     token1 = access_token(user1, 60)
 
     # Test lecture
-    lecture1 = Lecture.objects.create(
-        title='Lecture 1',
-        course=course1
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Success
     api_response = client.patch(
@@ -73,7 +72,8 @@ def test_update_lecture_endpoint(
 def test_unauthorized_update_lecture(
     test_user,
     access_token,
-    sample_course
+    sample_course,
+    test_lecture
 ):
     '''Test that only an instructor can update a lecture'''
 
@@ -88,10 +88,7 @@ def test_unauthorized_update_lecture(
     course1 = sample_course()
 
     # Test lecture
-    lecture1 = Lecture.objects.create(
-        title='Lecture 1',
-        course=course1
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Fail - no credentials
     api_response = client.patch(
@@ -143,7 +140,8 @@ def test_unauthorized_update_lecture(
 def test_update_lecture_bad_data(
     test_user,
     access_token,
-    sample_course
+    sample_course,
+    test_lecture
 ):
     '''Test for updating a lecture'''
 
@@ -165,10 +163,7 @@ def test_update_lecture_bad_data(
     token1 = access_token(user1, 60)
 
     # Test lecture
-    lecture1 = Lecture.objects.create(
-        title='Lecture 1',
-        course=course1
-    )
+    lecture1 = test_lecture(course=course1)
 
     # Fail - title and description missing
     api_response = client.patch(
@@ -183,16 +178,13 @@ def test_update_lecture_bad_data(
     assert api_response.data['detail'] == 'Empty request body'
 
     # Create another lecture
-    lecture2 = Lecture.objects.create(
-        title='Lec 2',
-        course=course1
-    )
+    lecture2 = test_lecture(course=course1, index=2)
 
     # Fail - duplicate title for update
     api_response = client.patch(
         f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
-            'title': 'Lec 2'
+            'title': lecture2.title.lower()
         },
         headers={
             'Authorization': f'Bearer {token1}'
@@ -206,7 +198,8 @@ def test_update_lecture_bad_data(
 def test_update_lecture_duplicate_title(
     test_user,
     access_token,
-    sample_course
+    sample_course,
+    test_lectures
 ):
     '''Test for updating a lecture'''
 
@@ -228,22 +221,13 @@ def test_update_lecture_duplicate_title(
     token1 = access_token(user1, 60)
 
     # Test lecture
-    lecture1 = Lecture.objects.create(
-        title='Lecture 1',
-        course=course1
-    )
-
-    # Create another lecture
-    lecture2 = Lecture.objects.create(
-        title='Lec 2',
-        course=course1
-    )
+    lecture1, lecture2 = test_lectures(course=course1, no_of_lectures=2)
 
     # Fail - duplicate title for update
     api_response = client.patch(
         f'/api/courses/{course1.slug}/lectures/{lecture1.id}',
         {
-            'title': 'Lec 2'
+            'title': lecture2.title.upper()
         },
         headers={
             'Authorization': f'Bearer {token1}'
