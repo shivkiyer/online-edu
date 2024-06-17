@@ -13,6 +13,8 @@ def test_reset_password_end_point(test_user, mock_send_password_reset_email):
 
     client = APIClient()
 
+    mock_send_password_reset_email()
+
     user1 = test_user()
 
     # Valid reset password request
@@ -33,6 +35,8 @@ def test_reset_password_fail(test_user, mock_send_mail):
     '''Test failure of password reset email'''
 
     client = APIClient()
+
+    mock_send_mail()
 
     user1 = test_user()
 

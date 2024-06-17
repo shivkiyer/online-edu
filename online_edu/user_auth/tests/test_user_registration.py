@@ -12,6 +12,8 @@ def test_register_new_user(mock_send_verification_email):
 
     client = APIClient()
 
+    mock_send_verification_email()
+
     # Should result in a user created in db
     api_response = client.post(
         '/api/user/register-user',
@@ -35,6 +37,8 @@ def test_register_user_invalid_form(mock_send_verification_email, test_user):
     '''Test invalid form data for registering user'''
 
     client = APIClient()
+
+    mock_send_verification_email()
 
     # Should fail model validation
     api_response = client.post(

@@ -3,9 +3,7 @@ import time
 from django.contrib.auth import authenticate
 from rest_framework.test import APIClient
 
-from .fixtures import verification_token, \
-    mock_send_verification_email, \
-    test_user
+from .fixtures import verification_token, test_user
 
 pytestmark = pytest.mark.django_db
 

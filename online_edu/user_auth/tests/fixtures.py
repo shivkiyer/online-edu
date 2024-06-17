@@ -11,7 +11,6 @@ def mock_send_mail(monkeypatch):
     def _email_generator(throw_error=False):
 
         def _email_fn(*args, **kwargs):
-            print('Sending email')
             if throw_error:
                 raise Exception('mock_send_email called')
 
@@ -26,24 +25,37 @@ def mock_send_mail(monkeypatch):
 
 @pytest.fixture
 def mock_send_verification_email(monkeypatch):
-    monkeypatch.setattr(
-        'user_auth.views.send_verification_link_email',
-        lambda user: print(
-            f'Sending verification email to {user.username}'
-        ),
-        raising=True
-    )
+    def _verification_email(throw_error=False):
+        def _email_fn(user):
+            if throw_error:
+                raise Exception(
+                    f'Sending verification email to {user.username}'
+                )
+
+        monkeypatch.setattr(
+            'user_auth.views.send_verification_link_email',
+            _email_fn,
+            raising=True
+        )
+
+    return _verification_email
 
 
 @pytest.fixture
 def mock_send_password_reset_email(monkeypatch):
-    monkeypatch.setattr(
-        'user_auth.views.send_password_reset_email',
-        lambda user: print(
-            f'Sending password reset email to {user.username}'
-        ),
-        raising=True
-    )
+    def _password_reset_email(throw_error=False):
+        def _email_fn(user):
+            if throw_error:
+                raise Exception(
+                    f'Sending password reset email to {user.username}'
+                )
+        monkeypatch.setattr(
+            'user_auth.views.send_password_reset_email',
+            _email_fn,
+            raising=True
+        )
+
+    return _password_reset_email
 
 
 @pytest.fixture
