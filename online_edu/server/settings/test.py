@@ -134,6 +134,8 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
+MODELTRANSLATION_AUTO_POPULATE = True
+
 # Account verification settings
 # time limit in minutes
 EMAIL_VERIFICATION_TIMELIMIT = KEYS.EMAIL_VERIFICATION_TIMELIMIT

@@ -229,3 +229,165 @@ def test_admin_course_detail_view(sample_course, test_user, access_token):
         format='json'
     )
     assert api_response.status_code == 200
+
+
+def test_list_courses_with_lang(sample_courses):
+    '''Tests whether language specific course content is returned'''
+
+    client = APIClient()
+
+    courses = sample_courses(5)
+
+    # Publish all courses
+    for course in courses:
+        course.is_draft = False
+        course.save()
+
+    # Asking for content in language that does not exist
+    # should return default language content
+    api_response = client.get(
+        '/api/courses/',
+        headers={
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    api_response.render()
+    api_response = json.loads(api_response.content)
+    assert len(api_response) == 5
+    assert api_response[0]['title'] == 'Course 1'
+    assert api_response[1]['title'] == 'Course 2'
+    assert api_response[2]['title'] == 'Course 3'
+    assert api_response[3]['title'] == 'Course 4'
+    assert api_response[4]['title'] == 'Course 5'
+
+    for course in courses:
+        course.title_de = f'{course.title} - German'
+        course.save()
+
+    # Fetching supported language content will return
+    # data when present in that language or else
+    # in default language
+    api_response = client.get(
+        '/api/courses/',
+        headers={
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    api_response.render()
+    api_response = json.loads(api_response.content)
+    assert len(api_response) == 5
+    assert api_response[0]['title'] == 'Course 1 - German'
+    assert api_response[1]['title'] == 'Course 2 - German'
+    assert api_response[2]['title'] == 'Course 3 - German'
+    assert api_response[3]['title'] == 'Course 4 - German'
+    assert api_response[4]['title'] == 'Course 5 - German'
+    assert api_response[0]['description'] == 'Course description 1'
+    assert api_response[1]['description'] == 'Course description 2'
+    assert api_response[2]['description'] == 'Course description 3'
+    assert api_response[3]['description'] == 'Course description 4'
+    assert api_response[4]['description'] == 'Course description 5'
+
+    # Fetching content in unsupported language should
+    # return content in default language
+    api_response = client.get(
+        '/api/courses/',
+        headers={
+            'Accept-Language': 'pt'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    api_response.render()
+    api_response = json.loads(api_response.content)
+    assert len(api_response) == 5
+    assert api_response[0]['title'] == 'Course 1'
+    assert api_response[1]['title'] == 'Course 2'
+    assert api_response[2]['title'] == 'Course 3'
+    assert api_response[3]['title'] == 'Course 4'
+    assert api_response[4]['title'] == 'Course 5'
+
+    # Country specific content should return language content
+    api_response = client.get(
+        '/api/courses/',
+        headers={
+            'Accept-Language': 'de_CH'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    api_response.render()
+    api_response = json.loads(api_response.content)
+    assert len(api_response) == 5
+    assert api_response[0]['title'] == 'Course 1 - German'
+    assert api_response[1]['title'] == 'Course 2 - German'
+    assert api_response[2]['title'] == 'Course 3 - German'
+    assert api_response[3]['title'] == 'Course 4 - German'
+    assert api_response[4]['title'] == 'Course 5 - German'
+
+
+def test_course_detail_with_lang(test_user, access_token, sample_course):
+    '''Test that detail course view should handle language content'''
+
+    client = APIClient()
+
+    user1 = test_user(is_staff=True)
+
+    token = access_token(user1, 60)
+
+    course = sample_course()
+
+    # Returns default language content due
+    # to auto-populate function
+    api_response = client.get(
+        f'/api/courses/{course.slug}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.data['title'] == 'Course 1'
+    assert api_response.data['description'] == 'Course description 1'
+
+    course.title_de = 'Course 1 - German translation'
+    course.save()
+
+    # Returns correct language
+    api_response = client.get(
+        f'/api/courses/{course.slug}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.data['title'] == 'Course 1 - German translation'
+    assert api_response.data['description'] == 'Course description 1'
+
+    # With country specific language
+    api_response = client.get(
+        f'/api/courses/{course.slug}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'de-DE'
+        },
+        format='json'
+    )
+    assert api_response.data['title'] == 'Course 1 - German translation'
+    assert api_response.data['description'] == 'Course description 1'
+
+    # Reverts to default if requested language not supported
+    api_response = client.get(
+        f'/api/courses/{course.slug}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'fr'
+        },
+        format='json'
+    )
+    assert api_response.data['title'] == 'Course 1'
+    assert api_response.data['description'] == 'Course description 1'

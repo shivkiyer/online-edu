@@ -134,6 +134,8 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
+MODELTRANSLATION_AUTO_POPULATE = True
+
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
