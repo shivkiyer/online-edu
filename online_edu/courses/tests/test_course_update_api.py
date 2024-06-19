@@ -201,3 +201,57 @@ def test_course_update_bad_data(
     )
     assert api_response.status_code == 400
     assert api_response.data['detail'] == 'A course with this title already exists'
+
+
+def test_course_update_multilang(test_user, access_token, sample_course):
+    '''Test updating course content in other language'''
+
+    client = APIClient()
+
+    user1 = test_user(is_staff=True)
+
+    token = access_token(user1, 60)
+
+    course1 = sample_course()
+    course1.add_instructor(user1)
+
+    # Adding translation to existing course
+    # with default language content
+    api_response = client.patch(
+        f'/api/courses/{course1.slug}',
+        {
+            'title': 'Course 1 - German',
+            'description': 'Course description 1 - German'
+        },
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    assert api_response.data['title'] == 'Course 1 - German'
+    assert api_response.data['description'] == 'Course description 1 - German'
+    check_course = Course.objects.all()[0]
+    assert check_course.title_de == 'Course 1 - German'
+    assert check_course.title_en == 'Course 1'
+    assert check_course.description_de == 'Course description 1 - German'
+    assert check_course.description_en == 'Course description 1'
+
+    course2 = sample_course(index=2)
+    course2.add_instructor(user1)
+
+    # Ensure that duplicate title check is
+    # enforced for all languages
+    api_response = client.patch(
+        f'/api/courses/{course2.slug}',
+        {
+            'title': 'Course 1 - German'
+        },
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
