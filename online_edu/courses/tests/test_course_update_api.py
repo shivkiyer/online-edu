@@ -238,6 +238,26 @@ def test_course_update_multilang(test_user, access_token, sample_course):
     assert check_course.description_de == 'Course description 1 - German'
     assert check_course.description_en == 'Course description 1'
 
+    # Changing unsupported language content should
+    # change default language content
+    api_response = client.patch(
+        f'/api/courses/{course1.slug}',
+        {
+            'title': 'Course 1 - French',
+        },
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'fr'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    assert api_response.data['title'] == 'Course 1 - French'
+    check_course = Course.objects.all()[0]
+    assert check_course.title_de == 'Course 1 - German'
+    assert check_course.title_en == 'Course 1 - French'
+    assert check_course.title == 'Course 1 - French'
+
     course2 = sample_course(index=2)
     course2.add_instructor(user1)
 

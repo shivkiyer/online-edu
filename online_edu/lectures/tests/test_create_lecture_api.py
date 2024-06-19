@@ -190,3 +190,82 @@ def test_create_lecture_bad_data(
     )
     assert api_response.status_code == 400
     assert api_response.data['detail'] == 'Lecture with the same title exists in the course'
+
+
+def test_create_lecture_multi_lang(test_user, access_token, sample_course):
+    '''Test to verify lecture creation with other languages'''
+
+    client = APIClient()
+
+    user1 = test_user(is_staff=True)
+
+    token = access_token(user1, 60)
+
+    course1 = sample_course()
+    course1.add_instructor(user1)
+
+    # Check lecture creation in another language
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/',
+        {
+            'title': 'Lecture 1 - German'
+        },
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    check_lecture = Lecture.objects.all()[0]
+    assert check_lecture.title_de == 'Lecture 1 - German'
+
+    # Check lecture creation without language header
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/',
+        {
+            'title': 'Lecture 2'
+        },
+        headers={
+            'Authorization': f'Bearer {token}',
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    check_lecture = Lecture.objects.all()[1]
+    assert check_lecture.title == 'Lecture 2'
+    assert check_lecture.title_en == 'Lecture 2'
+    assert check_lecture.title_de == 'Lecture 2'
+
+    # Check lecture creation in unsupported language
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/',
+        {
+            'title': 'Lecture 3'
+        },
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'fr'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 200
+    check_lecture = Lecture.objects.all()[2]
+    assert check_lecture.title == 'Lecture 3'
+    assert check_lecture.title_en == 'Lecture 3'
+    assert check_lecture.title_de == 'Lecture 3'
+
+    # Check that duplicate title error is thrown for
+    # other languages than default
+    api_response = client.post(
+        f'/api/courses/{course1.slug}/lectures/',
+        {
+            'title': 'Lecture 1 - German'
+        },
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Accept-Language': 'de'
+        },
+        format='json'
+    )
+    assert api_response.status_code == 400
